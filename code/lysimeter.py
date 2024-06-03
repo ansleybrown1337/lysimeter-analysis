@@ -18,50 +18,37 @@ Description: This script loads all ".dat" files in the specified data directory 
 import os
 import pandas as pd
 from datetime import datetime
-from io import StringIO
 
 class DatFileMerger:
     """
     A class to handle the loading, cleaning, merging, calibrating, and exporting of .dat files.
     """
 
-    def __init__(self, data_directory, output_directory):
+    def __init__(self, data_directory, output_directory, calibration_file):
         """
-        Initializes the DatFileMerger with the given directories.
+        Initializes the DatFileMerger with the given directories and calibration file.
         
         Args:
             data_directory (str): The directory to search for .dat files.
             output_directory (str): The directory to save the output CSV file.
+            calibration_file (str): The file path for the calibration coefficients CSV file.
         """
         self.data_directory = data_directory
         self.output_directory = output_directory
+        self.calibration_file = calibration_file
         self.dataframes = []
         self.headers_units = {}
         self.designations = []
-        self.calibration_df = self.create_calibration_df()
+        self.calibration_df = self.load_calibration_df()
 
-    def create_calibration_df(self):
+    def load_calibration_df(self):
         """
-        Creates a DataFrame of sensor calibration coefficients.
+        Loads the calibration coefficients from a CSV file.
         
         Returns:
             pd.DataFrame: The calibration coefficients DataFrame.
         """
-        data = """
-Variable,Sensor,Coefficient,Col_Name,Calibration_Equation
-Albd_Inc,CM14 Incident,197.62845,Albd_Inc_Avg,Albd_Inc_Avg * 197.62845
-Albd_Ref,CM14 Reflected,196.07843,Albd_Ref_Avg,Albd_Ref_Avg * 196.07843
-Rpar,LI-190 Reflected PAR,236.13000,Rpar_Avg,Rpar_Avg * 236.13
-Lbar_1,LI-191 Light Bar 1,335.15000,Lbar_1_Avg,Lbar_1_Avg * 335.15
-Lbar_2,LI-191 Light Bar 2,381.48000,Lbar_2_Avg,Lbar_2_Avg * 381.48
-Q7_Rn_Plus,Q7 Net Radiation (+ Wind),10.85000,Q7_Rn_Avg,Q7_Rn_Plus
-Q7_Rn_Minus,Q7 Net Radiation (- Wind),13.81000,Q7_Rn_Avg,Q7_Rn_Minus
-HF_1,Heat Flux 1,46.65000,HF_1_Avg,HF_1_Avg * 46.65
-HF_2,Heat Flux 2,52.29000,HF_2_Avg,HF_2_Avg * 52.29
-HF_3,Heat Flux 3,37.86000,HF_3_Avg,HF_3_Avg * 37.86
-HF_4,Heat Flux 4,47.39000,HF_4_Avg,HF_4_Avg * 47.39
-        """
-        return pd.read_csv(StringIO(data))
+        return pd.read_csv(self.calibration_file, encoding='utf-8')
 
     def load_dat_files(self):
         """
@@ -144,16 +131,13 @@ HF_4,Heat Flux 4,47.39000,HF_4_Avg,HF_4_Avg * 47.39
             col_name = row['Col_Name']
             new_col_name = f"{col_name}_calibrated"
 
-            if variable == 'Q7_Rn_Plus':
-                df[new_col_name] = df.apply(
-                    lambda x: 10.85000 * (1 + (0.066 * 0.2 * x['PVWspeed_Avg'])) * x['Q7_Rn_Avg'] 
-                    if x['Q7_Rn_Avg'] > 0 else 13.81000 * ((0.00174 * x['PVWspeed_Avg']) + 0.99755) * x['Q7_Rn_Avg'], axis=1)
-            elif variable == 'Q7_Rn_Minus':
+            if col_name == 'Q7_Rn_Avg':
                 df[new_col_name] = df.apply(
                     lambda x: 10.85000 * (1 + (0.066 * 0.2 * x['PVWspeed_Avg'])) * x['Q7_Rn_Avg'] 
                     if x['Q7_Rn_Avg'] > 0 else 13.81000 * ((0.00174 * x['PVWspeed_Avg']) + 0.99755) * x['Q7_Rn_Avg'], axis=1)
             else:
                 df[new_col_name] = df[col_name] * coefficient
+
         return df
 
     def export_to_csv(self, merged_df):
@@ -183,15 +167,16 @@ HF_4,Heat Flux 4,47.39000,HF_4_Avg,HF_4_Avg * 47.39
         
         print(f"Merged data exported to {output_filename}")
 
-def main(data_directory, output_directory):
+def main(data_directory, output_directory, calibration_file):
     """
     The main function to execute when the script is run directly.
     
     Args:
         data_directory (str): The directory to search for .dat files.
         output_directory (str): The directory to save the output CSV file.
+        calibration_file (str): The file path for the calibration coefficients CSV file.
     """
-    merger = DatFileMerger(data_directory, output_directory)
+    merger = DatFileMerger(data_directory, output_directory, calibration_file)
     
     merger.load_dat_files()
     merged_df = merger.merge_dataframes()
@@ -215,9 +200,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Merge .dat files containing 'Min15' and export to CSV.")
     parser.add_argument("data_directory", type=str, help="Directory containing .dat files.")
     parser.add_argument("output_directory", type=str, help="Directory to save the output CSV file.")
+    parser.add_argument("calibration_file", type=str, help="File path for the calibration coefficients CSV file.")
     args = parser.parse_args()
     
-    main(args.data_directory, args.output_directory)
+    main(args.data_directory, args.output_directory, args.calibration_file)
 
 """
 Example usage:
@@ -230,6 +216,6 @@ Example usage:
 3. Navigate to the script directory:
     cd C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\code
 
-4. Run the script, specifying the data directory and output directory:
-    python lysimeter.py C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\private_data C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\private_output
+4. Run the script, specifying the data directory, output directory, and calibration file:
+    python lysimeter.py C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\private_data C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\private_output C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\code\\coefficients.csv
 """
