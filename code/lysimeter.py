@@ -147,11 +147,11 @@ HF_4,Heat Flux 4,47.39000,HF_4_Avg,HF_4_Avg * 47.39
             if variable == 'Q7_Rn_Plus':
                 df[new_col_name] = df.apply(
                     lambda x: 10.85000 * (1 + (0.066 * 0.2 * x['PVWspeed_Avg'])) * x['Q7_Rn_Avg'] 
-                    if x['PVWspeed_Avg'] > 0 else 13.81000 * ((0.00174 * x['PVWspeed_Avg']) + 0.99755) * x['Q7_Rn_Avg'], axis=1)
+                    if x['Q7_Rn_Avg'] > 0 else 13.81000 * ((0.00174 * x['PVWspeed_Avg']) + 0.99755) * x['Q7_Rn_Avg'], axis=1)
             elif variable == 'Q7_Rn_Minus':
                 df[new_col_name] = df.apply(
                     lambda x: 10.85000 * (1 + (0.066 * 0.2 * x['PVWspeed_Avg'])) * x['Q7_Rn_Avg'] 
-                    if x['PVWspeed_Avg'] > 0 else 13.81000 * ((0.00174 * x['PVWspeed_Avg']) + 0.99755) * x['Q7_Rn_Avg'], axis=1)
+                    if x['Q7_Rn_Avg'] > 0 else 13.81000 * ((0.00174 * x['PVWspeed_Avg']) + 0.99755) * x['Q7_Rn_Avg'], axis=1)
             else:
                 df[new_col_name] = df[col_name] * coefficient
         return df
