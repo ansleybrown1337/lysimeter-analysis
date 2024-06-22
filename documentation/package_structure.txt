@@ -1,0 +1,27 @@
+lysimeter-data-2023/
+│
+├───code/
+│   │   coefficients.csv
+│   │
+│   ├───lysimeter_analysis/
+│   │   │   __init__.py
+│   │   │   dat_file_merger.py
+│   │   └───non_standard_events.py
+│   │
+│   └───scripts/
+│       │   run_analysis.py
+│
+├───documentation/
+│       AJ Jeff Notes 13 May 2024.docx
+│       Lysimeter Water Budget Process - Simmons Notes - Copy.docx
+│       package_structure.txt
+│
+├───private_data/
+│       DB_Large_Lysimeter_DataTableInfo_2022.dat
+│       DB_Large_Lysimeter_Min15_2022.dat
+│       Jan2023_Min15.csv
+│       Jan2023_Min15.dat
+│       LL Min15 QC - Copy.xlsx
+│
+└───private_output/
+        merged_data_20240622_132036.csv

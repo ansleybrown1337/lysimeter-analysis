@@ -117,7 +117,8 @@ class DatFileMerger:
 
     def calibrate_data(self, df):
         """
-        Adds calibrated data columns to the DataFrame based on the calibration equations.
+        Adds calibrated data columns to the DataFrame based on the calibration 
+        equations.
         
         Args:
             df (pd.DataFrame): The DataFrame to add calibrated columns to.
@@ -217,5 +218,5 @@ Example usage:
     cd C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\code
 
 4. Run the script, specifying the data directory, output directory, and calibration file:
-    python lysimeter.py C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\private_data C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\private_output C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\code\\coefficients.csv
+    python dat_file_merger.py C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\private_data C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\private_output C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\code\\coefficients.csv
 """
