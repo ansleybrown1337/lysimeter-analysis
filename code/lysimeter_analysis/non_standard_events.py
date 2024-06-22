@@ -1,9 +1,11 @@
 # lysimeter_analysis/non_standard_events.py
 
 import pandas as pd
-import matplotlib.pyplot as plt
+import plotly.express as px
+import plotly.graph_objects as go
 import os
 from datetime import datetime
+import matplotlib.pyplot as plt
 
 class NonStandardEvents:
     def __init__(self, dataframe):
@@ -35,12 +37,13 @@ class NonStandardEvents:
 
     def plot_nse(self, columns, output_directory):
         """
-        Plots the time series with NSE values highlighted and saves the plot as a PNG file.
+        Plots the time series with NSE values highlighted and saves the plot as both a PNG file and an HTML file.
         
         Args:
             columns (list): List of column names to plot.
             output_directory (str): The directory to save the output plot.
         """
+        # Static Matplotlib Plot
         plt.figure(figsize=(14, 8))
         colors = ['blue', 'green', 'red', 'orange']
 
@@ -58,11 +61,32 @@ class NonStandardEvents:
 
         # Save the plot as a PNG file
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_filename = os.path.join(output_directory, f"NSE_plot_{timestamp}.png")
-        plt.savefig(output_filename)
+        output_filename_png = os.path.join(output_directory, f"NSE_plot_{timestamp}.png")
+        plt.savefig(output_filename_png)
         plt.close()
         
-        print(f"Plot saved to {output_filename}")
+        print(f"Static plot saved to {output_filename_png}")
+
+        # Interactive Plotly Plot
+        fig = go.Figure()
+
+        for idx, column in enumerate(columns):
+            fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=self.df[column], mode='lines', name=column))
+            nse_points = self.df[self.df[f'{column}_NSE'] == 1]
+            fig.add_trace(go.Scatter(x=nse_points['TIMESTAMP'], y=nse_points[column], mode='markers', 
+                                     name=f'NSE {column}', marker=dict(color='red', size=10)))
+
+        fig.update_layout(
+            title='Time Series with NSEs Highlighted',
+            xaxis_title='Timestamp',
+            yaxis_title='mV/V',
+            template='plotly_white'
+        )
+
+        output_filename_html = os.path.join(output_directory, f"NSE_plot_{timestamp}.html")
+        fig.write_html(output_filename_html)
+
+        print(f"Interactive plot saved to {output_filename_html}")
 
     def summarize_nse(self):
         """
