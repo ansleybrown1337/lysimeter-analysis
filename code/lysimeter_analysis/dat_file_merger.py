@@ -117,8 +117,7 @@ class DatFileMerger:
 
     def calibrate_data(self, df):
         """
-        Adds calibrated data columns to the DataFrame based on the calibration 
-        equations.
+        Adds calibrated data columns to the DataFrame based on the calibration equations.
         
         Args:
             df (pd.DataFrame): The DataFrame to add calibrated columns to.
@@ -126,6 +125,9 @@ class DatFileMerger:
         Returns:
             pd.DataFrame: The DataFrame with calibrated data.
         """
+        q7_rn_plus_coefficient = self.calibration_df[self.calibration_df['Variable'] == 'Q7_Rn_Plus']['Coefficient'].values[0]
+        q7_rn_minus_coefficient = self.calibration_df[self.calibration_df['Variable'] == 'Q7_Rn_Minus']['Coefficient'].values[0]
+
         for _, row in self.calibration_df.iterrows():
             variable = row['Variable']
             coefficient = row['Coefficient']
@@ -134,8 +136,8 @@ class DatFileMerger:
 
             if col_name == 'Q7_Rn_Avg':
                 df[new_col_name] = df.apply(
-                    lambda x: 10.85000 * (1 + (0.066 * 0.2 * x['PVWspeed_Avg'])) * x['Q7_Rn_Avg'] 
-                    if x['Q7_Rn_Avg'] > 0 else 13.81000 * ((0.00174 * x['PVWspeed_Avg']) + 0.99755) * x['Q7_Rn_Avg'], axis=1)
+                    lambda x: q7_rn_plus_coefficient * (1 + (0.066 * 0.2 * x['PVWspeed_Avg'])) * x['Q7_Rn_Avg'] 
+                    if x['PVWspeed_Avg'] > 0 else q7_rn_minus_coefficient * ((0.00174 * x['PVWspeed_Avg']) + 0.99755) * x['Q7_Rn_Avg'], axis=1)
             else:
                 df[new_col_name] = df[col_name] * coefficient
 
@@ -218,5 +220,5 @@ Example usage:
     cd C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\code
 
 4. Run the script, specifying the data directory, output directory, and calibration file:
-    python dat_file_merger.py C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\private_data C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\private_output C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\code\\coefficients.csv
+    python lysimeter_analysis/dat_file_merger.py C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\private_data C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\private_output C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\code\\coefficients.csv
 """
