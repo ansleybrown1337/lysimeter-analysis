@@ -31,13 +31,18 @@ Use windows to schedule that .exe to run at a given period (e.g., 12 hours)
 1. Raw data files are collected from the lysimeter
 2. Raw data are manually merged into single excel file
 3. Data are put as raw into a data processing spreadsheet where values can be calculated
-4. Non-standard days are identified and flagged manually upon visual inspection
+4. Non-standard events (NSEs) are identified and flagged manually upon visual inspection
+5. ASCE PM ETc is estimated at the start and end of each NSE, then interpolated between those datetimes via linear model
 
 **Proposed**
 1. Raw data files are collected from the lysimeter
 2. Python code merges and processes the data:
     - Finds all .dat files in the folder and merges them, then exports that as .csv with datetime for user reference
     - uses dataframe created after merge to create calculated value columns as previously done in the excel spreadsheet
-    - uses given criteria to identify non-standard days and flag them
-    - exports the processed data as a .csv with datetime in file name, dropping the non-standard days from the dataset
-    - (optional goal) create and save graphs currently generated in the spreadsheet as .png files for user QAQC
+    - exports the processed data as a .csv with datetime in file name
+3. Identify non-standard events (NSEs) and subsequent non-standard days (NSDs) automatically
+    - using guidelines provided in the documentation folder from Lane Simmons
+    - create a new column in the processed data that flags NSE's and NSD's
+    - it appears that identifying NSE's is more optimal than NSD's (see Lane's description in the documentation folder), so the code will be written to identify NSE's and NSD's will be investigated later for need.
+4. Estimate ASCE PM ETc at the start and end of each NSE, then interpolate between those datetimes via [PyFAO56 module from USDA ARS](https://github.com/kthorp/pyfao56/tree/main)
+4. (optional goal) Create and save graphs currently generated in the spreadsheet as .png files for user QAQC

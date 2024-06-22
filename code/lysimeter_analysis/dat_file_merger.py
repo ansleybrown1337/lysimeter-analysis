@@ -100,6 +100,9 @@ class DatFileMerger:
         
         # Convert the first column to datetime
         df.iloc[:, 0] = pd.to_datetime(df.iloc[:, 0], errors='coerce')
+
+        # Ensure the first column remains named 'TIMESTAMP'
+        df.rename(columns={df.columns[0]: 'TIMESTAMP'}, inplace=True)
         
         return df
 
