@@ -15,49 +15,50 @@ class NonStandardEvents:
         """
         self.df = dataframe
 
-    def detect_nse(self, column, threshold):
+    def detect_nse(self, columns, threshold):
         """
-        Detects non-standard events (NSEs) based on sharp increases in the specified column.
+        Detects non-standard events (NSEs) based on sharp increases in the specified columns.
         
         Args:
-            column (str): The name of the column to analyze for NSEs.
+            columns (list): List of column names to analyze for NSEs.
             threshold (float): The rate of change threshold to classify an NSE.
         
         Returns:
             pd.DataFrame: A DataFrame with an additional column indicating NSEs.
         """
-        # Calculate the rate of change
-        self.df['rate_of_change'] = self.df[column].diff()
-
-        # Flag positive NSEs
-        self.df['NSE'] = self.df['rate_of_change'].apply(lambda x: 1 if x > threshold else 0)
-
+        for column in columns:
+            # Calculate the rate of change
+            self.df[f'{column}_rate_of_change'] = self.df[column].diff()
+            # Flag positive NSEs
+            self.df[f'{column}_NSE'] = self.df[f'{column}_rate_of_change'].apply(lambda x: 1 if x > threshold else 0)
         return self.df
 
-    def plot_nse(self, column, output_directory):
+    def plot_nse(self, columns, output_directory):
         """
         Plots the time series with NSE values highlighted and saves the plot as a PNG file.
         
         Args:
-            column (str): The name of the column to plot.
+            columns (list): List of column names to plot.
             output_directory (str): The directory to save the output plot.
         """
         plt.figure(figsize=(14, 8))
-        plt.plot(self.df['TIMESTAMP'], self.df[column], label=column, color='blue')
-        
-        # Highlight NSEs
-        nse_points = self.df[self.df['NSE'] == 1]
-        plt.scatter(nse_points['TIMESTAMP'], nse_points[column], color='red', label='NSE', zorder=5)
+        colors = ['blue', 'green', 'red', 'orange']
+
+        for idx, column in enumerate(columns):
+            plt.plot(self.df['TIMESTAMP'], self.df[column], label=column, color=colors[idx % len(colors)])
+            # Highlight NSEs
+            nse_points = self.df[self.df[f'{column}_NSE'] == 1]
+            plt.scatter(nse_points['TIMESTAMP'], nse_points[column], color=colors[(idx + 2) % len(colors)], label=f'NSE {column}', zorder=5)
         
         plt.xlabel('Timestamp')
         plt.ylabel('mV/V')
-        plt.title(f'Time Series of {column} with NSEs Highlighted')
+        plt.title('Time Series with NSEs Highlighted')
         plt.legend()
         plt.grid(True)
 
         # Save the plot as a PNG file
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_filename = os.path.join(output_directory, f"{column}_NSE_plot_{timestamp}.png")
+        output_filename = os.path.join(output_directory, f"NSE_plot_{timestamp}.png")
         plt.savefig(output_filename)
         plt.close()
         
@@ -70,5 +71,7 @@ class NonStandardEvents:
         Returns:
             pd.DataFrame: A summary DataFrame of NSE counts.
         """
-        nse_summary = self.df['NSE'].value_counts().rename_axis('NSE').reset_index(name='counts')
-        return nse_summary
+        nse_columns = [col for col in self.df.columns if col.endswith('_NSE')]
+        summary = self.df[nse_columns].sum().reset_index()
+        summary.columns = ['NSE_Type', 'Counts']
+        return summary
