@@ -1,6 +1,10 @@
 # ensure that lysimeter data never reaches the cloud!!!
-private_data
-private_output
+private_test_data
+private_test_output
+private_LL_data
+private_LL_output
+private_SL_data
+private_SL_output
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
