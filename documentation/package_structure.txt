@@ -1,27 +1,70 @@
 lysimeter-data-2023/
+│   .gitattributes
+│   .gitignore
+│   README.md
 │
-├───code/
+├───code
 │   │   coefficients.csv
+│   │   LL_coefficients.csv
+│   │   setup.py
+│   │   SL_coefficients.csv
 │   │
-│   ├───lysimeter_analysis/
-│   │   │   __init__.py
+│   ├───lysimeter_analysis
 │   │   │   dat_file_merger.py
-│   │   └───non_standard_events.py
+│   │   │   non_standard_events.py
+│   │   │   __init__.py
+│   │   │
+│   │   └───__pycache__
+│   │           dat_file_merger.cpython-39.pyc
+│   │           non_standard_events.cpython-39.pyc
+│   │           __init__.cpython-39.pyc
 │   │
-│   └───scripts/
-│       │   run_analysis.py
+│   ├───lysimeter_analysis.egg-info
+│   │       dependency_links.txt
+│   │       entry_points.txt
+│   │       PKG-INFO
+│   │       requires.txt
+│   │       SOURCES.txt
+│   │       top_level.txt
+│   │
+│   └───scripts
+│           run_analysis.py
 │
-├───documentation/
+├───documentation
 │       AJ Jeff Notes 13 May 2024.docx
+│       AJ Jeff Notes 27 Jun 2024.docx
+│       How to run.md
+│       Large Lysimeter Log Book 2022.xlsx
 │       Lysimeter Water Budget Process - Simmons Notes - Copy.docx
 │       package_structure.txt
+│       Semantic Versioning.md
+│       Small Lysimeter Log Book 2022.xlsx
 │
-├───private_data/
+├───figs
+│       lysimeter.PNG
+│
+├───private_LL_data
+│       Large_Lysimeter_Min15.dat
+│
+├───private_LL_output
+│       merged_data_20240711_154312.csv
+│       NSE_plot_20240711_154309.html
+│       NSE_plot_20240711_154309.png
+│
+├───private_SL_data
+│       Small_Lysimeter_Min15.dat
+│
+├───private_SL_output
+├───private_test_data
 │       DB_Large_Lysimeter_DataTableInfo_2022.dat
 │       DB_Large_Lysimeter_Min15_2022.dat
 │       Jan2023_Min15.csv
 │       Jan2023_Min15.dat
-│       LL Min15 QC - Copy.xlsx
+│       LL Min15 QC - AJ.xlsx
+│       LL Min15 QC - Jeff.xlsx
 │
-└───private_output/
-        merged_data_20240622_132036.csv
+└───private_test_output
+        merged_data_20240622_162804.csv
+        merged_data_20240711_154728.csv
+        NSE_plot_20240622_162800.html
+        NSE_plot_20240622_162800.png

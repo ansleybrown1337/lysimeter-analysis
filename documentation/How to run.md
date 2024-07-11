@@ -8,6 +8,8 @@ cd C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code
 ```
 
 Install Package in Editable Mode:
+>![WARNING]
+>Don't forget the period at the end of the command!
 
 ```
 pip install -e .
@@ -15,8 +17,19 @@ pip install -e .
 
 Run Analysis Script (Example on AJ's Computer, adjust your file paths accordingly):
 
+*for test data:*
 ```
-python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\coefficients.csv
+python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_ouptut C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\coefficients.csv
+```
+
+*for SL data:*
+```
+python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_SL_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_SL_ouptut C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\SL_coefficients.csv
+```
+
+*for LL data:*
+```
+python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_LL_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_LL_ouptut C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\LL_coefficients.csv
 ```
 
 This should execute the analysis, process the data, detect non-standard events (NSEs), and save the results in the specified output directory. 

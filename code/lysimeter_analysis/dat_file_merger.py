@@ -17,7 +17,11 @@ Description: This script loads all ".dat" files in the specified data directory 
 
 import os
 import pandas as pd
+from colorama import Fore, Style, init
 from datetime import datetime
+
+# Initialize colorama for Windows (allows colored print statements)
+init()
 
 class DatFileMerger:
     """
@@ -136,6 +140,10 @@ class DatFileMerger:
             coefficient = row['Coefficient']
             col_name = row['Col_Name']
             new_col_name = f"{col_name}_calibrated"
+
+            if col_name not in df.columns:
+                print(Fore.CYAN + f"Warning: Coefficent column '{col_name}' not found in lysimeter data. Proceeding without calibration for this column." + Style.RESET_ALL)
+                continue
 
             if col_name == 'Q7_Rn_Avg':
                 df[new_col_name] = df.apply(

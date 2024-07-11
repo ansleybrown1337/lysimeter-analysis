@@ -1,0 +1,12 @@
+﻿Variable,Sensor,Coefficient,Col_Name,Calibration_Equation
+Albd_Inc,CM14 Incident,197.62845,Albd_Inc_Avg,Albd_Inc_Avg * 197.62845
+Albd_Ref,CM14 Reflected,196.07843,Albd_Ref_Avg,Albd_Ref_Avg * 196.07843
+Rpar,LI-190 Reflected PAR,236.13,Rpar_Avg,Rpar_Avg * 236.13
+Lbar_1,LI-191 Light Bar 1,335.15,Lbar_1_Avg,Lbar_1_Avg * 335.15
+Lbar_2,LI-191 Light Bar 2,381.48,Lbar_2_Avg,Lbar_2_Avg * 381.48
+Q7_Rn_Plus,Q7 Net Radiation (+ Wind),10.85,Q7_Rn_Avg,"=IF(PVWspeed_Avg>0, 10.85000*(1+(0.066*0.2*PVWspeed_Avg)))*PVWspeed_Avg, 13.81000*((0.00174*PVWspeed_Avg)+0.99755)*Q7_Rn_Avg"
+Q7_Rn_Minus,Q7 Net Radiation (- Wind),13.81,Q7_Rn_Avg,"=IF(PVWspeed_Avg>0, 10.85000*(1+(0.066*0.2*PVWspeed_Avg)))*PVWspeed_Avg, 13.81000*((0.00174*PVWspeed_Avg)+0.99755)*Q7_Rn_Avg"
+HF_1,Heat Flux 1,46.65,HF_1_Avg,HF_1_Avg * 46.65
+HF_2,Heat Flux 2,52.29,HF_2_Avg,HF_2_Avg * 52.29
+HF_3,Heat Flux 3,37.86,HF_3_Avg,HF_3_Avg * 37.86
+HF_4,Heat Flux 4,47.39,HF_4_Avg,HF_4_Avg * 47.39
