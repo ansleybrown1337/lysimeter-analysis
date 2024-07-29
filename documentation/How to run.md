@@ -17,7 +17,7 @@ pip install -e .
 
 Run Analysis Script (Example on AJ's Computer, adjust your file paths accordingly):
 
-Here is the generic format for the command:
+Here is the generic format for the command (notice that there are no line breaks, whereas the examples look like they have line breaks due to page size):
 ```python
 python scripts/run_analysis.py <data_directory> <output_directory> <calibration_file> <timescale>
 ```
