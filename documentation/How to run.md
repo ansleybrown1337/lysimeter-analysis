@@ -17,19 +17,25 @@ pip install -e .
 
 Run Analysis Script (Example on AJ's Computer, adjust your file paths accordingly):
 
+Here is the generic format for the command:
+```python
+python scripts/run_analysis.py <data_directory> <output_directory> <calibration_file> <timescale>
+```
+
+Here are examples of how to run the analysis script on AJ's computer for each of the three data sets (test, SL, and LL):
 *for test data:*
 ```
-python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_ouptut C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\coefficients.csv
+python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\coefficients.csv Min15
 ```
 
 *for SL data:*
 ```
-python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_SL_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_SL_ouptut C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\SL_coefficients.csv
+python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_SL_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_SL_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\SL_coefficients.csv Min15
 ```
 
 *for LL data:*
 ```
-python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_LL_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_LL_ouptut C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\LL_coefficients.csv
+python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_LL_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_LL_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\LL_coefficients.csv Min15
 ```
 
 This should execute the analysis, process the data, detect non-standard events (NSEs), and save the results in the specified output directory. 

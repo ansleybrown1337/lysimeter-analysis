@@ -9,7 +9,7 @@ Colorado State University
 Ansley.Brown@colostate.edu
 5 April 2024
 
-Description: This script loads all ".dat" files in the specified data directory that contain "Min15" in the filename,
+Description: This script loads all ".dat" files in the specified data directory that contain the specified timescale in the filename,
              imports them into a pandas DataFrame, cleans the data, merges them together,
              and exports the merged DataFrame as a CSV with a datetime
              in the filename to the specified output directory.
@@ -19,6 +19,7 @@ import os
 import pandas as pd
 from colorama import Fore, Style, init
 from datetime import datetime
+import argparse
 
 # Initialize colorama for Windows (allows colored print statements)
 init()
@@ -28,18 +29,20 @@ class DatFileMerger:
     A class to handle the loading, cleaning, merging, calibrating, and exporting of .dat files.
     """
 
-    def __init__(self, data_directory, output_directory, calibration_file):
+    def __init__(self, data_directory, output_directory, calibration_file, timescale):
         """
-        Initializes the DatFileMerger with the given directories and calibration file.
+        Initializes the DatFileMerger with the given directories, calibration file, and timescale.
         
         Args:
             data_directory (str): The directory to search for .dat files.
             output_directory (str): The directory to save the output CSV file.
             calibration_file (str): The file path for the calibration coefficients CSV file.
+            timescale (str): The timescale to search for in the filenames (e.g., "Min15", "Min5", "Min60").
         """
         self.data_directory = data_directory
         self.output_directory = output_directory
         self.calibration_file = calibration_file
+        self.timescale = timescale
         self.dataframes = []
         self.headers_units = {}
         self.designations = []
@@ -56,11 +59,11 @@ class DatFileMerger:
 
     def load_dat_files(self):
         """
-        Loads all .dat files in the specified data directory that contain "Min15" in the filename into pandas DataFrames,
+        Loads all .dat files in the specified data directory that contain the specified timescale in the filename into pandas DataFrames,
         and prints out the files being imported and merged.
         """
         for file in os.listdir(self.data_directory):
-            if file.endswith(".dat") and "Min15" in file:
+            if file.endswith(".dat") and self.timescale in file:
                 file_path = os.path.join(self.data_directory, file)
                 
                 # Read the header lines
@@ -142,7 +145,7 @@ class DatFileMerger:
             new_col_name = f"{col_name}_calibrated"
 
             if col_name not in df.columns:
-                print(Fore.CYAN + f"Warning: Coefficent column '{col_name}' not found in lysimeter data. Proceeding without calibration for this column." + Style.RESET_ALL)
+                print(Fore.CYAN + f"Warning: Coefficient column '{col_name}' not found in lysimeter data. Proceeding without calibration for this column." + Style.RESET_ALL)
                 continue
 
             if col_name == 'Q7_Rn_Avg':
@@ -181,7 +184,7 @@ class DatFileMerger:
         
         print(f"Merged data exported to {output_filename}")
 
-def main(data_directory, output_directory, calibration_file):
+def main(data_directory, output_directory, calibration_file, timescale):
     """
     The main function to execute when the script is run directly.
     
@@ -189,8 +192,9 @@ def main(data_directory, output_directory, calibration_file):
         data_directory (str): The directory to search for .dat files.
         output_directory (str): The directory to save the output CSV file.
         calibration_file (str): The file path for the calibration coefficients CSV file.
+        timescale (str): The timescale to search for in the filenames (e.g., "Min15", "Min5", "Min60").
     """
-    merger = DatFileMerger(data_directory, output_directory, calibration_file)
+    merger = DatFileMerger(data_directory, output_directory, calibration_file, timescale)
     
     merger.load_dat_files()
     merged_df = merger.merge_dataframes()
@@ -209,15 +213,14 @@ def main(data_directory, output_directory, calibration_file):
     print(merger.calibration_df)
 
 if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Merge .dat files containing 'Min15' and export to CSV.")
+    parser = argparse.ArgumentParser(description="Merge .dat files containing the specified timescale and export to CSV.")
     parser.add_argument("data_directory", type=str, help="Directory containing .dat files.")
     parser.add_argument("output_directory", type=str, help="Directory to save the output CSV file.")
     parser.add_argument("calibration_file", type=str, help="File path for the calibration coefficients CSV file.")
+    parser.add_argument("timescale", type=str, help="Timescale to search for in filenames (e.g., 'Min15', 'Min5', 'Min60').")
     args = parser.parse_args()
     
-    main(args.data_directory, args.output_directory, args.calibration_file)
+    main(args.data_directory, args.output_directory, args.calibration_file, args.timescale)
 
 """
 Example usage:
@@ -230,6 +233,6 @@ Example usage:
 3. Navigate to the script directory:
     cd C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\code
 
-4. Run the script, specifying the data directory, output directory, and calibration file:
-    python lysimeter_analysis/dat_file_merger.py C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\private_data C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\private_output C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\code\\coefficients.csv
+4. Run the script, specifying the data directory, output directory, calibration file, and timescale:
+    python lysimeter_analysis/dat_file_merger.py C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\private_data C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\private_output C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\code\\coefficients.csv Min15
 """

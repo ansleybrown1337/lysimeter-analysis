@@ -10,13 +10,13 @@ from lysimeter_analysis.non_standard_events import NonStandardEvents
 # Initialize colorama for Windows (allows colored print statements)
 init()
 
-def main(data_directory, output_directory, calibration_file):
+def main(data_directory, output_directory, calibration_file, timescale):
     # Create the output directory if it doesn't exist
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
 
     # Create DatFileMerger instance
-    merger = DatFileMerger(data_directory, output_directory, calibration_file)
+    merger = DatFileMerger(data_directory, output_directory, calibration_file, timescale)
     
     # Load and process data files
     merger.load_dat_files()
@@ -65,4 +65,5 @@ if __name__ == "__main__":
     data_directory = sys.argv[1]
     output_directory = sys.argv[2]
     calibration_file = sys.argv[3]
-    main(data_directory, output_directory, calibration_file)
+    timescale = sys.argv[4]
+    main(data_directory, output_directory, calibration_file, timescale)

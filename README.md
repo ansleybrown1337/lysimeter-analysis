@@ -56,5 +56,8 @@ Use windows to schedule that .exe to run at a given period (e.g., 12 hours)
 ## TODO
 - refine NSE detection algorithm to be more accurate
 - refine NSE detection algorithm to count NSE's and define whole events
-- Use PyFAO56 (or code my own?) to estimate ASCE PM ETc for all NSE flagged rows
+- add new ET column for NSE's using METS data
+    - Option 1: use ET data found within METS dataframe inherently
+    - Option 2: Use PyFAO56 (or code my own?) to estimate ASCE PM ETc for all NSE flagged rows from METS weather data
+- Change everything to use 5min data instead of 15min data, or at least give the user an option.  Note: METS on ly has 5 and 60 min data
 - Create water balance using lysimeter weights and ETc estimates
