@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# lysimeter_analysis/dat_file_merger.py
 '''
 Lysimeter data processing tool
 
@@ -19,7 +19,6 @@ import os
 import pandas as pd
 from colorama import Fore, Style, init
 from datetime import datetime
-import argparse
 
 # Initialize colorama for Windows (allows colored print statements)
 init()
@@ -29,39 +28,48 @@ class DatFileMerger:
     A class to handle the loading, cleaning, merging, calibrating, and exporting of .dat files.
     """
 
-    def __init__(self, data_directory, output_directory, calibration_file, timescale):
-        """
-        Initializes the DatFileMerger with the given directories, calibration file, and timescale.
-        
-        Args:
-            data_directory (str): The directory to search for .dat files.
-            output_directory (str): The directory to save the output CSV file.
-            calibration_file (str): The file path for the calibration coefficients CSV file.
-            timescale (str): The timescale to search for in the filenames (e.g., "Min15", "Min5", "Min60").
-        """
-        self.data_directory = data_directory
-        self.output_directory = output_directory
-        self.calibration_file = calibration_file
-        self.timescale = timescale
+    def __init__(self):
+        self.data_directory = None
+        self.output_directory = None
+        self.calibration_file = None
+        self.timescale = "Min15"
         self.dataframes = []
         self.headers_units = {}
         self.designations = []
-        self.calibration_df = self.load_calibration_df()
+        self.calibration_df = None
 
-    def load_calibration_df(self):
-        """
-        Loads the calibration coefficients from a CSV file.
-        
-        Returns:
-            pd.DataFrame: The calibration coefficients DataFrame.
-        """
-        return pd.read_csv(self.calibration_file, encoding='utf-8')
+    def set_data_directory(self, path):
+        """Sets the data directory."""
+        self.data_directory = path
 
-    def load_dat_files(self):
+    def set_output_directory(self, path):
+        """Sets the output directory."""
+        self.output_directory = path
+
+    def set_calibration_file(self, path):
+        """Sets the calibration file path and loads the calibration data."""
+        self.calibration_file = path
+        self._load_calibration_df()
+
+    def set_timescale(self, timescale):
+        """Sets the timescale to search for in filenames (e.g., 'Min15', 'Min5', 'Min60')."""
+        self.timescale = timescale
+
+    def _load_calibration_df(self):
+        """Loads the calibration coefficients from a CSV file."""
+        if self.calibration_file:
+            self.calibration_df = pd.read_csv(self.calibration_file, encoding='utf-8')
+        else:
+            raise ValueError("Calibration file path is not set.")
+
+    def _load_dat_files(self):
         """
         Loads all .dat files in the specified data directory that contain the specified timescale in the filename into pandas DataFrames,
         and prints out the files being imported and merged.
         """
+        if not self.data_directory:
+            raise ValueError("Data directory not set.")
+        
         for file in os.listdir(self.data_directory):
             if file.endswith(".dat") and self.timescale in file:
                 file_path = os.path.join(self.data_directory, file)
@@ -81,11 +89,11 @@ class DatFileMerger:
                 df = pd.read_csv(file_path, skiprows=4, na_values=["NAN"], low_memory=False, names=header)
                 
                 # Clean the data
-                df = self.clean_data(df)
+                df = self._clean_data(df)
                 self.dataframes.append(df)
                 print(f"Importing and merging: {file}\n")
 
-    def clean_data(self, df):
+    def _clean_data(self, df):
         """
         Cleans the DataFrame by:
         - Converting columns with numeric values in scientific notation from string to numeric.
@@ -113,7 +121,7 @@ class DatFileMerger:
         
         return df
 
-    def merge_dataframes(self):
+    def _merge_dataframes(self):
         """
         Merges all loaded DataFrames into a single DataFrame.
         
@@ -122,10 +130,9 @@ class DatFileMerger:
         """
         if not self.dataframes:
             raise ValueError("No dataframes to merge. Load data files first.")
-        merged_df = pd.concat(self.dataframes, ignore_index=True)
-        return merged_df
+        return pd.concat(self.dataframes, ignore_index=True)
 
-    def calibrate_data(self, df):
+    def _calibrate_data(self, df):
         """
         Adds calibrated data columns to the DataFrame based on the calibration equations.
         
@@ -135,6 +142,9 @@ class DatFileMerger:
         Returns:
             pd.DataFrame: The DataFrame with calibrated data.
         """
+        if self.calibration_df is None:
+            raise ValueError("Calibration dataframe not loaded.")
+
         q7_rn_plus_coefficient = self.calibration_df[self.calibration_df['Variable'] == 'Q7_Rn_Plus']['Coefficient'].values[0]
         q7_rn_minus_coefficient = self.calibration_df[self.calibration_df['Variable'] == 'Q7_Rn_Minus']['Coefficient'].values[0]
 
@@ -157,13 +167,25 @@ class DatFileMerger:
 
         return df
 
-    def export_to_csv(self, merged_df):
+    def clean_and_calibrated_data(self):
         """
-        Exports the merged DataFrame to a CSV file with the current datetime in the filename.
+        The main function to load, merge, clean, and calibrate data, and return the processed DataFrame.
+        
+        Returns:
+            pd.DataFrame: The cleaned and calibrated DataFrame.
+        """
+        self._load_dat_files()
+        merged_df = self._merge_dataframes()
+        calibrated_df = self._calibrate_data(merged_df)
+        return calibrated_df
+
+    def export_to_csv(self, df):
+        """
+        Exports the processed DataFrame to a CSV file with the current datetime in the filename.
         Includes units as the second row and designations as the third row.
         
         Args:
-            merged_df (pd.DataFrame): The merged DataFrame to export.
+            df (pd.DataFrame): The DataFrame to export.
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_filename = os.path.join(self.output_directory, f"merged_data_{timestamp}.csv")
@@ -172,67 +194,14 @@ class DatFileMerger:
         units_row = pd.DataFrame([self.headers_units], index=["units"])
         
         # Adjust designations_row to match the merged_df columns
-        designations_row = pd.DataFrame([self.designations + [''] * (merged_df.shape[1] - len(self.designations))], 
+        designations_row = pd.DataFrame([self.designations + [''] * (df.shape[1] - len(self.designations))], 
                                         index=["designations"], 
-                                        columns=merged_df.columns)
+                                        columns=df.columns)
         
         # Concatenate the units and designations rows with the merged dataframe
-        combined_df = pd.concat([units_row, designations_row, merged_df], ignore_index=True)
+        combined_df = pd.concat([units_row, designations_row, df], ignore_index=True)
         
         # Write to CSV
         combined_df.to_csv(output_filename, index=False)
         
         print(f"Merged data exported to {output_filename}")
-
-def main(data_directory, output_directory, calibration_file, timescale):
-    """
-    The main function to execute when the script is run directly.
-    
-    Args:
-        data_directory (str): The directory to search for .dat files.
-        output_directory (str): The directory to save the output CSV file.
-        calibration_file (str): The file path for the calibration coefficients CSV file.
-        timescale (str): The timescale to search for in the filenames (e.g., "Min15", "Min5", "Min60").
-    """
-    merger = DatFileMerger(data_directory, output_directory, calibration_file, timescale)
-    
-    merger.load_dat_files()
-    merged_df = merger.merge_dataframes()
-    calibrated_df = merger.calibrate_data(merged_df)
-    merger.export_to_csv(calibrated_df)
-
-    # Print header names, measurement units, and calibration coefficients
-    print("\nHeader names, measurement units, and designations:")
-    for header, unit in merger.headers_units.items():
-        print(f"{header}: {unit}")
-    print("\nDesignations:")
-    print(merger.designations)
-
-    # Print calibration coefficients
-    print("\nSensor Calibration Coefficients:")
-    print(merger.calibration_df)
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Merge .dat files containing the specified timescale and export to CSV.")
-    parser.add_argument("data_directory", type=str, help="Directory containing .dat files.")
-    parser.add_argument("output_directory", type=str, help="Directory to save the output CSV file.")
-    parser.add_argument("calibration_file", type=str, help="File path for the calibration coefficients CSV file.")
-    parser.add_argument("timescale", type=str, help="Timescale to search for in filenames (e.g., 'Min15', 'Min5', 'Min60').")
-    args = parser.parse_args()
-    
-    main(args.data_directory, args.output_directory, args.calibration_file, args.timescale)
-
-"""
-Example usage:
-
-1. Open Anaconda Prompt.
-
-2. Activate the conda environment:
-    conda activate playground2
-
-3. Navigate to the script directory:
-    cd C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\code
-
-4. Run the script, specifying the data directory, output directory, calibration file, and timescale:
-    python lysimeter_analysis/dat_file_merger.py C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\private_data C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\private_output C:\\Users\\AJ-CPU\\Documents\\GitHub\\lysimeter-data-2023\\code\\coefficients.csv Min15
-"""
