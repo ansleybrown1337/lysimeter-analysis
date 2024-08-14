@@ -19,6 +19,7 @@ class NonStandardEvents:
         self.threshold = 0.0004  # Default threshold for detecting NSEs
         self.output_directory = None
         self.possible_columns = None  # New attribute for possible columns
+        self.NSEcount = {}  # Attribute to store NSE counts
 
     def set_dataframe(self, dataframe):
         """Sets the dataframe to be used for NSE detection."""
@@ -62,6 +63,9 @@ class NonStandardEvents:
             self.df[f'{column}_rate_of_change'] = self.df[column].diff()
             # Flag positive NSEs
             self.df[f'{column}_NSE'] = self.df[f'{column}_rate_of_change'].apply(lambda x: 1 if x > self.threshold else 0)
+            # Store the NSE count in the dictionary
+            self.NSEcount[column] = self.df[f'{column}_NSE'].sum()
+
         return self.df
 
     def _plot_nse(self):
@@ -113,21 +117,6 @@ class NonStandardEvents:
 
         print(f"Interactive plot saved to {output_filename_html}")
 
-    def _summarize_nse(self):
-        """
-        Summarizes the NSEs detected in the dataframe.
-        
-        Returns:
-            pd.DataFrame: A summary DataFrame of NSE counts.
-        """
-        nse_columns = [col for col in self.df.columns if col.endswith('_NSE')]
-        if not nse_columns:
-            raise ValueError("No NSE columns found. Ensure NSE detection has been run.")
-
-        summary = self.df[nse_columns].sum().reset_index()
-        summary.columns = ['NSE_Type', 'Counts']
-        return summary
-
     def run_nse_detection(self):
         """
         Runs the full NSE detection process: detecting NSEs, plotting them, and summarizing them.
@@ -137,6 +126,4 @@ class NonStandardEvents:
         """
         self._detect_nse()
         self._plot_nse()
-        summary = self._summarize_nse()
-        print(summary)
         return self.df
