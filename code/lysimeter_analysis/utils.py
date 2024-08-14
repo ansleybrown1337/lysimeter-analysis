@@ -1,4 +1,8 @@
 # lysimeter_analysis/utils.py
+'''
+A compilation of utility functions that are used in the lysimeter analysis 
+pipeline, but do not fit into any of the other modules per se.
+'''
 
 import os
 import pandas as pd

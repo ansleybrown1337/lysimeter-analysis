@@ -121,6 +121,9 @@ class NonStandardEvents:
             pd.DataFrame: A summary DataFrame of NSE counts.
         """
         nse_columns = [col for col in self.df.columns if col.endswith('_NSE')]
+        if not nse_columns:
+            raise ValueError("No NSE columns found. Ensure NSE detection has been run.")
+
         summary = self.df[nse_columns].sum().reset_index()
         summary.columns = ['NSE_Type', 'Counts']
         return summary

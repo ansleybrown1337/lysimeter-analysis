@@ -20,7 +20,7 @@ for each lysimeter type (i.e., SL or LL).
     2c. The DoW is actual evapotranspiration (ETa) in mm, when not in an NSE.
 3. Identify ETa rates that are immediately prior to and after each NSE, then
 linearly interpolate the ETa rate for the NSE and use that in place of the load
-cell -derived ETa rate.
+cell-derived ETa rate.
 5. Use the ETa rates to calculate the water balance for the selected lysimeter.
 '''
 import pandas as pd
@@ -31,7 +31,6 @@ import plotly.graph_objects as go
 class WaterBalance:
     def __init__(self):
         self.df = None
-        self.lysimeter_type = None
         self.custom_calibration_factor = None
         self.output_directory = None
 
@@ -43,21 +42,6 @@ class WaterBalance:
             dataframe (pd.DataFrame): The dataframe containing the cleaned, calibrated, and NSE-detected data.
         """
         self.df = dataframe
-
-    def set_lysimeter_type(self, lysimeter_type):
-        """
-        Sets the lysimeter type and automatically assigns the appropriate calibration factor.
-        
-        Args:
-            lysimeter_type (str): The type of lysimeter ('SL' or 'LL').
-        """
-        self.lysimeter_type = lysimeter_type
-        if lysimeter_type == "SL":
-            self.custom_calibration_factor = 157.43
-        elif lysimeter_type == "LL":
-            self.custom_calibration_factor = 76.2
-        else:
-            raise ValueError("Invalid lysimeter type. Choose either 'SL' or 'LL'.")
 
     def set_custom_calibration_factor(self, factor):
         """
@@ -85,7 +69,7 @@ class WaterBalance:
             pd.DataFrame: DataFrame with ETa columns.
         """
         if self.custom_calibration_factor is None:
-            raise ValueError("Calibration factor must be set either via lysimeter type or custom factor.")
+            raise ValueError("Calibration factor must be set before calculating ETa.")
         
         # Adding placeholder columns for ETa
         for column in self.df.columns:

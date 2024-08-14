@@ -37,6 +37,7 @@ class DatFileMerger:
         self.headers_units = {}
         self.designations = []
         self.calibration_df = None
+        self.merged_files = []
 
     def set_data_directory(self, path):
         """Sets the data directory."""
@@ -67,9 +68,6 @@ class DatFileMerger:
         Loads all .dat files in the specified data directory that contain the specified timescale in the filename into pandas DataFrames,
         and prints out the files being imported and merged.
         """
-        if not self.data_directory:
-            raise ValueError("Data directory not set.")
-        
         for file in os.listdir(self.data_directory):
             if file.endswith(".dat") and self.timescale in file:
                 file_path = os.path.join(self.data_directory, file)
@@ -91,6 +89,7 @@ class DatFileMerger:
                 # Clean the data
                 df = self._clean_data(df)
                 self.dataframes.append(df)
+                self.merged_files.append(file)  # Track the merged file
                 print(f"Importing and merging: {file}\n")
 
     def _clean_data(self, df):
@@ -166,6 +165,15 @@ class DatFileMerger:
                 df[new_col_name] = df[col_name] * coefficient
 
         return df
+    
+    def get_merged_files(self):
+        """
+        Returns the list of files that were successfully merged.
+        
+        Returns:
+            list: List of filenames that were merged.
+        """
+        return self.merged_files
 
     def clean_and_calibrated_data(self):
         """
