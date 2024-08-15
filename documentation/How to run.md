@@ -12,8 +12,8 @@ cd C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code
 ```
 
 ## Install Package in Editable Mode:
->![WARNING]
->Don't forget the period at the end of the command!
+> [!IMPORTANT]
+> Don't forget the period at the end of the command!
 
 ```
 pip install -e .
@@ -35,23 +35,23 @@ Where:
 - **`[custom_alpha]`**: *(Optional)* Custom alpha value for load cell calibration (kg/mV/V).
 - **`[custom_beta]`**: *(Optional)* Custom beta value for load cell calibration (surface area in m²).
 
->![WARNING] 
->If you want to pass custom alpha/beta values, you have to type something in the `[lysimeter_type]` variable space (e.g., "custom") as a placeholder.
+> [!WARNING] 
+> If you want to pass custom alpha/beta values, you must type something in the `[lysimeter_type]` variable space (e.g., "custom") as a placeholder, else it will thing the first number is the lysimeter type.
 
->![NOTE]
->If you don't designate a lysimeter type, it will default to values used for the LL
+> [!CAUTION]
+> If you don't designate a lysimeter type, it will default to values used for the LL
 
 
 Example for test, SL, and LL data:
 
 *for test data:*
 ```
-python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_SL_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_SL_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\SL_coefficients.csv Min15 custom 800 2.5
+python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\coefficients.csv Min15 custom 800 2.5
 ```
 
 *for SL data:*
 ```
-python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\coefficients.csv Min15 SL
+python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_SL_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_SL_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\SL_coefficients.csv Min15 SL
 ```
 
 *for LL data:*

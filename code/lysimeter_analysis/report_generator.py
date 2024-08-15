@@ -33,8 +33,8 @@ class ReportGenerator:
         self.report_lines.append(f"Effective Lysimeter Surface Area (Beta): {beta} m^2")
 
         # Static text for calibration assumptions and equation
-        self.report_lines.append("### Calibration Equation and Assumptions")
-        self.report_lines.append("Calibration Equation: DoW (mm) = (delta_mV/V * Calibration Factor)")
+        self.report_lines.append("Calibration Factor Equation: (alpha * 1000) / (beta * 1000)")
+        self.report_lines.append("Depth of water equation: DoW (mm) = (mV/V * Calibration Factor)")
         self.report_lines.append("Assuming a water density of 1000 kg/m^3")
         self.report_lines.append("")  # Add a blank line for spacing
 
@@ -42,7 +42,7 @@ class ReportGenerator:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_filename = os.path.join(output_directory, f"{prefix}_{timestamp}.txt")
         
-        self.report_lines.append("Analysis Model Run Times")
+        self.report_lines.append("## Analysis Model Run Times")
         self.report_lines.append(f"Run Start Time: {self.start_time}")
         self.report_lines.append(f"Run End Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         

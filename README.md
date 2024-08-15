@@ -10,7 +10,7 @@
 
  ![Lysimeter](figs/lysimeter.png)
 
- > [!WARNING]
+ > [!NOTE]
  > Please note that the data are NOT found in this repository, and only the code, which will not inform users of any data insights as a standalone. To view the data, you must have it yourself already or recieve it with special permission from Colorado State University.  Please contact me if you have a data request.
 
 
@@ -24,9 +24,12 @@
 
 **Objective 2: Automate the process**
 - Take code and make it automated
-- Idea 1: 
+- Idea 1: Create an .exe
     - make an .exe file that identifies and merges all .dat files in the .exe file location and exports as a csv with datetime in file name
 Use windows to schedule that .exe to run at a given period (e.g., 12 hours)
+- Idea 2: Use google colab
+    - create a google colab notebook that does the same thing as the .exe, but has GUI components for easier user interaction
+    - also prevents users from needing to download any large files
 
 ## Data Flow
 **Currently**
