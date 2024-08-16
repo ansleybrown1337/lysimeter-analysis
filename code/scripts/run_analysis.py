@@ -27,7 +27,7 @@ def main(data_directory, output_directory, calibration_file, timescale, lysimete
     ]
     nse_detector.set_possible_columns(possible_columns)
     nse_detector.set_output_directory(output_directory)
-    nse_detector.set_threshold(0.0004)
+    nse_detector.set_threshold(0.0034)
     nse_df = nse_detector.run_nse_detection()
 
     # Set up Load Cell Calibration

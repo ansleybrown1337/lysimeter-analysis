@@ -30,7 +30,13 @@ class NonStandardEvents:
         self.possible_columns = possible_columns
 
     def set_threshold(self, threshold):
-        """Sets the rate of change threshold to classify an NSE."""
+        """
+        Sets the rate of change threshold to classify an NSE.
+        The initial threshold is set to 0.0004, but this will be changed.
+        The new default will be 0.0034 mV/V, or .254 mm (0.01") of water, which
+        is the smallest detectable precip in the tiping bucket rain gauge.
+        The new, larger threshold will result in less NSEs being detected.
+        """
         self.threshold = threshold
 
     def set_output_directory(self, output_directory):
