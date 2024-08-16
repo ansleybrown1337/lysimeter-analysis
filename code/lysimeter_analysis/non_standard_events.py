@@ -5,6 +5,8 @@ import plotly.graph_objects as go
 import os
 from datetime import datetime
 import matplotlib.pyplot as plt
+from scipy.ndimage import gaussian_filter1d  # Import Gaussian filter
+from lysimeter_analysis.utils import awat_filter  # Import AWAT filter
 
 class NonStandardEvents:
     def __init__(self, dataframe=None):
@@ -34,7 +36,7 @@ class NonStandardEvents:
         Sets the rate of change threshold to classify an NSE.
         The initial threshold is set to 0.0004, but this will be changed.
         The new default will be 0.0034 mV/V, or .254 mm (0.01") of water, which
-        is the smallest detectable precip in the tiping bucket rain gauge.
+        is the smallest detectable precip in the tipping bucket rain gauge.
         The new, larger threshold will result in less NSEs being detected.
         """
         self.threshold = threshold
@@ -77,6 +79,7 @@ class NonStandardEvents:
     def _plot_nse(self):
         """
         Plots the time series with NSE values highlighted and saves the plot as both a PNG file and an HTML file.
+        Also adds Gaussian-smoothed and AWAT-filtered data to the Plotly graph.
         """
         # Static Matplotlib Plot
         plt.figure(figsize=(14, 8))
@@ -106,13 +109,24 @@ class NonStandardEvents:
         fig = go.Figure()
 
         for idx, column in enumerate(self.columns):
+            # Plot original data
             fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=self.df[column], mode='lines', name=column))
+
+            # Apply Gaussian smoothing and plot the smoothed data
+            smoothed_data = gaussian_filter1d(self.df[column], sigma=1)  # Adjust sigma as needed
+            fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=smoothed_data, mode='lines', name=f'{column} (Gaussian Smoothed)', line=dict(dash='dash')))
+
+            # Apply AWAT filter and plot the filtered data
+            awat_data = awat_filter(self.df[column], wmax=11, delta_max=0.24)  # Adjust wmax and delta_max as needed
+            fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=awat_data, mode='lines', name=f'{column} (AWAT Filtered)', line=dict(dash='dot')))
+
+            # Highlight NSEs
             nse_points = self.df[self.df[f'{column}_NSE'] == 1]
             fig.add_trace(go.Scatter(x=nse_points['TIMESTAMP'], y=nse_points[column], mode='markers', 
                                      name=f'NSE {column}', marker=dict(color='red', size=10)))
 
         fig.update_layout(
-            title='Time Series with NSEs Highlighted',
+            title='Time Series with NSEs Highlighted (Including Smoothed and Filtered Data)',
             xaxis_title='Timestamp',
             yaxis_title='mV/V',
             template='plotly_white'
