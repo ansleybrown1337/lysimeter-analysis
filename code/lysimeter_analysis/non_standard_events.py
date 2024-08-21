@@ -68,9 +68,9 @@ class NonStandardEvents:
         
         for column in self.columns:
             # Calculate the rate of change
-            self.df[f'{column}_rate_of_change'] = self.df[column].diff()
+            self.df[f'{column}_deltaMVV'] = self.df[column].diff()
             # Flag positive NSEs
-            self.df[f'{column}_NSE'] = self.df[f'{column}_rate_of_change'].apply(lambda x: 1 if x > self.threshold else 0)
+            self.df[f'{column}_NSE'] = self.df[f'{column}_deltaMVV'].apply(lambda x: 1 if x > self.threshold else 0)
             # Store the NSE count in the dictionary
             self.NSEcount[column] = self.df[f'{column}_NSE'].sum()
 
@@ -116,9 +116,10 @@ class NonStandardEvents:
             smoothed_data = gaussian_filter1d(self.df[column], sigma=1)  # Adjust sigma as needed
             fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=smoothed_data, mode='lines', name=f'{column} (Gaussian Smoothed)', line=dict(dash='dash')))
 
-            # Apply AWAT filter and plot the filtered data
+            '''# Apply AWAT filter and plot the filtered data (commented out for now until we get it working)
+
             awat_data = awat_filter(self.df[column], wmax=11, delta_max=0.24, kmax=6)  # Adjust wmax and delta_max as needed
-            fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=awat_data, mode='lines', name=f'{column} (AWAT Filtered)', line=dict(dash='dot')))
+            fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=awat_data, mode='lines', name=f'{column} (AWAT Filtered)', line=dict(dash='dot')))'''
 
             # Highlight NSEs
             nse_points = self.df[self.df[f'{column}_NSE'] == 1]

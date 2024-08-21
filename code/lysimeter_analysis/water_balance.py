@@ -63,7 +63,7 @@ class WaterBalance:
 
     def calculate_eta(self):
         """
-        Calculates the ETa and creates a plot with NSEs highlighted.
+        Calculates the ETa, interpolates values for NSE periods, and creates plots with NSEs highlighted.
         
         Returns:
             pd.DataFrame: DataFrame with ETa columns.
@@ -71,12 +71,12 @@ class WaterBalance:
         if self.custom_calibration_factor is None:
             raise ValueError("Calibration factor must be set before calculating ETa.")
         
-        # Adding placeholder columns for ETa
+        # Adding placeholder columns for delta weight (previously labeled as ETa)
         for column in self.df.columns:
-            if "_rate_of_change" in column:
-                eta_column = column.replace("_rate_of_change", "_ETa")
-                self.df[eta_column] = self.df[column] * self.custom_calibration_factor
-                # TODO: ETa equation = (delta_mV/V * calibration factor) + Irrigation + Precipitation + Fertilizer - Drainage + Other Extraneous Factors
+            if "_deltaMVV" in column:
+                delta_weight_column = column.replace("_deltaMVV", "_deltaMM")
+                self.df[delta_weight_column] = self.df[column] * self.custom_calibration_factor * -1
+                self._interpolate_nse_eta(delta_weight_column)
 
         # Calculate cumulative ETa
         self._calculate_cumulative_eta()
@@ -88,6 +88,37 @@ class WaterBalance:
         self._plot_cumulative_eta()
 
         return self.df
+
+    def _interpolate_nse_eta(self, delta_weight_column):
+        """
+        Interpolates ETa values for NSE periods by using neighboring ETa values.
+        
+        Args:
+            delta_weight_column (str): The name of the delta weight column to be interpolated.
+        """
+        nse_column = delta_weight_column.replace("_deltaMM", "_NSE")
+        
+        if nse_column in self.df.columns:
+            # Identify NSE periods where interpolation is needed
+            nse_mask = self.df[nse_column] == 1
+            
+            if nse_mask.any():
+                # Create a new column for interpolated ETa values
+                eta_column = delta_weight_column.replace("_deltaMM", "_ETa")
+                self.df[eta_column] = self.df[delta_weight_column].copy()
+
+                # Interpolate ETa values for NSEs using linear interpolation
+                self.df[eta_column] = self.df[eta_column].where(~nse_mask).interpolate(method='linear', limit_direction='both')
+                
+                # Optionally, fill any remaining NaNs after interpolation
+                self.df[eta_column].fillna(method='ffill', inplace=True)
+                self.df[eta_column].fillna(method='bfill', inplace=True)
+
+                # Check if interpolation was successful by verifying differences between the original and interpolated values
+                if (self.df[eta_column] == self.df[delta_weight_column]).all():
+                    print("Warning: Interpolation did not change any values. Ensure that there are valid data points before and after NSEs.")
+
+
 
     def _calculate_cumulative_eta(self):
         """
