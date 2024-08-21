@@ -117,7 +117,7 @@ class NonStandardEvents:
             fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=smoothed_data, mode='lines', name=f'{column} (Gaussian Smoothed)', line=dict(dash='dash')))
 
             # Apply AWAT filter and plot the filtered data
-            awat_data = awat_filter(self.df[column], wmax=11, delta_max=0.24)  # Adjust wmax and delta_max as needed
+            awat_data = awat_filter(self.df[column], wmax=11, delta_max=0.24, kmax=6)  # Adjust wmax and delta_max as needed
             fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=awat_data, mode='lines', name=f'{column} (AWAT Filtered)', line=dict(dash='dot')))
 
             # Highlight NSEs

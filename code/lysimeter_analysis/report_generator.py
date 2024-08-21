@@ -39,8 +39,8 @@ class ReportGenerator:
         # Static text for calibration assumptions and equation
         self.report_lines.append("")  # Add a blank line for spacing
         self.report_lines.append(
-            "Calibration Factor Equation: α (kg / (mV/V)) * (1 m³ / 1000 kg) * "
-            "(1 / β m²) * (1000 mm / 1 m) = Calibration Factor (mm / (mV/V))"
+            "Calibration Factor Equation: alpha (kg / (mV/V)) * (1 m³ / 1000 kg) * "
+            "(1 / beta m²) * (1000 mm / 1 m) = Calibration Factor (mm / (mV/V))"
         )
         self.report_lines.append("Depth of water equation: DoW (mm) = (mV/V * Calibration Factor)")
         self.report_lines.append("Assuming a water density of 1000 kg/m^3")

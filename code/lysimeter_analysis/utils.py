@@ -9,6 +9,8 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 from scipy.signal import savgol_filter
+from scipy.stats import t
+from warnings import warn
 
 def export_to_csv(df, output_directory, prefix="merged_data"):
     """
@@ -29,43 +31,82 @@ def export_to_csv(df, output_directory, prefix="merged_data"):
     
     print(f"Data exported to {output_filename}")
 
-def awat_filter(data, wmax=31, delta_max=0.24):
+def awat_filter(data, wmax=31, delta_max=0.24, kmax=6):
     """
-    TODO: need to figure out parameters and double check this function for
-    accurate implementation.
-    
-    Apply the AWAT filter to the provided data. Derived from:
-    Peters, A., Nehls, T., Schonsky, H., and Wessolek, G.: Separating 
-    precipitation and evapotranspiration from noise – a new filter routine for 
-    high-resolution lysimeter data, Hydrol. Earth Syst. Sci., 18, 1189–1198, 
-    https://doi.org/10.5194/hess-18-1189-2014, 2014.
+    Apply the AWAT (Adaptive Window and Adaptive Threshold) filter to the data.
 
     Args:
-        data (pd.Series or np.ndarray): The input data to filter.
-        wmax (int): The maximum window size for the Savitzky-Golay filter.
-        delta_max (float): The maximum allowable deviation for local maxima.
+        data (pd.Series or np.ndarray): The time series data to be filtered.
+        wmax (int): The maximum window width for the moving average (in data points).
+        delta_max (float): The maximum allowed threshold value.
+        kmax (int): The maximum polynomial order for fitting.
 
     Returns:
         np.ndarray: The filtered data.
     """
-    filtered_data = np.zeros_like(data)
     n = len(data)
+    filtered_data = np.zeros(n)
+    local_window = wmax // 2
 
     for i in range(n):
-        local_window = min(i, n - i - 1, wmax)
-        window_size = 2 * local_window + 1
-        order = min(2, window_size - 1)  # Ensure polyorder is less than window_size
-        
-        # Apply the Savitzky-Golay filter
-        if window_size > 1:
-            filtered_value = savgol_filter(data[max(i-local_window, 0):i+local_window+1], window_size, order)[local_window]
-        else:
-            filtered_value = data[i]
+        # Define the local window around the current data point
+        window_start = max(i - local_window, 0)
+        window_end = min(i + local_window + 1, n)
+        window_data = data[window_start:window_end]
+        t_range = np.arange(len(window_data))
 
-        # Check for the deviation condition
-        if abs(data[i] - filtered_value) < delta_max:
-            filtered_data[i] = data[i]
+        best_order = 0
+        best_aicc = np.inf
+
+        for k in range(1, kmax + 1):
+            if len(window_data) > k + 2:
+                # Fit polynomial of order k
+                coeffs = np.polyfit(t_range, window_data, k)
+                poly_fit = np.polyval(coeffs, t_range)
+                residuals = window_data - poly_fit
+                ssq = np.sum(residuals ** 2)
+
+                # Calculate AICc
+                if len(residuals) > k + 2:
+                    aicc = len(residuals) * np.log(ssq / len(residuals)) + 2 * (k + 1) + \
+                           (2 * (k + 1) * (k + 2)) / (len(residuals) - k - 2)
+                    if aicc < best_aicc:
+                        best_aicc = aicc
+                        best_order = k
+            else:
+                warn(f"Insufficient residuals for reliable AICc calculation at index {i}. "
+                     f"Consider increasing wmax.", UserWarning)
+                break
+
+        # Refit the polynomial with the best order if AICc was successfully calculated
+        if best_aicc != np.inf:
+            coeffs_best = np.polyfit(t_range, window_data, best_order)
+            poly_fit_best = np.polyval(coeffs_best, t_range)
+
+            # Calculate the noise (sres) and signal strength (B)
+            sres = np.std(window_data - poly_fit_best)
+            sdat = np.std(window_data)
+            B = sres / sdat if sdat != 0 else 0
+
+            # Adaptive window width based on signal strength B
+            wi = max(1, int(B * wmax))
+            if wi % 2 == 0:
+                wi += 1
+
+            # Calculate adaptive threshold (δ)
+            # TODO: not sure if this works correctly!!!
+            delta_i = min(max(sres, delta_max), delta_max)
+
+            # Apply moving average within the adaptive window
+            filtered_value = np.mean(data[window_start:window_end])
+
+            # Apply the adaptive threshold
+            if abs(filtered_value - data[i]) > delta_i:
+                filtered_data[i] = filtered_value
+            else:
+                filtered_data[i] = data[i]
         else:
-            filtered_data[i] = filtered_value
+            # If AICc calculation wasn't successful, keep the original data point
+            filtered_data[i] = data[i]
 
     return filtered_data
