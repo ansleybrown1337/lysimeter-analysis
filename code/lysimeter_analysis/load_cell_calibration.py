@@ -7,8 +7,8 @@ init()
 
 class LoadCellCalibration:
     def __init__(self):
-        self.alpha = 684.694  # Default value for LL
-        self.beta = 9.181      # Default value for LL
+        self.alpha = 684.694  # Default slope (beta, kg/mV/V) value for LL
+        self.beta = 9.181 # Default effective surface area value (m2) for LL
         self.calibration_factor = (self.alpha * 1000) / (self.beta * 1000)
         self.lysimeter_type = 'LL (default)'
         self.custom_values_provided = False  # Flag to track if custom values were provided

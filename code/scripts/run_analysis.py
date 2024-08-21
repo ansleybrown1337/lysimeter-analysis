@@ -55,13 +55,14 @@ def main(data_directory, output_directory, calibration_file, timescale, lysimete
     report_generator = ReportGenerator()
     report_generator.add_file_info(merger.get_merged_files())
     report_generator.add_nse_summary(nse_detector.NSEcount)
-    report_generator.add_calibration_info({
-        'Lysimeter Type': calibration.lysimeter_type,
-        'Calibration Factor': calibration.calibration_factor,
-        'Alpha (mV/V to kg)': calibration.alpha,
-        'Beta (surface area in m²)': calibration.beta
-    })
+    report_generator.add_calibration_info(
+        lysimeter_type=calibration.lysimeter_type,
+        calibration_factor=calibration.calibration_factor,
+        alpha=calibration.alpha,
+        beta=calibration.beta
+    )
     report_generator.export_report(output_directory)
+
 
     # Export the final dataframe including NSE columns and ETa
     export_to_csv(eta_df, output_directory)

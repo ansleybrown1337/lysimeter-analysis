@@ -6,35 +6,6 @@ pipeline, but do not fit into any of the other modules per se.
 
 import os
 import pandas as pd
-from datetime import datetime
-
-def export_to_csv(df, output_directory, prefix="merged_data"):
-    """
-    Exports the DataFrame to a CSV file with the current datetime in the filename.
-    
-    Args:
-        df (pd.DataFrame): The DataFrame to export.
-        output_directory (str): The directory to save the output CSV file.
-        prefix (str): The prefix for the output filename.
-    """
-    if not os.path.exists(output_directory):
-        os.makedirs(output_directory)
-    
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_filename = os.path.join(output_directory, f"{prefix}_{timestamp}.csv")
-    
-    df.to_csv(output_filename, index=False)
-    
-    print(f"Data exported to {output_filename}")
-
-# lysimeter_analysis/utils.py
-'''
-A compilation of utility functions that are used in the lysimeter analysis 
-pipeline, but do not fit into any of the other modules per se.
-'''
-
-import os
-import pandas as pd
 import numpy as np
 from datetime import datetime
 from scipy.signal import savgol_filter
@@ -57,9 +28,6 @@ def export_to_csv(df, output_directory, prefix="merged_data"):
     df.to_csv(output_filename, index=False)
     
     print(f"Data exported to {output_filename}")
-
-    
-
 
 def awat_filter(data, wmax=31, delta_max=0.24):
     """

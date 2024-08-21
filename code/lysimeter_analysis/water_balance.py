@@ -76,11 +76,28 @@ class WaterBalance:
             if "_rate_of_change" in column:
                 eta_column = column.replace("_rate_of_change", "_ETa")
                 self.df[eta_column] = self.df[column] * self.custom_calibration_factor
+                # TODO: ETa equation = (delta_mV/V * calibration factor) + Irrigation + Precipitation + Fertilizer - Drainage + Other Extraneous Factors
+
+        # Calculate cumulative ETa
+        self._calculate_cumulative_eta()
 
         # Automatically plot ETa with NSEs highlighted
         self._plot_eta_with_nse()
 
+        # Plot cumulative ETa
+        self._plot_cumulative_eta()
+
         return self.df
+
+    def _calculate_cumulative_eta(self):
+        """
+        Calculates the cumulative ETa for each ETa column in the dataframe.
+        This is a private method that is automatically called within the `calculate_eta` method.
+        """
+        for column in self.df.columns:
+            if "_ETa" in column:
+                cumulative_column = column.replace("_ETa", "_Cumulative_ETa")
+                self.df[cumulative_column] = self.df[column].cumsum()
 
     def _plot_eta_with_nse(self):
         """
@@ -94,7 +111,7 @@ class WaterBalance:
 
         # Add ETa columns to the plot
         for column in self.df.columns:
-            if "_ETa" in column:
+            if "_ETa" in column and "_Cumulative_ETa" not in column:
                 fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=self.df[column], mode='lines', name=column))
 
                 # Highlight NSEs
@@ -113,7 +130,36 @@ class WaterBalance:
 
         # Save the plot as an HTML file
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_filename_html = os.path.join(self.output_directory, f"ETa_plot_{timestamp}.html")
+        output_filename_html = os.path.join(self.output_directory, f"ETa_instance_{timestamp}.html")
         fig.write_html(output_filename_html)
 
         print(f"Interactive plot saved to {output_filename_html}")
+
+    def _plot_cumulative_eta(self):
+        """
+        Plots the cumulative ETa over time and saves the plot as an HTML file.
+        This is a private method that is automatically called within the `calculate_eta` method.
+        """
+        if not self.output_directory:
+            raise ValueError("Output directory must be set before plotting.")
+
+        fig = go.Figure()
+
+        # Add cumulative ETa columns to the plot
+        for column in self.df.columns:
+            if "_Cumulative_ETa" in column:
+                fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=self.df[column], mode='lines', name=column))
+
+        fig.update_layout(
+            title='Cumulative ETa Timeseries',
+            xaxis_title='Timestamp',
+            yaxis_title='Cumulative ETa (mm)',
+            template='plotly_white'
+        )
+
+        # Save the plot as an HTML file
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_filename_html = os.path.join(self.output_directory, f"Cumulative_ETa_{timestamp}.html")
+        fig.write_html(output_filename_html)
+
+        print(f"Cumulative ETa plot saved to {output_filename_html}")

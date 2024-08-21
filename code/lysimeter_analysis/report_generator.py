@@ -20,12 +20,16 @@ class ReportGenerator:
             self.report_lines.append(f"Load Cell Name: {column}:\nNSE count: {count}")
         self.report_lines.append("")  # Add a blank line for spacing
 
-    def add_calibration_info(self, calibration_info):
-        lysimeter_type = calibration_info.get('Lysimeter Type', 'Custom')
-        calibration_factor = calibration_info['Calibration Factor']
-        alpha = calibration_info['Alpha (mV/V to kg)']
-        beta = calibration_info['Beta (surface area in m²)']
-        
+    def add_calibration_info(self, lysimeter_type, calibration_factor, alpha, beta):
+        """
+        Adds calibration information to the report.
+
+        Args:
+            lysimeter_type (str): The type of lysimeter (e.g., 'SL', 'LL', 'Custom').
+            calibration_factor (float): The calibration factor in mm/mV/V.
+            alpha (float): The alpha coefficient in kg/mV/V.
+            beta (float): The beta coefficient in m².
+        """
         self.report_lines.append("## Calibration Information:")
         self.report_lines.append(f"Lysimeter Type: {lysimeter_type}")
         self.report_lines.append(f"Calibration Factor: {calibration_factor} mm/mV/V")
@@ -33,7 +37,11 @@ class ReportGenerator:
         self.report_lines.append(f"Effective Lysimeter Surface Area (Beta): {beta} m^2")
 
         # Static text for calibration assumptions and equation
-        self.report_lines.append("Calibration Factor Equation: (alpha * 1000) / (beta * 1000)")
+        self.report_lines.append("")  # Add a blank line for spacing
+        self.report_lines.append(
+            "Calibration Factor Equation: α (kg / (mV/V)) * (1 m³ / 1000 kg) * "
+            "(1 / β m²) * (1000 mm / 1 m) = Calibration Factor (mm / (mV/V))"
+        )
         self.report_lines.append("Depth of water equation: DoW (mm) = (mV/V * Calibration Factor)")
         self.report_lines.append("Assuming a water density of 1000 kg/m^3")
         self.report_lines.append("")  # Add a blank line for spacing
