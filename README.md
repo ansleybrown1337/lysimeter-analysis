@@ -128,6 +128,7 @@ Use windows to schedule that .exe to run at a given period (e.g., 12 hours)
 - ~~Change everything to use 5min data instead of 15min data, or at least give the user an option.  Note: METS only has 5 and 60 min data~~
 - ~~Create a report generator that reports NSE detection, ETc calibration parameters, load cell calibration parameters, and any other warnings or errors worth noting~~
 - Import weather data, calculate reference ETr, and compare to lysimeter ETc so that a crop coefficient is calculated (Kc = ETc / ETr), then fit a polynomial curve to the Kc values for a seasonal trend.
-- create a function in utils.py that allows users to aggregate data to a different time interval (e.g., 5min to 15min to 1hr to daily etc.) and output results in that selected interval.
-    - create error if user selects timestep that is smaller than input data timestep
+- ~~create a function in utils.py that allows users to aggregate data to a different time interval (e.g., 5min to 15min to 1hr to daily etc.) and output results in that selected interval.~~
+    - ~~create error if user selects timestep that is smaller than input data timestep~~
 - Add simulated data to put in github repo for public use, and make readme more public friendly
+- Add weather data script that calculates reference ETr and Kc values

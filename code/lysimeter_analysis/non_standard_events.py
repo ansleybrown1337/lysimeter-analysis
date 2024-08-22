@@ -18,7 +18,7 @@ class NonStandardEvents:
         """
         self.df = dataframe
         self.columns = None
-        self.threshold = 0.0004  # Default threshold for detecting NSEs
+        self.threshold = 0.0034  # Default threshold for detecting NSEs
         self.output_directory = None
         self.possible_columns = None  # New attribute for possible columns
         self.NSEcount = {}  # Attribute to store NSE counts
@@ -57,7 +57,7 @@ class NonStandardEvents:
         
         self.columns = columns_to_check
 
-    def _detect_nse(self):
+    def detect_nse(self):
         """
         Detects non-standard events (NSEs) based on sharp increases in the specified columns.
         
@@ -76,7 +76,7 @@ class NonStandardEvents:
 
         return self.df
 
-    def _plot_nse(self):
+    def plot_nse(self):
         """
         Plots the time series with NSE values highlighted and saves the plot as both a PNG file and an HTML file.
         Also adds Gaussian-smoothed and AWAT-filtered data to the Plotly graph.
@@ -137,14 +137,3 @@ class NonStandardEvents:
         fig.write_html(output_filename_html)
 
         print(f"Interactive NSE plot saved to {output_filename_html}")
-
-    def run_nse_detection(self):
-        """
-        Runs the full NSE detection process: detecting NSEs, plotting them, and summarizing them.
-        
-        Returns:
-            pd.DataFrame: The dataframe with NSEs detected.
-        """
-        self._detect_nse()
-        self._plot_nse()
-        return self.df

@@ -23,7 +23,7 @@ pip install -e .
 
 Here is the generic format for the command (notice that there are no line breaks, whereas the examples look like they have line breaks due to page size):
 ```python
-python scripts/run_analysis.py <data_directory> <output_directory> <calibration_file> <input_timescale> [aggregation frequency] [lysimeter_type] [custom_alpha] [custom_beta]
+python scripts/run_analysis.py <data_directory> <output_directory> <calibration_file> <input_timescale> [--frequency <aggregation_frequency>] [--lysimeter_type <lysimeter_type>] [--custom_alpha <custom_alpha>] [--custom_beta <custom_beta>] [--threshold <threshold_value>]
 
 ```
 Where:
@@ -31,12 +31,13 @@ Where:
 - **`<output_directory>`**: The directory where the output files will be saved.
 - **`<calibration_file>`**: The path to the calibration coefficients CSV file.
 - **`<input timescale>`**: The timescale to search for in the filenames (e.g., 'Min5', 'Min15', 'Min60').
-- **`[aggregation frequency]`**: *(Optional)* The frequency to aggregate the data to
+- **`[--frequency <aggregation_frequency>]`**: (Optional) The frequency to aggregate the data to.
     - Options: 'T' (minute), 'H' (hour), 'D' (day), 'W' (week), 'M' (month), 'Q' (quarter), 'A' (year)
-    - Examples: '15T' - 15 minutes, '2H' - 2 hour, '3D' - 3 days
-- **`[lysimeter_type]`**: *(Optional)* The type of lysimeter ('SL' or 'LL' or 'custom'). Use this if you want to apply the default calibration for these lysimeters. 
-- **`[custom_alpha]`**: *(Optional)* Custom alpha value for load cell calibration (kg/mV/V).
-- **`[custom_beta]`**: *(Optional)* Custom beta value for load cell calibration (surface area in m²).
+    - Examples: '15T' - 15 minutes, '2H' - 2 hours, '3D' - 3 days
+- **`[--lysimeter_type <lysimeter_type>]`**: (Optional) The type of lysimeter ('SL', 'LL', or 'custom'). Use this if you want to apply the default calibration for these lysimeters.
+- **`[--custom_alpha <custom_alpha>]`**: (Optional) Custom alpha value for load cell calibration (kg/mV/V).
+- **`[--custom_beta <custom_beta>]`**: (Optional) Custom beta value for load cell calibration (surface area in m²).
+- **`[--threshold <threshold_value>]`**: (Optional) Threshold for detecting non-standard events (NSEs). Defaults to 0.0034 mV / V.
 
 > [!WARNING] 
 > If you want to pass custom alpha/beta values, you must type something in the `[lysimeter_type]` variable space (e.g., "custom") as a placeholder, else it will thing the first number is the lysimeter type.
@@ -49,17 +50,17 @@ Example for test, SL, and LL data:
 
 *for test data:*
 ```
-python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\coefficients.csv Min15 --frequency H --lysimeter_type LL
+python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\coefficients.csv Min15 --frequency D --lysimeter_type LL --custom_alpha 684.694 --custom_beta 9.181 --threshold 0.0034
 ```
 
 *for SL data:*
 ```
-python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_SL_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_SL_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\SL_coefficients.csv Min15 SL
+python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_SL_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_SL_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\SL_coefficients.csv  Min15 --lysimeter_type SL
 ```
 
 *for LL data:*
 ```
-python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_LL_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_LL_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\LL_coefficients.csv Min15 LL
+python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_LL_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_LL_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\LL_coefficients.csv Min15 --lysimeter_type LL
 ```
 
 This should execute the analysis, process the data, detect non-standard events (NSEs), and save the results in the specified output directory. 

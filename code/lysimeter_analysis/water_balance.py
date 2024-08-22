@@ -81,12 +81,6 @@ class WaterBalance:
         # Calculate cumulative ETa
         self._calculate_cumulative_eta()
 
-        # Automatically plot ETa with NSEs highlighted
-        self._plot_eta_with_nse()
-
-        # Plot cumulative ETa
-        self._plot_cumulative_eta()
-
         return self.df
 
     def _interpolate_nse_eta(self, delta_weight_column):
@@ -130,7 +124,7 @@ class WaterBalance:
                 cumulative_column = column.replace("_ETa", "_Cumulative_ETa")
                 self.df[cumulative_column] = self.df[column].cumsum()
 
-    def _plot_eta_with_nse(self):
+    def plot_eta_with_nse(self):
         """
         Plots the ETa timeseries with NSEs highlighted and saves the plot as an HTML file.
         This is a private method that is automatically called within the `calculate_eta` method.
@@ -166,7 +160,7 @@ class WaterBalance:
 
         print(f"Interactive plot saved to {output_filename_html}")
 
-    def _plot_cumulative_eta(self):
+    def plot_cumulative_eta(self):
         """
         Plots the cumulative ETa over time and saves the plot as an HTML file.
         This is a private method that is automatically called within the `calculate_eta` method.

@@ -14,8 +14,9 @@ class ReportGenerator:
             self.report_lines.append(f"- {file}")
         self.report_lines.append("")  # Add a blank line for spacing
 
-    def add_nse_summary(self, nse_summary):
+    def add_nse_summary(self, nse_summary, threshold):
         self.report_lines.append("## NSE Summary:")
+        self.report_lines.append(f"Threshold for NSE Detection: {threshold} mV/V")
         for column, count in nse_summary.items():
             self.report_lines.append(f"Load Cell Name: {column}:\nNSE count: {count}")
         self.report_lines.append("")  # Add a blank line for spacing
