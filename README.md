@@ -15,6 +15,41 @@
 
 
 ## Proposed Workflow
+```mermaid
+graph TD
+    %% Main Workflow
+    A[Start] --> B[dat_file_merger.py: Load Data]
+    B --> C[dat_file_merger.py: Clean and Calibrate Data]
+    C --> D[non_standard_events.py: Detect NSEs]
+    D --> E[load_cell_calibration.py: Set Up Load Cell Calibration]
+    E --> F[water_balance.py: Calculate ETa]
+    F --> G[water_balance.py: Interpolate ETa for NSEs]
+    G --> H[water_balance.py: Calculate Cumulative ETa]
+    H --> I[report_generator.py: Generate and Export Reports]
+    I --> J[water_balance.py: Plot ETa with NSEs Highlighted]
+    I --> K[water_balance.py: Plot Cumulative ETa]
+    K --> L[Export Results]
+    J --> L
+    L --> M[End]
+
+    %% Additional Information Integrated
+    B --> B1([Loads, merges, and calibrates data files]):::info
+    C --> C1([Cleans data, identifies and removes outliers]):::info
+    D --> D1([Detects Non-Standard Events NSEs to find anomalies]):::info
+    E --> E1([Sets calibration parameters for load cells based on lysimeter type]):::info
+    F --> F1([Calculates ETa using calibration factor and raw data]):::info
+    G --> G1([Interpolates ETa values during NSE periods using neighboring values]):::info
+    H --> H1([Generates cumulative ETa values over time]):::info
+    I --> I1([Creates and exports reports with analysis and results]):::info
+    J --> J1([Plots ETa timeseries with NSEs highlighted]):::info
+    K --> K1([Plots cumulative ETa over the period of analysis]):::info
+
+    %% Styles
+    classDef info fill:#f0f0f0,stroke:#333,stroke-width:1px,font-size:12px;
+    style A fill:#f9f,stroke:#333,stroke-width:2px;
+    style M fill:#f9f,stroke:#333,stroke-width:2px;
+
+```
 **Objective 1: Process 2023 data**
 - AJ develop code using 2022 data where non-standard days are known, verifying that it works
 - AJ apply verified code on 2023 data
