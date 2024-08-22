@@ -131,4 +131,14 @@ Use windows to schedule that .exe to run at a given period (e.g., 12 hours)
 - ~~create a function in utils.py that allows users to aggregate data to a different time interval (e.g., 5min to 15min to 1hr to daily etc.) and output results in that selected interval.~~
     - ~~create error if user selects timestep that is smaller than input data timestep~~
 - Add simulated data to put in github repo for public use, and make readme more public friendly
-- Add weather data script that calculates reference ETr and Kc values
+- ~~Add weather data script that calculates reference ETr and Kc values~~
+    - Double check that pyfao56 is working correctly
+    - manually calculate dewpoint for asce pm equation
+- add ETa and ETc comparison plots as output
+- add Kc timeseries plot as output
+- Add weather data info to report generator
+- Perform analysis for 2022 data and compare to Lane's analysis results!
+
+
+## References
+ - Thorp, K. R., DeJonge, K. C., Pokoski, T., Gulati, D., Kukal, M., Farag, F., Hashem, A., Erismann, G., Baumgartner, T., Holzkaemper, A., 2024. Version 1.3.0 - pyfao56: FAO-56 evapotranspiration in Python. SoftwareX. In review.

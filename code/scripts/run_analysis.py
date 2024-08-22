@@ -3,17 +3,12 @@ import argparse
 import os
 import sys
 from colorama import Fore, Style, init
-from lysimeter_analysis.dat_file_merger import DatFileMerger
-from lysimeter_analysis.non_standard_events import NonStandardEvents
-from lysimeter_analysis.utils import export_to_csv, aggregate_data
-from lysimeter_analysis.water_balance import WaterBalance
-from lysimeter_analysis.report_generator import ReportGenerator
-from lysimeter_analysis.load_cell_calibration import LoadCellCalibration
+import lysimeter_analysis as ly
 
-def main(data_directory, output_directory, calibration_file, input_timescale, frequency=None, lysimeter_type=None, custom_alpha=None, custom_beta=None, threshold=0.0034):
+def main(data_directory, output_directory, calibration_file, input_timescale, frequency=None, lysimeter_type=None, custom_alpha=None, custom_beta=None, threshold=0.0034, weather_file_path=None):
     
     # Load, merge, and calibrate data
-    merger = DatFileMerger()
+    merger = ly.dat_file_merger.DatFileMerger()
     merger.set_data_directory(data_directory)
     merger.set_output_directory(output_directory)
     merger.set_calibration_file(calibration_file)
@@ -21,7 +16,7 @@ def main(data_directory, output_directory, calibration_file, input_timescale, fr
     calibrated_df = merger.clean_and_calibrated_data()
 
     # Identify Non-Standard Events (NSE)
-    nse_detector = NonStandardEvents()
+    nse_detector = ly.non_standard_events.NonStandardEvents()
     nse_detector.set_dataframe(calibrated_df)
     possible_columns = [
         'SM50_1_Avg', 'SM50_2_Avg',
@@ -35,10 +30,10 @@ def main(data_directory, output_directory, calibration_file, input_timescale, fr
 
     # Aggregate data if frequency is specified
     if frequency:
-        nse_df = aggregate_data(nse_df, frequency, timestamp_col='TIMESTAMP', input_timescale=input_timescale)
+        nse_df = ly.utils.aggregate_data(nse_df, frequency, timestamp_col='TIMESTAMP', input_timescale=input_timescale)
 
     # Set up Load Cell Calibration
-    calibration = LoadCellCalibration()
+    calibration = ly.load_cell_calibration.LoadCellCalibration()
 
     if lysimeter_type:
         calibration.get_calibration_factor(lysimeter_type)
@@ -46,7 +41,7 @@ def main(data_directory, output_directory, calibration_file, input_timescale, fr
         calibration.get_calibration_factor()
 
     # Calculate Water Balance
-    water_balance = WaterBalance()
+    water_balance = ly.water_balance.WaterBalance()
     water_balance.set_dataframe(nse_df)
     water_balance.set_output_directory(output_directory)
     water_balance.set_custom_calibration_factor(calibration.calibration_factor)
@@ -54,8 +49,28 @@ def main(data_directory, output_directory, calibration_file, input_timescale, fr
     water_balance.plot_eta_with_nse()
     water_balance.plot_cumulative_eta()
 
+    # Compare ETa to ASCE PM ETr via local weather data (daily for now)
+    if frequency == 'D' and weather_file_path:
+        weather_etr = ly.weather.WeatherETR()
+        weather_etr.load_data(weather_file_path)
+        weather_etr.preprocess_data()
+        weather_etr.calculate_daily_etr()
+
+        # Merge ETr with ETa Data
+        eta_df = eta_df.merge(weather_etr.df[['TIMESTAMP', 'ETr']], on='TIMESTAMP', how='left')
+
+        # Calculate Kc
+        weather_etr.df = eta_df  # Ensure the weather data object has the updated dataframe with ETa and ETr
+        weather_etr.calculate_kc()
+
+        # Update eta_df with the Kc values
+        eta_df = weather_etr.df
+    
+    elif frequency != 'D' and weather_file_path:
+        print(Fore.YELLOW + "Warning: Weather data comparison is skipped because the lysimeter data is not aggregated to a daily timescale." + Style.RESET_ALL)
+
     # Generate and export the report
-    report_generator = ReportGenerator()
+    report_generator = ly.report_generator.ReportGenerator()
     report_generator.add_file_info(merger.get_merged_files())
     report_generator.add_nse_summary(nse_detector.NSEcount, threshold=threshold)
     report_generator.add_timescale_info(input_timescale, frequency)
@@ -67,8 +82,8 @@ def main(data_directory, output_directory, calibration_file, input_timescale, fr
     )
     report_generator.export_report(output_directory)
 
-    # Export the final dataframe including NSE columns and ETa
-    export_to_csv(eta_df, output_directory)
+    # Export the final dataframe including NSE columns, ETa, ETr, and Kc if applicable
+    ly.utils.export_to_csv(eta_df, output_directory)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run the lysimeter analysis.')
@@ -82,6 +97,7 @@ if __name__ == "__main__":
     parser.add_argument('--custom_alpha', type=float, help='Custom alpha value for load cell calibration (kg/mV/V).', default=None)
     parser.add_argument('--custom_beta', type=float, help='Custom beta value for load cell calibration (surface area in m²).', default=None)
     parser.add_argument('--threshold', type=float, help='Threshold for detecting non-standard events (NSEs). Defaults to 0.0034.', default=0.0034)
+    parser.add_argument('--weather_file_path', type=str, help='Path to the weather data file for ETr calculation.', default=None)
 
     args = parser.parse_args()
 
@@ -94,5 +110,6 @@ if __name__ == "__main__":
         lysimeter_type=args.lysimeter_type,
         custom_alpha=args.custom_alpha,
         custom_beta=args.custom_beta,
-        threshold=args.threshold
+        threshold=args.threshold,
+        weather_file_path=args.weather_file_path
     )
