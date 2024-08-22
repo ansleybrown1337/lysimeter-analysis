@@ -17,37 +17,65 @@
 ## Proposed Workflow
 ```mermaid
 graph TD
-    %% Main Workflow
-    A[Start] --> B[dat_file_merger.py: Load Data]
-    B --> C[dat_file_merger.py: Clean and Calibrate Data]
-    C --> D[non_standard_events.py: Detect NSEs]
-    D --> E[load_cell_calibration.py: Set Up Load Cell Calibration]
-    E --> F[water_balance.py: Calculate ETa]
-    F --> G[water_balance.py: Interpolate ETa for NSEs]
-    G --> H[water_balance.py: Calculate Cumulative ETa]
-    H --> I[report_generator.py: Generate and Export Reports]
-    I --> J[water_balance.py: Plot ETa with NSEs Highlighted]
-    I --> K[water_balance.py: Plot Cumulative ETa]
-    K --> L[Export Results]
-    J --> L
-    L --> M[End]
+    %% Define subgraph for data collection
+    subgraph 1[Data Collection]
+    lysimeter[Raw Data from Lysimeter]
+    weather[Weather Data from METS]
+    nse[Manual Non-Standard Events]
+    end
 
-    %% Additional Information Integrated
-    B --> B1([Loads, merges, and calibrates data files]):::info
-    C --> C1([Cleans data, identifies and removes outliers]):::info
-    D --> D1([Detects Non-Standard Events NSEs to find anomalies]):::info
-    E --> E1([Sets calibration parameters for load cells based on lysimeter type]):::info
-    F --> F1([Calculates ETa using calibration factor and raw data]):::info
-    G --> G1([Interpolates ETa values during NSE periods using neighboring values]):::info
-    H --> H1([Generates cumulative ETa values over time]):::info
-    I --> I1([Creates and exports reports with analysis and results]):::info
-    J --> J1([Plots ETa timeseries with NSEs highlighted]):::info
-    K --> K1([Plots cumulative ETa over the period of analysis]):::info
+    %% Define subgraph for utils.py
+    subgraph 2[utils.py]
+    2A[export_csv]
+    2B[AWAT Filter]
+    end
 
-    %% Styles
-    classDef info fill:#f0f0f0,stroke:#333,stroke-width:1px,font-size:12px;
-    style A fill:#f9f,stroke:#333,stroke-width:2px;
-    style M fill:#f9f,stroke:#333,stroke-width:2px;
+    %% Define subgraph for dat_file_merger.py
+    subgraph A[dat_file_merger.py]
+    A1[Load Data]
+    A2[Clean Data]
+    A3[Calibrate Data]
+    end
+
+    %% Define subgraph for non_standard_events.py
+    subgraph B[non_standard_events.py]
+    B1[Detect NSEs]
+    B2[Plot NSEs]
+    end
+
+    %% Define subgraph for load_cell_calibration.py
+    subgraph C[load_cell_calibration.py]
+    C1[Set Calibration Parameters]
+    end
+
+    %% Define subgraph for water_balance.py
+    subgraph D[water_balance.py]
+    D1[Calculate ETa]
+    D2[Interpolate ETa]
+    D3[Calculate Cumulative ETa]
+    D4[Plot ETa with NSEs]
+    D5[Plot Cumulative ETa]
+    end
+
+    %% Define subgraph for report_generator.py
+    subgraph E[report_generator.py]
+    E1[Create Analysis Report]
+    end
+
+    %% Define the flow between the functions
+    lysimeter --> A1
+    weather --> A1
+    nse --> B1
+    A1 --> A2 --> A3 --> B1 --> C1 --> D1 --> D2 --> D3
+    D3 --> D4 
+    D3 --> D5
+
+    %% Final export of results
+    B2 --> F[Export Results]
+    E1 --> F[Export Results]
+    D3 --> F[Export Results]
+    D4 --> F[Export Results]
+    D5 --> F[Export Results]
 
 ```
 **Objective 1: Process 2023 data**
