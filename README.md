@@ -130,3 +130,4 @@ Use windows to schedule that .exe to run at a given period (e.g., 12 hours)
 - Import weather data, calculate reference ETr, and compare to lysimeter ETc so that a crop coefficient is calculated (Kc = ETc / ETr), then fit a polynomial curve to the Kc values for a seasonal trend.
 - create a function in utils.py that allows users to aggregate data to a different time interval (e.g., 5min to 15min to 1hr to daily etc.) and output results in that selected interval.
     - create error if user selects timestep that is smaller than input data timestep
+- Add simulated data to put in github repo for public use, and make readme more public friendly
