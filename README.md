@@ -8,7 +8,7 @@
  Ansley.Brown@colostate.edu <br/>
  5 April 2024
 
- ![Lysimeter](figs/lysimeter.png)
+ ![Lysimeter](figs/lysimeter.PNG)
 
  > [!NOTE]
  > Please note that the data are NOT found in this repository, and only the code, which will not inform users of any data insights as a standalone. To view the data, you must have it yourself already or recieve it with special permission from Colorado State University.  Please contact me if you have a data request.
