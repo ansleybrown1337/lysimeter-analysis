@@ -136,6 +136,7 @@ Use windows to schedule that .exe to run at a given period (e.g., 12 hours)
     - manually calculate dewpoint for asce pm equation
 - add ETa and ETc comparison plots as output
 - add Kc timeseries plot as output
+    - fit with polynomial curve
 - Add weather data info to report generator
 - Perform analysis for 2022 data and compare to Lane's analysis results!
 
