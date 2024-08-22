@@ -46,6 +46,19 @@ class ReportGenerator:
         self.report_lines.append("Assuming a water density of 1000 kg/m^3")
         self.report_lines.append("")  # Add a blank line for spacing
 
+    def add_timescale_info(self, input_timescale, output_timescale):
+        """
+        Adds timescale information to the report.
+
+        Args:
+            input_timescale (str): The timescale of the input data (e.g., 'Min15').
+            output_timescale (str): The timescale of the output data (e.g., 'Hourly').
+        """
+        self.report_lines.append("## Timescale Information:")
+        self.report_lines.append(f"Input Data Timescale: {input_timescale}")
+        self.report_lines.append(f"Output Data Timescale: {output_timescale}")
+        self.report_lines.append("")  # Add a blank line for spacing
+
     def export_report(self, output_directory, prefix="run_report"):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_filename = os.path.join(output_directory, f"{prefix}_{timestamp}.txt")

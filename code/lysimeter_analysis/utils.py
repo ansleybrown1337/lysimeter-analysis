@@ -110,3 +110,103 @@ def awat_filter(data, wmax=31, delta_max=0.24, kmax=6):
             filtered_data[i] = data[i]
 
     return filtered_data
+
+def convert_to_minutes(time_string):
+    """
+    Converts a time string (e.g., '15T', '1H', '1D') to minutes.
+    
+    Args:
+        time_string (str): The time string to convert.
+    
+    Returns:
+        int: The equivalent time in minutes.
+    """
+    time_units = {
+        'T': 1,         # Minutes
+        'H': 60,        # Hours
+        'D': 1440,      # Days
+        'W': 10080,     # Weeks
+        'M': 43200,     # Months (assuming 30 days in a month)
+        'Y': 525600     # Years (assuming 365 days in a year)
+    }
+    
+    # Extract the numeric part and the unit part from the time string
+    numeric_part = int(''.join(filter(str.isdigit, time_string)))
+    unit_part = ''.join(filter(str.isalpha, time_string))
+    
+    # Convert to minutes
+    return numeric_part * time_units.get(unit_part, 0)
+
+def aggregate_data(df, frequency, timestamp_col='TIMESTAMP', input_timescale=None):
+    """
+    Aggregates the DataFrame into a specified time frequency by summing numeric values
+    and carrying forward any NSE flags. Raises an error if attempting to aggregate to a smaller timescale.
+
+    Args:
+        df (pd.DataFrame): The DataFrame to be aggregated.
+        frequency (str): The frequency to aggregate by (e.g., 'H' for hourly, 'D' for daily).
+        timestamp_col (str): The name of the timestamp column. Defaults to 'TIMESTAMP'.
+        input_timescale (str): Optional. The input timescale provided by the user.
+
+    Returns:
+        pd.DataFrame: The aggregated DataFrame.
+    """
+    # Ensure timestamp column is in datetime format
+    df[timestamp_col] = pd.to_datetime(df[timestamp_col])
+
+    # Fallback dictionary for input timescales
+    fallback_timescale_dict = {
+        "Min5": "5T",
+        "Min15": "15T",
+        "Min60": "1H",
+        "Daily": "1D"
+    }
+
+    # Detect the actual frequency of the input data
+    detected_timescale = pd.infer_freq(df[timestamp_col])
+    print(f"Inferred input data frequency: {detected_timescale}")  # Print the detected frequency for debugging
+
+    # If frequency cannot be inferred, fall back to input_timescale or fallback dictionary
+    if detected_timescale is None:
+        if input_timescale in fallback_timescale_dict:
+            detected_timescale = fallback_timescale_dict[input_timescale]
+            print(f"Using fallback timescale for '{input_timescale}': {detected_timescale}")
+        elif input_timescale is not None:
+            detected_timescale = input_timescale
+            print(f"Using provided input_timescale: {detected_timescale}")
+        else:
+            raise ValueError("Could not infer the frequency of the input data. Please check the TIMESTAMP column.")
+
+    # Ensure 'frequency' is in the form of '1H', '1D', etc.
+    if not any(char.isdigit() for char in frequency):
+        frequency = "1" + frequency
+
+    # Convert both detected_timescale and frequency to minutes for comparison
+    detected_minutes = convert_to_minutes(detected_timescale)
+    frequency_minutes = convert_to_minutes(frequency)
+
+    # Check if the user is trying to downsample to a smaller timescale
+    if detected_minutes > frequency_minutes:
+        raise ValueError(f"Cannot aggregate to a smaller timescale than the input timescale. "
+                         f"Input timescale: {detected_timescale}, requested frequency: {frequency}")
+
+    # Set the timestamp column as the index for resampling
+    df = df.set_index(timestamp_col)
+
+    # Define aggregation rules
+    agg_dict = {}
+    for col in df.columns:
+        if '_NSE' in col:
+            # Use 'max' to carry forward the NSE flag if any exists in the period
+            agg_dict[col] = 'max'
+        elif pd.api.types.is_numeric_dtype(df[col]):
+            # Use 'sum' for numeric columns
+            agg_dict[col] = 'sum'
+        else:
+            # For non-numeric columns, take the first non-null entry
+            agg_dict[col] = 'first'
+
+    # Resample the dataframe based on the frequency and aggregation rules
+    df_resampled = df.resample(frequency).agg(agg_dict).reset_index()
+
+    return df_resampled

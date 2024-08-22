@@ -23,14 +23,17 @@ pip install -e .
 
 Here is the generic format for the command (notice that there are no line breaks, whereas the examples look like they have line breaks due to page size):
 ```python
-python scripts/run_analysis.py <data_directory> <output_directory> <calibration_file> <timescale> [lysimeter_type] [custom_alpha] [custom_beta]
+python scripts/run_analysis.py <data_directory> <output_directory> <calibration_file> <input_timescale> [aggregation frequency] [lysimeter_type] [custom_alpha] [custom_beta]
 
 ```
 Where:
 - **`<data_directory>`**: The directory containing the data files to process.
 - **`<output_directory>`**: The directory where the output files will be saved.
 - **`<calibration_file>`**: The path to the calibration coefficients CSV file.
-- **`<timescale>`**: The timescale to search for in the filenames (e.g., 'Min5', 'Min15', 'Min60').
+- **`<input timescale>`**: The timescale to search for in the filenames (e.g., 'Min5', 'Min15', 'Min60').
+- **`[aggregation frequency]`**: *(Optional)* The frequency to aggregate the data to
+    - Options: 'T' (minute), 'H' (hour), 'D' (day), 'W' (week), 'M' (month), 'Q' (quarter), 'A' (year)
+    - Examples: '15T' - 15 minutes, '2H' - 2 hour, '3D' - 3 days
 - **`[lysimeter_type]`**: *(Optional)* The type of lysimeter ('SL' or 'LL' or 'custom'). Use this if you want to apply the default calibration for these lysimeters. 
 - **`[custom_alpha]`**: *(Optional)* Custom alpha value for load cell calibration (kg/mV/V).
 - **`[custom_beta]`**: *(Optional)* Custom beta value for load cell calibration (surface area in m²).
@@ -46,7 +49,7 @@ Example for test, SL, and LL data:
 
 *for test data:*
 ```
-python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\coefficients.csv Min15 custom 800 2.5
+python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\coefficients.csv Min15 --frequency H --lysimeter_type LL
 ```
 
 *for SL data:*

@@ -125,7 +125,7 @@ Use windows to schedule that .exe to run at a given period (e.g., 12 hours)
 - ~~Calculate ETc for NSE events~~
     - Option 1 (selected): linearly interpolate between ET values at start and end of NSE events
     - Option 2 (for later invesitgation): Use PyFAO56 (or code my own?) to estimate ASCE PM ETc for all NSE flagged rows from METS weather data
-- Change everything to use 5min data instead of 15min data, or at least give the user an option.  Note: METS on ly has 5 and 60 min data
+- ~~Change everything to use 5min data instead of 15min data, or at least give the user an option.  Note: METS only has 5 and 60 min data~~
 - ~~Create a report generator that reports NSE detection, ETc calibration parameters, load cell calibration parameters, and any other warnings or errors worth noting~~
 - Import weather data, calculate reference ETr, and compare to lysimeter ETc so that a crop coefficient is calculated (Kc = ETc / ETr), then fit a polynomial curve to the Kc values for a seasonal trend.
 - create a function in utils.py that allows users to aggregate data to a different time interval (e.g., 5min to 15min to 1hr to daily etc.) and output results in that selected interval.

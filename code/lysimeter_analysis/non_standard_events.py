@@ -103,7 +103,7 @@ class NonStandardEvents:
         plt.savefig(output_filename_png)
         plt.close()
         
-        print(f"Static plot saved to {output_filename_png}")
+        print(f"Static NSE plot saved to {output_filename_png}")
 
         # Interactive Plotly Plot
         fig = go.Figure()
@@ -136,7 +136,7 @@ class NonStandardEvents:
         output_filename_html = os.path.join(self.output_directory, f"NSE_plot_{timestamp}.html")
         fig.write_html(output_filename_html)
 
-        print(f"Interactive plot saved to {output_filename_html}")
+        print(f"Interactive NSE plot saved to {output_filename_html}")
 
     def run_nse_detection(self):
         """

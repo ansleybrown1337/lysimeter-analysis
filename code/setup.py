@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='lysimeter-analysis',
-    version='0.4.1',  # See documentation folder for notes on versioning
+    version='0.5.0',  # See documentation folder for notes on versioning
     packages=find_packages(),
     install_requires=[
         'pandas',
