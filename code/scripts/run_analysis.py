@@ -88,10 +88,10 @@ def main(data_directory, output_directory, calibration_file, input_timescale, fr
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run the lysimeter analysis.')
 
-    parser.add_argument('data_directory', type=str, help='The directory containing the lysimeter data files (.dat) to process.')
-    parser.add_argument('output_directory', type=str, help='The directory where the output files will be saved.')
-    parser.add_argument('calibration_file', type=str, help='The path to the calibration coefficients CSV file.')
-    parser.add_argument('input_timescale', type=str, help='The timescale of the input data (e.g., Min15).')
+    parser.add_argument('--data_directory', type=str, required=True, help='The directory containing the lysimeter data files (.dat) to process.')
+    parser.add_argument('--output_directory', type=str, required=True, help='The directory where the output files will be saved.')
+    parser.add_argument('--calibration_file', type=str, required=True, help='The path to the calibration coefficients CSV file.')
+    parser.add_argument('--input_timescale', type=str, required=True, help='The timescale of the input data (e.g., Min15).')
     parser.add_argument('--frequency', type=str, help='The frequency to aggregate the data (e.g., H for hourly, D for daily).', default=None)
     parser.add_argument('--lysimeter_type', type=str, help='The type of lysimeter (SL or LL).', default=None)
     parser.add_argument('--custom_alpha', type=float, help='Custom alpha value for load cell calibration (kg/mV/V).', default=None)

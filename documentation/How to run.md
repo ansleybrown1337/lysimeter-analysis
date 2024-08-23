@@ -43,24 +43,29 @@ Where:
 > [!NOTE]
 > If you don't designate a lysimeter type, it will default to values used for the LL
 
-
-Example for test, SL, and LL data:
+### Example for test, SL, and LL data:
 
 *for test data:*
-```
+```bash
 python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\coefficients.csv Min15 --frequency D --lysimeter_type LL --custom_alpha 684.694 --custom_beta 9.181 --threshold 0.0034 --weather_file_path C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_METS_data\METS_Daily_2022.dat
 ```
 
 *for SL data:*
-```
+```bash
 python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_SL_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_SL_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\SL_coefficients.csv  Min15 --lysimeter_type SL
 ```
 
 *for LL data:*
-```
+```bash
 python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_LL_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_LL_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\LL_coefficients.csv Min15 --lysimeter_type LL
 ```
 
 This should execute the analysis, process the data, detect non-standard events (NSEs), and save the results in the specified output directory. 
 
 Additionally, it will save the time series plots with NSEs highlighted as a static image **and** an interactive plotly graph in the output directory.  The interactive plotly graph will be saved as an html file in the output directory, **and is far easier to use for data exploration than the static image.**
+
+### Using Relative pathways:
+Relative pathways can be used for easy copy/paste execution of the run_analysis.py script:
+```bash
+python scripts/run_analysis.py ../private_test_data ../private_test_output ../code/coefficients.csv Min15 --frequency D --lysimeter_type LL --custom_alpha 684.694 --custom_beta 9.181 --threshold 0.0034 --weather_file_path ../private_METS_data/METS_Daily_2022.dat
+```
