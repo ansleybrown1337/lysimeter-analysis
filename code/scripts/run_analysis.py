@@ -52,6 +52,7 @@ def main(data_directory, output_directory, calibration_file, input_timescale, fr
     # Compare ETa to ASCE PM ETr via local weather data (daily for now)
     if frequency == 'D' and weather_file_path:
         weather_etr = ly.weather.WeatherETR()
+        weather_etr.set_output_directory(output_directory)
         weather_etr.load_data(weather_file_path)
         weather_etr.preprocess_data()
         weather_etr.calculate_daily_etr()
@@ -65,6 +66,12 @@ def main(data_directory, output_directory, calibration_file, input_timescale, fr
 
         # Update eta_df with the Kc values
         eta_df = weather_etr.df
+
+        # Plot and save ETa vs ETr
+        weather_etr.plot_etr_vs_eta()
+
+        # Plot and save Kc with 2nd order polynomial fit
+        weather_etr.plot_kc_with_fit()
     
     elif frequency != 'D' and weather_file_path:
         print(Fore.YELLOW + "Warning: Weather data comparison is skipped because the lysimeter data is not aggregated to a daily timescale." + Style.RESET_ALL)

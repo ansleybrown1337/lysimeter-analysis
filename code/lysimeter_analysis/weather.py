@@ -1,10 +1,9 @@
-# weather.py
-
 import pandas as pd
 import numpy as np
 import os
 from datetime import datetime
 from pyfao56.refet import ascedaily
+import plotly.graph_objects as go
 
 class WeatherETR:
     def __init__(self, elevation=1274.064, latitude=38.0385):
@@ -18,6 +17,16 @@ class WeatherETR:
         self.elevation = elevation
         self.latitude = latitude
         self.df = None
+        self.output_directory = None
+
+    def set_output_directory(self, output_directory):
+        """
+        Sets the output directory for saving plots.
+        
+        Args:
+            output_directory (str): Path to the directory where plots should be saved.
+        """
+        self.output_directory = output_directory
 
     def load_data(self, file_path):
         """
@@ -59,7 +68,7 @@ class WeatherETR:
         # Calculate Day of Year
         self.df['DOY'] = self.df['TIMESTAMP'].dt.dayofyear
 
-        # Calculate dew point temperature Td = T - ((100 - RH) / 5) where T is temperature in Celsius and RH is relative humidity in percent
+        # Calculate dew point temperature Td = T - ((100 - RH) / 5)
         self.df['TDew'] = self.df['AirTemp_Avg'] - ((100 - self.df['RH_Avg']) / 5)
         
         # Ensure necessary columns are present
@@ -136,3 +145,100 @@ class WeatherETR:
                 print(f"Calculated Kc for {eta_col}, results stored in {kc_col}.")
             else:
                 print(f"Warning: {eta_col} column not found in DataFrame.")
+    
+    def plot_etr_vs_eta(self, eta_columns=None):
+        """
+        Plots a time series of ETa and ETr values and saves it as an HTML file.
+        
+        Args:
+            eta_columns (list): List of column names for Actual Evapotranspiration (ETa).
+                                If None, it will automatically detect columns ending with '_ETa'.
+        
+        Returns:
+            None: The plot is saved as an HTML file.
+        """
+        if self.df is None:
+            raise ValueError("DataFrame is empty. Please load and preprocess data first.")
+        
+        if eta_columns is None:
+            # Automatically detect columns ending with '_ETa'
+            eta_columns = [col for col in self.df.columns if col.endswith('_ETa')]
+        
+        fig = go.Figure()
+        
+        # Plot ETr
+        fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=self.df['ETr'], mode='lines', name='ETr'))
+        
+        # Plot each ETa column
+        for eta_col in eta_columns:
+            if eta_col in self.df.columns:
+                fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=self.df[eta_col], mode='lines', name=eta_col))
+        
+        fig.update_layout(
+            title='Time Series of ETa and ETr',
+            xaxis_title='Date',
+            yaxis_title='Evapotranspiration (mm)',
+            template='plotly_white'
+        )
+        
+        # Save the plot as an HTML file
+        if not self.output_directory:
+            raise ValueError("Output directory must be set before plotting.")
+        
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_filename_html = os.path.join(self.output_directory, f"ETa_vs_ETr_{timestamp}.html")
+        fig.write_html(output_filename_html)
+
+        print(f"Interactive plot saved to {output_filename_html}")
+
+    def plot_kc_with_fit(self, kc_columns=None):
+        """
+        Plots a time series of Kc values with a 2nd order polynomial fit and saves it as an HTML file.
+        
+        Args:
+            kc_columns (list): List of column names for Crop Coefficient (Kc).
+                               If None, it will automatically detect columns ending with '_Kc'.
+        
+        Returns:
+            None: The plot is saved as an HTML file.
+        """
+        if self.df is None:
+            raise ValueError("DataFrame is empty. Please load and preprocess data first.")
+        
+        if kc_columns is None:
+            # Automatically detect columns ending with '_Kc'
+            kc_columns = [col for col in self.df.columns if col.endswith('_Kc')]
+        
+        fig = go.Figure()
+        
+        # Plot each Kc column and its polynomial fit
+        for kc_col in kc_columns:
+            if kc_col in self.df.columns:
+                # Scatter plot of Kc values
+                fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=self.df[kc_col], mode='markers', name=kc_col))
+                
+                # Fit a 2nd order polynomial
+                x_vals = np.arange(len(self.df[kc_col].dropna()))
+                y_vals = self.df[kc_col].dropna().values
+                poly_fit = np.polyfit(x_vals, y_vals, 2)
+                poly_vals = np.polyval(poly_fit, x_vals)
+                
+                # Plot the polynomial fit line
+                fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'].iloc[:len(poly_vals)], y=poly_vals, mode='lines', name=f'{kc_col} Fit'))
+        
+        fig.update_layout(
+            title='Time Series of Kc with 2nd Order Polynomial Fit',
+            xaxis_title='Date',
+            yaxis_title='Crop Coefficient (Kc)',
+            template='plotly_white'
+        )
+        
+        # Save the plot as an HTML file
+        if not self.output_directory:
+            raise ValueError("Output directory must be set before plotting.")
+        
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_filename_html = os.path.join(self.output_directory, f"Kc_with_fit_{timestamp}.html")
+        fig.write_html(output_filename_html)
+
+        print(f"Interactive plot saved to {output_filename_html}")
