@@ -58,6 +58,9 @@ class WeatherETR:
         
         # Calculate Day of Year
         self.df['DOY'] = self.df['TIMESTAMP'].dt.dayofyear
+
+        # Calculate dew point temperature Td = T - ((100 - RH) / 5) where T is temperature in Celsius and RH is relative humidity in percent
+        self.df['TDew'] = self.df['AirTemp_Avg'] - ((100 - self.df['RH_Avg']) / 5)
         
         # Ensure necessary columns are present
         required_columns = ['TIMESTAMP', 'Tmax', 'Tmin', 'SolarRad', 'VaporPressure', 'WindSpeed', 'DOY']
@@ -90,9 +93,11 @@ class WeatherETR:
                     tmax=row['Tmax'],
                     tmin=row['Tmin'],
                     vapr=row['VaporPressure'],
-                    wndsp=row['WindSpeed'],
+                    tdew=row['TDew'],
                     rhmax=row['RHmax'],
-                    rhmin=row['RHmin']
+                    rhmin=row['RHmin'],
+                    wndsp=row['WindSpeed'],
+                    wndht=2.0 # Wind height in meters, assuming 2m
                 )
                 etr_values.append(etr)
             except Exception as e:

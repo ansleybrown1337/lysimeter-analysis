@@ -1,5 +1,7 @@
 # lysimeter_analysis/__init__.py
 
+__version__ = "0.5.5"
+
 from .dat_file_merger import DatFileMerger
 from .non_standard_events import NonStandardEvents
 from .utils import export_to_csv, aggregate_data

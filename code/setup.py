@@ -1,8 +1,19 @@
 from setuptools import setup, find_packages
+import os
+
+# Function to read the version from the package __init__.py
+def get_version(package_name):
+    init_py = os.path.join(os.path.dirname(__file__), package_name, '__init__.py')
+    with open(init_py, 'r') as f:
+        for line in f:
+            if line.startswith('__version__'):
+                delim = '"' if '"' in line else "'"
+                return line.split(delim)[1]
+    raise RuntimeError("Unable to find version string.")
 
 setup(
     name='lysimeter-analysis',
-    version='0.5.5',  # See documentation folder for notes on versioning
+    version=get_version('lysimeter_analysis'),  # Dynamically fetch the version
     packages=find_packages(),
     install_requires=[
         'pandas>=1.0.0',

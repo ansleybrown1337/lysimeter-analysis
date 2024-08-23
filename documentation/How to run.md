@@ -22,15 +22,19 @@ pip install -e .
 ## Execute ```run_analysis.py``` Script
 
 Here is the generic format for the command (notice that there are no line breaks, whereas the examples look like they have line breaks due to page size):
-```python
-python scripts/run_analysis.py <data_directory> <output_directory> <calibration_file> <input_timescale> [--frequency <aggregation_frequency>] [--lysimeter_type <lysimeter_type>] [--custom_alpha <custom_alpha>] [--custom_beta <custom_beta>] [--threshold <threshold_value>]
+```bash
+python scripts/run_analysis.py --data_directory <data_directory> --output_directory <output_directory> --calibration_file <calibration_file> --input_timescale <input_timescale> --frequency <aggregation_frequency> --lysimeter_type <lysimeter_type> --custom_alpha <custom_alpha> --custom_beta <custom_beta> --threshold <threshold_value>
 
 ```
 Where:
-- **`<data_directory>`**: The directory containing the data files to process.
-- **`<output_directory>`**: The directory where the output files will be saved.
-- **`<calibration_file>`**: The path to the calibration coefficients CSV file.
-- **`<input timescale>`**: The timescale to search for in the filenames (e.g., 'Min5', 'Min15', 'Min60').
+*Required parameters:*
+- **`--data_directory <data_directory>`**: The directory containing the data files to process.
+- **`--output_directory <output_directory>`**: The directory where the output files will be saved.
+- **`--calibration_file <calibration_file>`**: The path to the calibration coefficients CSV file.
+- **`--input_timescale <input timescale>`**: The timescale to search for in the filenames 
+    - Available Options: 'Min5', 'Min15', 'Min60', 'Daily'
+    - You **must** have one of these text options in the input data file name
+*Optional parameters:*
 - **`[--frequency <aggregation_frequency>]`**: (Optional) The frequency to aggregate the data to.
     - Options: 'T' (minute), 'H' (hour), 'D' (day), 'W' (week), 'M' (month), 'Q' (quarter), 'A' (year)
     - Examples: '15T' - 15 minutes, '2H' - 2 hours, '3D' - 3 days
@@ -47,25 +51,25 @@ Where:
 
 *for test data:*
 ```bash
-python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\coefficients.csv Min15 --frequency D --lysimeter_type LL --custom_alpha 684.694 --custom_beta 9.181 --threshold 0.0034 --weather_file_path C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_METS_data\METS_Daily_2022.dat
+python scripts/run_analysis.py --data_directory C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_data --output_directory C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_output --calibration_file C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\coefficients.csv --input_timescale Min15 --frequency D --lysimeter_type LL --custom_alpha 684.694 --custom_beta 9.181 --threshold 0.0034 --weather_file_path C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_METS_data\METS_Daily_2022.dat
 ```
 
 *for SL data:*
 ```bash
-python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_SL_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_SL_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\SL_coefficients.csv  Min15 --lysimeter_type SL
+python scripts/run_analysis.py --data_directory C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_SL_data --output_directory C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_SL_output --calibration_file C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\SL_coefficients.csv --input_timescale Min15 --lysimeter_type SL
 ```
 
 *for LL data:*
 ```bash
-python scripts/run_analysis.py C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_LL_data C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_LL_output C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\LL_coefficients.csv Min15 --lysimeter_type LL
+python scripts/run_analysis.py --data_directory C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_LL_data --output_directory C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_LL_output --calibration_file C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code\LL_coefficients.csv --input_timescale Min15 --lysimeter_type LL
 ```
 
 This should execute the analysis, process the data, detect non-standard events (NSEs), and save the results in the specified output directory. 
 
 Additionally, it will save the time series plots with NSEs highlighted as a static image **and** an interactive plotly graph in the output directory.  The interactive plotly graph will be saved as an html file in the output directory, **and is far easier to use for data exploration than the static image.**
 
-### Using Relative pathways:
+### Using Relative pathway for using this repository (./code) as the place of execution:
 Relative pathways can be used for easy copy/paste execution of the run_analysis.py script:
 ```bash
-python scripts/run_analysis.py ../private_test_data ../private_test_output ../code/coefficients.csv Min15 --frequency D --lysimeter_type LL --custom_alpha 684.694 --custom_beta 9.181 --threshold 0.0034 --weather_file_path ../private_METS_data/METS_Daily_2022.dat
+python scripts/run_analysis.py --data_directory ../private_test_data --output_directory ../private_test_output --calibration_file ../code/coefficients.csv --input_timescale Min15 --frequency D --lysimeter_type LL --custom_alpha 684.694 --custom_beta 9.181 --threshold 0.0034 --weather_file_path ../private_METS_data/METS_Daily_2022.dat
 ```
