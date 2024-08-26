@@ -137,9 +137,11 @@ Use windows to schedule that .exe to run at a given period (e.g., 12 hours)
     - ~~fit with polynomial curve~~
 - refine NSE detection algorithm to be more accurate
     - use AWAT filter to smooth smaller NSE events due to wind and other noise that aren't explicity irrigations, rains, etc.
-- remove cumulative lines on Kc and ET plots
+- remove cumulative lines on Kc and instantaneous ET plots
 - Add weather data info to report generator
 - Perform analysis for 2022 data and compare to Lane's analysis results!
+- ~~Add manual NSE detection to report generator~~
+- Make NSE dots colored by NSE Type, and HoverTool to show NSE Type in plotly
 
 
 ## References
