@@ -131,16 +131,20 @@ def convert_to_minutes(time_string):
     }
     
     # Extract the numeric part and the unit part from the time string
-    numeric_part = int(''.join(filter(str.isdigit, time_string)))
+    numeric_part = ''.join(filter(str.isdigit, time_string))
     unit_part = ''.join(filter(str.isalpha, time_string))
+    
+    # Default numeric part to 1 if no digits are found (e.g., 'D' means '1D')
+    numeric_part = int(numeric_part) if numeric_part else 1
     
     # Convert to minutes
     return numeric_part * time_units.get(unit_part, 0)
 
+
 def aggregate_data(df, frequency, timestamp_col='TIMESTAMP', input_timescale=None):
     """
-    Aggregates the DataFrame into a specified time frequency by summing numeric values
-    and carrying forward any NSE flags. Raises an error if attempting to aggregate to a smaller timescale.
+    Aggregates the DataFrame into a specified time frequency by summing numeric values,
+    carrying forward any NSE flags, and combining unique event types into a single string.
 
     Args:
         df (pd.DataFrame): The DataFrame to be aggregated.
@@ -175,17 +179,17 @@ def aggregate_data(df, frequency, timestamp_col='TIMESTAMP', input_timescale=Non
             detected_timescale = input_timescale
             print(f"Using provided input_timescale: {detected_timescale}")
         else:
-            raise ValueError("Could not infer the frequency of the input data. Please check the TIMESTAMP column.")
+            raise ValueError("Could not infer the frequency of the input data. Please check the TIMESTAMP column, or ensure that the lysimeter filename contains 'Min5', 'Min15', 'Min60', or 'Daily'.")
 
-    # Ensure 'frequency' is in the form of '1H', '1D', etc.
-    if not any(char.isdigit() for char in frequency):
-        frequency = "1" + frequency
+    # Convert custom frequency strings (e.g., Min15) to valid pandas offset aliases (e.g., 15T)
+    frequency = fallback_timescale_dict.get(frequency, frequency)
 
     # Convert both detected_timescale and frequency to minutes for comparison
     detected_minutes = convert_to_minutes(detected_timescale)
     frequency_minutes = convert_to_minutes(frequency)
 
     # Check if the user is trying to downsample to a smaller timescale
+    #print(f"Detected minutes: {detected_minutes}, Frequency minutes: {frequency_minutes}")
     if detected_minutes > frequency_minutes:
         raise ValueError(f"Cannot aggregate to a smaller timescale than the input timescale. "
                          f"Input timescale: {detected_timescale}, requested frequency: {frequency}")
@@ -196,9 +200,12 @@ def aggregate_data(df, frequency, timestamp_col='TIMESTAMP', input_timescale=Non
     # Define aggregation rules
     agg_dict = {}
     for col in df.columns:
-        if '_NSE' in col:
-            # Use 'max' to carry forward the NSE flag if any exists in the period
+        if '_NSE' in col and df[col].dtype != 'object':
+            # Use 'max' to carry forward the NSE flag if any exists in the period for numeric NSE columns
             agg_dict[col] = 'max'
+        elif '_NSE_Type' in col:
+            # Combine unique event types into a comma-separated string
+            agg_dict[col] = lambda x: ', '.join(sorted(set(x.dropna())))
         elif pd.api.types.is_numeric_dtype(df[col]):
             # Use 'sum' for numeric columns
             agg_dict[col] = 'sum'
@@ -210,3 +217,4 @@ def aggregate_data(df, frequency, timestamp_col='TIMESTAMP', input_timescale=Non
     df_resampled = df.resample(frequency).agg(agg_dict).reset_index()
 
     return df_resampled
+

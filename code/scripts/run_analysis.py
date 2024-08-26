@@ -5,7 +5,7 @@ import sys
 from colorama import Fore, Style, init
 import lysimeter_analysis as ly
 
-def main(data_directory, output_directory, calibration_file, input_timescale, frequency=None, lysimeter_type=None, custom_alpha=None, custom_beta=None, threshold=0.0034, weather_file_path=None):
+def main(data_directory, output_directory, calibration_file, input_timescale, manual_nse_file_path=None, frequency=None, lysimeter_type=None, custom_alpha=None, custom_beta=None, threshold=0.0034, weather_file_path=None):
     
     # Load, merge, and calibrate data
     merger = ly.dat_file_merger.DatFileMerger()
@@ -25,8 +25,16 @@ def main(data_directory, output_directory, calibration_file, input_timescale, fr
     nse_detector.set_possible_columns(possible_columns)
     nse_detector.set_output_directory(output_directory)
     nse_detector.set_threshold(threshold)
+
+    # Load and integrate manually defined NSEs if provided
+    if manual_nse_file_path:
+        nse_detector.load_manual_nse(manual_nse_file_path)
+    
+    # Detect NSEs using the automatic method
     nse_df = nse_detector.detect_nse()
-    nse_detector.plot_nse()
+    
+    # Plot NSEs after integrating manual NSEs
+    #nse_detector.plot_nse()
 
     # Aggregate data if frequency is specified
     if frequency:
@@ -46,8 +54,8 @@ def main(data_directory, output_directory, calibration_file, input_timescale, fr
     water_balance.set_output_directory(output_directory)
     water_balance.set_custom_calibration_factor(calibration.calibration_factor)
     eta_df = water_balance.calculate_eta()
-    water_balance.plot_eta_with_nse()
-    water_balance.plot_cumulative_eta()
+    #water_balance.plot_eta_with_nse()
+    #water_balance.plot_cumulative_eta()
 
     # Compare ETa to ASCE PM ETr via local weather data (daily for now)
     if frequency == 'D' and weather_file_path:
@@ -68,10 +76,10 @@ def main(data_directory, output_directory, calibration_file, input_timescale, fr
         eta_df = weather_etr.df
 
         # Plot and save ETa vs ETr
-        weather_etr.plot_etr_vs_eta()
+        #weather_etr.plot_etr_vs_eta()
 
         # Plot and save Kc with 2nd order polynomial fit
-        weather_etr.plot_kc_with_fit()
+        #weather_etr.plot_kc_with_fit()
     
     elif frequency != 'D' and weather_file_path:
         print(Fore.YELLOW + "Warning: Weather data comparison is skipped because the lysimeter data is not aggregated to a daily timescale." + Style.RESET_ALL)
@@ -99,6 +107,7 @@ if __name__ == "__main__":
     parser.add_argument('--output_directory', type=str, required=True, help='The directory where the output files will be saved.')
     parser.add_argument('--calibration_file', type=str, required=True, help='The path to the calibration coefficients CSV file.')
     parser.add_argument('--input_timescale', type=str, required=True, help='The timescale of the input data (e.g., Min15).')
+    parser.add_argument('--manual_nse_file_path', type=str, help='Path to the CSV file containing manually defined NSEs.', default=None)
     parser.add_argument('--frequency', type=str, help='The frequency to aggregate the data (e.g., H for hourly, D for daily).', default=None)
     parser.add_argument('--lysimeter_type', type=str, help='The type of lysimeter (SL or LL).', default=None)
     parser.add_argument('--custom_alpha', type=float, help='Custom alpha value for load cell calibration (kg/mV/V).', default=None)
@@ -118,5 +127,6 @@ if __name__ == "__main__":
         custom_alpha=args.custom_alpha,
         custom_beta=args.custom_beta,
         threshold=args.threshold,
-        weather_file_path=args.weather_file_path
+        weather_file_path=args.weather_file_path,
+        manual_nse_file_path=args.manual_nse_file_path
     )
