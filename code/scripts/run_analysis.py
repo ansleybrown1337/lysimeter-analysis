@@ -34,7 +34,7 @@ def main(data_directory, output_directory, calibration_file, input_timescale, ma
     nse_df = nse_detector.detect_nse()
     
     # Plot NSEs after integrating manual NSEs
-    #nse_detector.plot_nse()
+    nse_detector.plot_nse()
 
     # Aggregate data if frequency is specified
     if frequency:
@@ -54,8 +54,8 @@ def main(data_directory, output_directory, calibration_file, input_timescale, ma
     water_balance.set_output_directory(output_directory)
     water_balance.set_custom_calibration_factor(calibration.calibration_factor)
     eta_df = water_balance.calculate_eta()
-    #water_balance.plot_eta_with_nse()
-    #water_balance.plot_cumulative_eta()
+    water_balance.plot_eta_with_nse()
+    water_balance.plot_cumulative_eta()
 
     # Compare ETa to ASCE PM ETr via local weather data (daily for now)
     if frequency == 'D' and weather_file_path:
@@ -76,10 +76,10 @@ def main(data_directory, output_directory, calibration_file, input_timescale, ma
         eta_df = weather_etr.df
 
         # Plot and save ETa vs ETr
-        #weather_etr.plot_etr_vs_eta()
+        weather_etr.plot_etr_vs_eta()
 
         # Plot and save Kc with 2nd order polynomial fit
-        #weather_etr.plot_kc_with_fit()
+        weather_etr.plot_kc_with_fit()
     
     elif frequency != 'D' and weather_file_path:
         print(Fore.YELLOW + "Warning: Weather data comparison is skipped because the lysimeter data is not aggregated to a daily timescale." + Style.RESET_ALL)
