@@ -78,6 +78,24 @@ graph TD
     D5 --> F[Export Results]
 
 ```
+## Code Core Functionalities
+1. Data Processing (dat_file_merger.py): Merging .dat files from different sources and aggregating them to specific timescales.
+
+2. Calibration (load_cell_calibration.py): Applying calibration to the load cell data using specified coefficients (alpha and beta).
+
+3. Non-Standard Events Detection (non_standard_events.py): Identifying and processing non-standard events (NSEs) such as rainfall, irrigation, etc.
+
+4. Weather Data Processing (weather.py): Handling weather data for ETr calculations.
+
+5. Water Balance Calculation (water_balance.py): Calculating water balance using processed lysimeter data.
+
+6. Report Generation (report_generator.py): Creating reports based on the analysis, including visualizations and key metrics.
+
+7. Utility Functions (utils.py): General utility functions to support the above modules.
+
+8. Running the Analysis (run_analysis.py): This script ties all the above functionalities together, processing the data end-to-end based on user input parameters.
+
+## Project-Specific Objectives
 **Objective 1: Process 2023 data**
 - AJ develop code using 2022 data where non-standard days are known, verifying that it works
 - AJ apply verified code on 2023 data

@@ -67,7 +67,9 @@ python scripts\run_analysis.py ^
     --threshold 0.0034 ^
     --weather_file_path C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_METS_data\METS_Daily_2022.dat
     --planting_date 05-15-2022 ^
-    --harvest_date 10-15-2022
+    --harvest_date 10-15-2022 ^
+    --latitude 38.0385 ^
+    --elevation 1274.064
 ```
 > [!TIP]
 > The caret (`^`) symbol is used to break the command into multiple lines for readability. If you are using a Unix-based system, you can remove the caret and put the entire command on one line, or use a backslash (`\`) to break the command into multiple lines instead.
@@ -92,10 +94,12 @@ python scripts\run_analysis.py ^
     --threshold 0.0034 ^
     --weather_file_path ..\private_METS_data\METS_Daily_2022.dat
     --planting_date 05-15-2022 ^
-    --harvest_date 10-15-2022
+    --harvest_date 10-15-2022 ^
+    --latitude 38.0385 ^
+    --elevation 1274.064
 ```
 
 Copy/paste friendly version:
 ```batch
-python scripts\run_analysis.py --data_directory ..\private_test_data --output_directory ..\private_test_output --calibration_file ..\private_test_data\coefficients.csv --manual_nse_file_path ..\private_test_data\manual_nse_events.csv --input_timescale Min15 --frequency D --lysimeter_type LL --custom_alpha 684.694 --custom_beta 9.181 --threshold 0.0034 --weather_file_path ..\private_METS_data\METS_Daily_2022.dat --planting_date 05-15-2022 --harvest_date 10-15-2022
+python scripts\run_analysis.py --data_directory ..\private_test_data --output_directory ..\private_test_output --calibration_file ..\private_test_data\coefficients.csv --manual_nse_file_path ..\private_test_data\manual_nse_events.csv --input_timescale Min15 --frequency D --lysimeter_type LL --custom_alpha 684.694 --custom_beta 9.181 --threshold 0.0034 --weather_file_path ..\private_METS_data\METS_Daily_2022.dat --planting_date 05-15-2022 --harvest_date 10-15-2022 --latitude 38.0385 --elevation 1274.064
 ```

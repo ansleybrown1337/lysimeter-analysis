@@ -23,6 +23,7 @@ setup(
         'scipy>=1.4.0',
         'pyfao56>=1.0.0',
         'colorama>=0.4.0',
+        'streamlit>=1.24.1',
     ],
     entry_points={
         'console_scripts': [

@@ -1,23 +1,33 @@
-lysimeter-data-2023/
+(base) C:\Users\ansleybr\Documents\GitHub\lysimeter-data-2023>TREE /F
+Folder PATH listing for volume OSDisk
+Volume serial number is ECEB-13F3
+C:.
 │   .gitattributes
 │   .gitignore
 │   README.md
 │
 ├───code
-│   │   coefficients.csv
-│   │   LL_coefficients.csv
 │   │   setup.py
-│   │   SL_coefficients.csv
 │   │
 │   ├───lysimeter_analysis
 │   │   │   dat_file_merger.py
+│   │   │   load_cell_calibration.py
 │   │   │   non_standard_events.py
+│   │   │   report_generator.py
+│   │   │   utils.py
+│   │   │   water_balance.py
+│   │   │   weather.py
 │   │   │   __init__.py
 │   │   │
 │   │   └───__pycache__
-│   │           dat_file_merger.cpython-39.pyc
-│   │           non_standard_events.cpython-39.pyc
-│   │           __init__.cpython-39.pyc
+│   │           dat_file_merger.cpython-310.pyc
+│   │           load_cell_calibration.cpython-310.pyc
+│   │           non_standard_events.cpython-310.pyc
+│   │           report_generator.cpython-310.pyc
+│   │           utils.cpython-310.pyc
+│   │           water_balance.cpython-310.pyc
+│   │           weather.cpython-310.pyc
+│   │           __init__.cpython-310.pyc
 │   │
 │   ├───lysimeter_analysis.egg-info
 │   │       dependency_links.txt
@@ -31,40 +41,92 @@ lysimeter-data-2023/
 │           run_analysis.py
 │
 ├───documentation
-│       AJ Jeff Notes 13 May 2024.docx
-│       AJ Jeff Notes 27 Jun 2024.docx
-│       How to run.md
-│       Large Lysimeter Log Book 2022.xlsx
-│       Lysimeter Water Budget Process - Simmons Notes - Copy.docx
-│       package_structure.txt
-│       Semantic Versioning.md
-│       Small Lysimeter Log Book 2022.xlsx
+│   │   AJ Jeff Notes 13 May 2024.docx
+│   │   AJ Jeff Notes 27 Jun 2024.docx
+│   │   How to run.md
+│   │   Large Lysimeter Log Book 2022.xlsx
+│   │   Lysimeter Water Budget Process - Simmons Notes - Copy.docx
+│   │   package_structure.txt
+│   │   Semantic Versioning.md
+│   │   Small Lysimeter Log Book 2022.xlsx
+│   │
+│   ├───Load cell calibration
+│   │       2022 SL Calibration Chart All Data Points.pdf
+│   │       Load Cell Calibration_SL.pdf
+│   │       Load Cell conversion coefficients for RL and LL.docx
+│   │       RE_ Small Lysimeter Calibration.eml
+│   │
+│   └───Lysimeter lit review
+│           AWAT Algorithm.pdf
+│           Determining dew and hoar frost formation for a low mountain range and alpine grassland site by weighable lysimeter - ScienceD.url
+│           HESS - Evaluation of precipitation measurement methods using data from a precision lysimeter network.url
+│           HESS - Separating precipitation and evapotranspiration from noise – a new filter routine for high-resolution lysimeter data.url
+│           Peters et al. 2014.pdf
+│           Quantification and Prediction of Nighttime Evapotranspiration for Two Distinct Grassland Ecosystems - Groh - 2019 - Water Res.url
+│           Towards an unbiased filter routine to determine precipitation and evapotranspiration from high precision lysimeter measuremen.url
 │
 ├───figs
 │       lysimeter.PNG
 │
+├───private_data
+│   │   test.txt
+│   │
+│   ├───2022
+│   │       DB_Large_Lysimeter_Daily_2022.dat
+│   │       DB_Large_Lysimeter_DataTableInfo_2022.dat
+│   │       DB_Large_Lysimeter_Min15_2022.dat
+│   │       DB_Large_Lysimeter_Min5_2022.dat
+│   │       LL Min15 QC - Copy.xlsx
+│   │
+│   └───2023
+│           24041Hourly48.dat
+│           24041Hourly49.dat
+│           24041Hourly50.dat
+│           24041Hourly51.dat
+│           24041Hourly52.dat
+│
 ├───private_LL_data
-│       Large_Lysimeter_Min15.dat
+│   │   Large_Lysimeter_Min15.dat
+│   │
+│   └───Multiple timescales
+│           Large_Lysimeter_Daily.dat
+│           Large_Lysimeter_Min15.dat
+│           Large_Lysimeter_Min5.dat
 │
 ├───private_LL_output
-│       merged_data_20240711_154312.csv
-│       NSE_plot_20240711_154309.html
-│       NSE_plot_20240711_154309.png
+├───private_METS_data
+│   │   METS_Daily_2022.dat
+│   │   METS_Min5_2022 - Copy.csv
+│   │
+│   └───Multiple timescales
+│           METS_Daily_2022.dat
+│           METS_Min5_2022.dat
+│           METS_Min60_2022.dat
 │
 ├───private_SL_data
-│       Small_Lysimeter_Min15.dat
+│   │   Small_Lysimeter_Min15.dat
+│   │
+│   └───Multiple timescales
+│           Small_Lysimeter_Daily.dat
+│           Small_Lysimeter_Min15.dat
+│           Small_Lysimeter_Min5.dat
 │
 ├───private_SL_output
 ├───private_test_data
 │       DB_Large_Lysimeter_DataTableInfo_2022.dat
 │       DB_Large_Lysimeter_Min15_2022.dat
-│       Jan2023_Min15.csv
-│       Jan2023_Min15.dat
+│       Event_Inputs.csv
+│       Jan2023_LL_Min15.csv
+│       Jan2023_LL_Min15.dat
 │       LL Min15 QC - AJ.xlsx
 │       LL Min15 QC - Jeff.xlsx
 │
 └───private_test_output
-        merged_data_20240622_162804.csv
-        merged_data_20240711_154728.csv
-        NSE_plot_20240622_162800.html
-        NSE_plot_20240622_162800.png
+        Cumulative_ETa_20240823_140219.html
+        ETa_instance_20240823_140219.html
+        ETa_vs_ETr_20240823_140219.html
+        Kc_with_fit_20240823_140219.html
+        merged_data_20240823_140219.csv
+        NSE_plot_20240823_140216.html
+        NSE_plot_20240823_140216.png
+        run_report_20240823_140219.txt

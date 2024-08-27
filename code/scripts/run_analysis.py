@@ -17,7 +17,9 @@ def main(data_directory,
          threshold=0.0034, 
          weather_file_path=None,
          planting_date='05-15-2022',
-         harvest_date='10-15-2022'):
+         harvest_date='10-15-2022',
+         elevation=1274.064,
+         latitude=38.0385,):
     
     # Load, merge, and calibrate data
     merger = ly.dat_file_merger.DatFileMerger()
@@ -38,14 +40,14 @@ def main(data_directory,
     nse_detector.set_output_directory(output_directory)
     nse_detector.set_threshold(threshold)
 
-    # Load and integrate manually defined NSEs if provided
+    ## Load and integrate manually defined NSEs if provided
     if manual_nse_file_path:
         nse_detector.load_manual_nse(manual_nse_file_path)
     
-    # Detect NSEs using the automatic method
+    ## Detect NSEs using the automatic method
     nse_df = nse_detector.detect_nse()
     
-    # Plot NSEs after integrating manual NSEs
+    ## Plot NSEs after integrating manual NSEs
     nse_detector.plot_nse()
 
     # Aggregate data if frequency is specified
@@ -72,6 +74,8 @@ def main(data_directory,
     # Compare ETa to ASCE PM ETr via local weather data (daily for now)
     if frequency == 'D' and weather_file_path:
         weather_etr = ly.weather.WeatherETR()
+        weather_etr.set_latitude(latitude)
+        weather_etr.set_elevation(elevation)
         weather_etr.set_output_directory(output_directory)
         weather_etr.load_data(weather_file_path)
         weather_etr.preprocess_data()
@@ -131,6 +135,8 @@ if __name__ == "__main__":
     parser.add_argument('--weather_file_path', type=str, help='Path to the weather data file for ETr calculation.', default=None)
     parser.add_argument('--planting_date', type=str, help='The lysimeter crop planting date in the format MM-DD.', default=None)
     parser.add_argument('--harvest_date', type=str, help='The lysimeter crop harvest date in the format MM-DD.', default=None)
+    parser.add_argument('--latitude', type=float, help='The latitude of the lysimeter site.', default=38.0385)
+    parser.add_argument('--elevation', type=float, help='The elevation of the lysimeter site.', default=1274.064)
 
     args = parser.parse_args()
 
@@ -147,5 +153,7 @@ if __name__ == "__main__":
         weather_file_path=args.weather_file_path,
         manual_nse_file_path=args.manual_nse_file_path,
         planting_date=args.planting_date,
-        harvest_date=args.harvest_date
+        harvest_date=args.harvest_date,
+        latitude=args.latitude,
+        elevation=args.elevation
     )

@@ -6,7 +6,7 @@ from pyfao56.refet import ascedaily
 import plotly.graph_objects as go
 
 class WeatherETR:
-    def __init__(self, elevation=1274.064, latitude=38.0385, planting_date=None, harvest_date=None):
+    def __init__(self, elevation=None, latitude=None, planting_date=None, harvest_date=None):
         """
         Initializes the WeatherETR class with default elevation, latitude, planting date, and harvest date.
         
@@ -24,6 +24,25 @@ class WeatherETR:
         self.planting_date = self.set_planting_date(planting_date)
         self.harvest_date = self.set_harvest_date(harvest_date)
 
+    def set_elevation(self, elevation):
+        """
+        Sets the elevation of the weather station.
+        
+        Args:
+            elevation (float): Elevation in meters.
+        """
+        self.elevation = elevation
+        print(f"Elevation set to {self.elevation} meters.")
+
+    def set_latitude(self, latitude):
+        """
+        Sets the latitude of the weather station.
+        
+        Args:
+            latitude (float): Latitude in decimal degrees.
+        """
+        self.latitude = latitude
+        print(f"Latitude set to {self.latitude} degrees.")
 
     def set_output_directory(self, output_directory):
         """
