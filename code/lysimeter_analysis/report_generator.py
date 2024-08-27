@@ -60,6 +60,24 @@ class ReportGenerator:
         self.report_lines.append(f"Output Data Timescale: {output_timescale}")
         self.report_lines.append("")  # Add a blank line for spacing
 
+    def add_ETa_Kc_info(self, planting_date, harvest_date):
+        """
+        Adds ETa and Kc information to the report.
+
+        Args:
+            planting_date (str): The planting date in 'YYYY-MM-DD' format.
+            harvest_date (str): The harvest date in 'YYYY-MM-DD' format.
+        """
+        self.report_lines.append("## ETa and Kc Information:")
+        self.report_lines.append(f"Planting Date: {planting_date}")
+        self.report_lines.append(f"Harvest Date: {harvest_date}")
+        self.report_lines.append("Assumptions:")
+        self.report_lines.append("Kc values are based on FAO-56 guidelines.")
+        self.report_lines.append("Kc = ETc / ETa")
+        self.report_lines.append("ETa values are calculated using the ASCE Penman-Monteith method via pyfao56 and provided weather station data.")
+        self.report_lines.append("Lysimeter crop conditions are assumed to be non-limiting (i.e., no plant stress)")
+        self.report_lines.append("") # Add a blank line for spacing
+
     def export_report(self, output_directory, prefix="run_report"):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_filename = os.path.join(output_directory, f"{prefix}_{timestamp}.txt")

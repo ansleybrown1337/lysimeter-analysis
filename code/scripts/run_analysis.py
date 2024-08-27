@@ -109,6 +109,7 @@ def main(data_directory,
         alpha=calibration.alpha,
         beta=calibration.beta
     )
+    report_generator.add_ETa_Kc_info(planting_date, harvest_date)
     report_generator.export_report(output_directory)
 
     # Export the final dataframe including NSE columns, ETa, ETr, and Kc if applicable
