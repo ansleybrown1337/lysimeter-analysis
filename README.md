@@ -1,5 +1,5 @@
 # lysimeter-data-2023
- This is a private repository made to improve the data processing of Arkansas Valley Research Center lysimeter raw data and subsequent analysis.
+A Python package that processes and analyzes weighing lysimeter data for quantifying crop water use (i.e., evapotranspiration).
 
  Created by:<br/>
  A.J. Brown<br/>
@@ -25,9 +25,10 @@ graph TD
     end
 
     %% Define subgraph for utils.py
-    subgraph 2[utils.py]
-    2A[export_csv]
-    2B[AWAT Filter]
+    subgraph U[utils.py]
+    U3[Aggregate Data]
+    U1[export_csv]
+    U2[AWAT Filter]
     end
 
     %% Define subgraph for dat_file_merger.py
@@ -57,6 +58,15 @@ graph TD
     D5[Plot Cumulative ETa]
     end
 
+    %% Define subgraph for weather.py
+    subgraph W[weather.py]
+    W1[Import daily weather data]
+    W2[Calculate daily ASCE ETref]
+    W3[Compare ETref and lysimeter ETc]
+    W4[Calculate Kc crop coefficient]
+    W5[Plot results]
+    end
+
     %% Define subgraph for report_generator.py
     subgraph E[report_generator.py]
     E1[Create Analysis Report]
@@ -69,13 +79,18 @@ graph TD
     A1 --> A2 --> A3 --> B1 --> C1 --> D1 --> D2 --> D3
     D3 --> D4 
     D3 --> D5
+    D3 --> U3
+    U3 --> W3
+    W1 --> W2 --> W3 --> W4 --> W5
 
     %% Final export of results
     B2 --> F[Export Results]
-    E1 --> F[Export Results]
-    D3 --> F[Export Results]
-    D4 --> F[Export Results]
-    D5 --> F[Export Results]
+    E1 --> F
+    D3 --> F
+    D4 --> F
+    D5 --> F
+    U1 --> F
+    W5 --> F
 
 ```
 ## Code Core Functionalities

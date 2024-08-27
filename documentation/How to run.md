@@ -8,7 +8,7 @@ cd {insert file path here}
 
 Example:
 ```
-cd C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\code
+cd C:\Users\AJ-CPU\Documents\GitHub\lysimeter-analysis\code
 ```
 
 ## Install Package in Editable Mode:
@@ -55,17 +55,17 @@ Where:
 *for test data:*
 ```batch
 python scripts\run_analysis.py ^
-    --data_directory C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_data ^
-    --output_directory C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_output ^
-    --calibration_file C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_data\coefficients.csv ^
-    --manual_nse_file_path C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_test_data\manual_nse_events.csv ^
+    --data_directory C:\Users\AJ-CPU\Documents\GitHub\lysimeter-analysis\private_test_data ^
+    --output_directory C:\Users\AJ-CPU\Documents\GitHub\lysimeter-analysis\private_test_output ^
+    --calibration_file C:\Users\AJ-CPU\Documents\GitHub\lysimeter-analysis\private_test_data\coefficients.csv ^
+    --manual_nse_file_path C:\Users\AJ-CPU\Documents\GitHub\lysimeter-analysis\private_test_data\manual_nse_events.csv ^
     --input_timescale Min15 ^
     --frequency D ^
     --lysimeter_type LL ^
     --custom_alpha 684.694 ^
     --custom_beta 9.181 ^
     --threshold 0.0034 ^
-    --weather_file_path C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_METS_data\METS_Daily_2022.dat
+    --weather_file_path C:\Users\AJ-CPU\Documents\GitHub\lysimeter-analysis\private_METS_data\METS_Daily_2022.dat
     --planting_date 05-15-2022 ^
     --harvest_date 10-15-2022 ^
     --latitude 38.0385 ^
