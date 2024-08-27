@@ -121,7 +121,7 @@ Use windows to schedule that .exe to run at a given period (e.g., 12 hours)
 
 ## TODO
 - ~~Calculate ETc for NSE events~~
-    - Option 1 (selected): linearly interpolate between ET values at start and end of NSE events
+    - ~~Option 1 (selected): linearly interpolate between ET values at start and end of NSE events~~
     - Option 2 (for later invesitgation): Use PyFAO56 (or code my own?) to estimate ASCE PM ETc for all NSE flagged rows from METS weather data
 - ~~Change everything to use 5min data instead of 15min data, or at least give the user an option.  Note: METS only has 5 and 60 min data~~
 - ~~Create a report generator that reports NSE detection, ETc calibration parameters, load cell calibration parameters, and any other warnings or errors worth noting~~
@@ -137,11 +137,13 @@ Use windows to schedule that .exe to run at a given period (e.g., 12 hours)
     - ~~fit with polynomial curve~~
 - refine NSE detection algorithm to be more accurate
     - use AWAT filter to smooth smaller NSE events due to wind and other noise that aren't explicity irrigations, rains, etc.
-- remove cumulative lines on Kc and instantaneous ET plots
-- Add weather data info to report generator
-- Perform analysis for 2022 data and compare to Lane's analysis results!
+- ~~remove cumulative lines on Kc and instantaneous ET plots~~
+- ~~Add weather data info to report generator~~
 - ~~Add manual NSE detection to report generator~~
 - Make NSE dots colored by NSE Type, and HoverTool to show NSE Type in plotly
+- run code through linting and make sure it's all clean
+- Make front end app in streamlit or dash for other users
+- Perform analysis for 2022 data and compare to Lane's analysis results!
 
 
 ## References
