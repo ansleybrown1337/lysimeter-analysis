@@ -44,6 +44,8 @@ Where:
 - **`[--custom_beta <custom_beta>]`**: (Optional) Custom beta value for load cell calibration (surface area in m²).
 - **`[--threshold <threshold_value>]`**: (Optional) Threshold for detecting non-standard events (NSEs). Defaults to 0.0034 mV / V.
 - **`[--weather_file_path <weather file path>]`**: (Optional) Path to the weather data file for ETr calculation using ASCE PM daily method ONLY.
+- **`[--planting_date <planting_date>]`**: (Optional) Lysimeter crop planting date in the format 'MM-DD-YYYY'.
+- **`[--harvest_date <harvest_date>]`**: (Optional) Lysimeter crop harvest date in the format 'MM-DD-YYYY'.
 
 > [!NOTE]
 > If you don't designate a lysimeter type, it will default to values used for the LL
@@ -64,6 +66,8 @@ python scripts\run_analysis.py ^
     --custom_beta 9.181 ^
     --threshold 0.0034 ^
     --weather_file_path C:\Users\AJ-CPU\Documents\GitHub\lysimeter-data-2023\private_METS_data\METS_Daily_2022.dat
+    --planting_date 05-15-2022 ^
+    --harvest_date 10-15-2022
 ```
 > [!TIP]
 > The caret (`^`) symbol is used to break the command into multiple lines for readability. If you are using a Unix-based system, you can remove the caret and put the entire command on one line, or use a backslash (`\`) to break the command into multiple lines instead.
@@ -87,9 +91,11 @@ python scripts\run_analysis.py ^
     --custom_beta 9.181 ^
     --threshold 0.0034 ^
     --weather_file_path ..\private_METS_data\METS_Daily_2022.dat
+    --planting_date 05-15-2022 ^
+    --harvest_date 10-15-2022
 ```
 
 Copy/paste friendly version:
 ```batch
-python scripts\run_analysis.py --data_directory ..\private_test_data --output_directory ..\private_test_output --calibration_file ..\private_test_data\coefficients.csv --manual_nse_file_path ..\private_test_data\manual_nse_events.csv --input_timescale Min15 --frequency D --lysimeter_type LL --custom_alpha 684.694 --custom_beta 9.181 --threshold 0.0034 --weather_file_path ..\private_METS_data\METS_Daily_2022.dat
+python scripts\run_analysis.py --data_directory ..\private_test_data --output_directory ..\private_test_output --calibration_file ..\private_test_data\coefficients.csv --manual_nse_file_path ..\private_test_data\manual_nse_events.csv --input_timescale Min15 --frequency D --lysimeter_type LL --custom_alpha 684.694 --custom_beta 9.181 --threshold 0.0034 --weather_file_path ..\private_METS_data\METS_Daily_2022.dat --planting_date 05-15-2022 --harvest_date 10-15-2022
 ```

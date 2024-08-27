@@ -5,7 +5,19 @@ import sys
 from colorama import Fore, Style, init
 import lysimeter_analysis as ly
 
-def main(data_directory, output_directory, calibration_file, input_timescale, manual_nse_file_path=None, frequency=None, lysimeter_type=None, custom_alpha=None, custom_beta=None, threshold=0.0034, weather_file_path=None):
+def main(data_directory, 
+         output_directory, 
+         calibration_file, 
+         input_timescale, 
+         manual_nse_file_path=None, 
+         frequency=None, 
+         lysimeter_type=None, 
+         custom_alpha=None, 
+         custom_beta=None, 
+         threshold=0.0034, 
+         weather_file_path=None,
+         planting_date='05-15-2022',
+         harvest_date='10-15-2022'):
     
     # Load, merge, and calibrate data
     merger = ly.dat_file_merger.DatFileMerger()
@@ -79,6 +91,8 @@ def main(data_directory, output_directory, calibration_file, input_timescale, ma
         weather_etr.plot_etr_vs_eta()
 
         # Plot and save Kc with 2nd order polynomial fit
+        weather_etr.set_planting_date(planting_date)
+        weather_etr.set_harvest_date(harvest_date)
         weather_etr.plot_kc_with_fit()
     
     elif frequency != 'D' and weather_file_path:
@@ -114,6 +128,8 @@ if __name__ == "__main__":
     parser.add_argument('--custom_beta', type=float, help='Custom beta value for load cell calibration (surface area in m²).', default=None)
     parser.add_argument('--threshold', type=float, help='Threshold for detecting non-standard events (NSEs). Defaults to 0.0034.', default=0.0034)
     parser.add_argument('--weather_file_path', type=str, help='Path to the weather data file for ETr calculation.', default=None)
+    parser.add_argument('--planting_date', type=str, help='The lysimeter crop planting date in the format MM-DD.', default=None)
+    parser.add_argument('--harvest_date', type=str, help='The lysimeter crop harvest date in the format MM-DD.', default=None)
 
     args = parser.parse_args()
 
@@ -128,5 +144,7 @@ if __name__ == "__main__":
         custom_beta=args.custom_beta,
         threshold=args.threshold,
         weather_file_path=args.weather_file_path,
-        manual_nse_file_path=args.manual_nse_file_path
+        manual_nse_file_path=args.manual_nse_file_path,
+        planting_date=args.planting_date,
+        harvest_date=args.harvest_date
     )

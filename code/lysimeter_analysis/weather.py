@@ -6,18 +6,24 @@ from pyfao56.refet import ascedaily
 import plotly.graph_objects as go
 
 class WeatherETR:
-    def __init__(self, elevation=1274.064, latitude=38.0385):
+    def __init__(self, elevation=1274.064, latitude=38.0385, planting_date=None, harvest_date=None):
         """
-        Initializes the WeatherETR class with default elevation and latitude for RFD01 CoAgMET station.
+        Initializes the WeatherETR class with default elevation, latitude, planting date, and harvest date.
         
         Args:
             elevation (float): Elevation of the weather station in meters.
             latitude (float): Latitude of the weather station in decimal degrees.
+            planting_date (str): Default planting date in 'MM-DD-YYYY' format.
+            harvest_date (str): Default harvest date in 'MM-DD-YYYY' format.
         """
         self.elevation = elevation
         self.latitude = latitude
         self.df = None
         self.output_directory = None
+        # Initialize planting and harvest dates as datetime objects for the current year
+        self.planting_date = self.set_planting_date(planting_date)
+        self.harvest_date = self.set_harvest_date(harvest_date)
+
 
     def set_output_directory(self, output_directory):
         """
@@ -83,6 +89,29 @@ class WeatherETR:
         
         print("Data preprocessing completed.")
 
+    def set_planting_date(self, planting_date):
+        """
+        Sets the planting date.
+        
+        Args:
+            planting_date (str): Planting date in 'MM-DD-YYYY' format.
+        """
+        self.planting_date = planting_date
+        print(f"Planting date set to {self.planting_date}")
+
+
+    def set_harvest_date(self, harvest_date):
+        """
+        Sets the harvest date.
+        
+        Args:
+            harvest_date (str): Harvest date in 'MM-DD-YYYY' format.
+        """
+        self.harvest_date = harvest_date
+        print(f"Harvest date set to {self.harvest_date}")
+
+
+
     def calculate_daily_etr(self):
         """
         Calculates daily reference evapotranspiration (ETr) and adds it to the DataFrame.
@@ -135,8 +164,8 @@ class WeatherETR:
             raise ValueError(f"'{etr_column}' column is missing. Please ensure ETr is calculated before calculating Kc.")
 
         if eta_columns is None:
-            # Automatically detect columns ending with '_ETa'
-            eta_columns = [col for col in self.df.columns if col.endswith('_ETa')]
+            # Automatically detect columns ending with '_ETa', except '_Cumulative_ETa'
+            eta_columns = [col for col in self.df.columns if col.endswith('_ETa') and not col.endswith('_Cumulative_ETa')]
         
         for eta_col in eta_columns:
             if eta_col in self.df.columns:
@@ -152,7 +181,7 @@ class WeatherETR:
         
         Args:
             eta_columns (list): List of column names for Actual Evapotranspiration (ETa).
-                                If None, it will automatically detect columns ending with '_ETa'.
+                                If None, it will automatically detect columns ending with '_ETa' but not '_Cumulative_ETa'.
         
         Returns:
             None: The plot is saved as an HTML file.
@@ -161,8 +190,8 @@ class WeatherETR:
             raise ValueError("DataFrame is empty. Please load and preprocess data first.")
         
         if eta_columns is None:
-            # Automatically detect columns ending with '_ETa'
-            eta_columns = [col for col in self.df.columns if col.endswith('_ETa')]
+            # Automatically detect columns ending with '_ETa' but exclude '_Cumulative_ETa'
+            eta_columns = [col for col in self.df.columns if col.endswith('_ETa') and '_Cumulative_ETa' not in col]
         
         fig = go.Figure()
         
@@ -193,11 +222,11 @@ class WeatherETR:
 
     def plot_kc_with_fit(self, kc_columns=None):
         """
-        Plots a time series of Kc values with a 2nd order polynomial fit and saves it as an HTML file.
+        Plots a time series of Kc values and saves it as an HTML file.
         
         Args:
             kc_columns (list): List of column names for Crop Coefficient (Kc).
-                               If None, it will automatically detect columns ending with '_Kc'.
+                            If None, it will automatically detect columns ending with '_Kc'.
         
         Returns:
             None: The plot is saved as an HTML file.
@@ -210,21 +239,27 @@ class WeatherETR:
             kc_columns = [col for col in self.df.columns if col.endswith('_Kc')]
         
         fig = go.Figure()
+
+        # Filter the DataFrame for the period between planting and harvest, if they are defined
+        if self.planting_date and self.harvest_date:
+            df_filtered = self.df[(self.df['TIMESTAMP'] >= self.planting_date) & (self.df['TIMESTAMP'] <= self.harvest_date)]
+        else:
+            df_filtered = self.df
         
-        # Plot each Kc column and its polynomial fit
+        # Plot each Kc column
         for kc_col in kc_columns:
-            if kc_col in self.df.columns:
+            if kc_col in df_filtered.columns:
                 # Scatter plot of Kc values
-                fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=self.df[kc_col], mode='markers', name=kc_col))
+                fig.add_trace(go.Scatter(x=df_filtered['TIMESTAMP'], y=df_filtered[kc_col], mode='markers', name=kc_col))
                 
                 # Fit a 2nd order polynomial
-                x_vals = np.arange(len(self.df[kc_col].dropna()))
-                y_vals = self.df[kc_col].dropna().values
+                x_vals = np.arange(len(df_filtered[kc_col].dropna()))
+                y_vals = df_filtered[kc_col].dropna().values
                 poly_fit = np.polyfit(x_vals, y_vals, 2)
                 poly_vals = np.polyval(poly_fit, x_vals)
                 
                 # Plot the polynomial fit line
-                fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'].iloc[:len(poly_vals)], y=poly_vals, mode='lines', name=f'{kc_col} Fit'))
+                fig.add_trace(go.Scatter(x=df_filtered['TIMESTAMP'].iloc[:len(poly_vals)], y=poly_vals, mode='lines', name=f'{kc_col} Fit'))
         
         fig.update_layout(
             title='Time Series of Kc with 2nd Order Polynomial Fit',
