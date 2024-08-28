@@ -105,7 +105,7 @@ if st.button("Run Analysis"):
                 f.write(weather_file.getbuffer())
 
         # Run the analysis
-        run_analysis(
+        eta_df =run_analysis(
             data_directory=data_directory_path,
             output_directory=output_directory,
             calibration_file=calibration_file_path,
@@ -124,5 +124,18 @@ if st.button("Run Analysis"):
         )
 
         st.success("Analysis Completed! Check the output directory for results.")
+        st.download_button(
+            label="Download Results",
+            data=eta_df.to_csv().encode(),
+            file_name="processed_lysimeter_data.csv",
+            mime="text/csv"
+        )
+        st.line_chart(
+            eta_df,
+            x="TIMESTAMP",
+            y="SM50_1_Avg_ETa",
+            xlabel="",
+            ylabel="ETa (mm)"
+        )
     else:
         st.error("Please upload all required files and specify the output directory.")

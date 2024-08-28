@@ -124,6 +124,8 @@ def run_analysis(
     # Export the final dataframe including NSE columns, ETa, ETr, and Kc if applicable
     ly.utils.export_to_csv(eta_df, output_directory)
 
+    return eta_df
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run the lysimeter analysis.')
 
