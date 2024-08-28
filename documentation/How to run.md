@@ -109,6 +109,10 @@ python scripts\run_analysis.py ^
 
 Copy/paste friendly version:
 ```batch
+python scripts\run_analysis.py --data_directory ..\public_data --output_directory ..\public_output --calibration_file ..\public_data\coefficients.csv --manual_nse_file_path ..\public_data\manual_nse_events.csv --input_timescale Min15 --frequency D --lysimeter_type LL --custom_alpha 684.694 --custom_beta 9.181 --threshold 0.0034
+```
+
+```batch
 python scripts\run_analysis.py --data_directory ..\private_test_data --output_directory ..\private_test_output --calibration_file ..\private_test_data\coefficients.csv --manual_nse_file_path ..\private_test_data\manual_nse_events.csv --input_timescale Min15 --frequency D --lysimeter_type LL --custom_alpha 684.694 --custom_beta 9.181 --threshold 0.0034 --weather_file_path ..\private_METS_data\METS_Daily_2022.dat --planting_date 05-15-2022 --harvest_date 10-15-2022 --latitude 38.0385 --elevation 1274.064
 ```
 

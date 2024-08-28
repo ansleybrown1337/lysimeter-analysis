@@ -128,7 +128,7 @@ class DatFileMerger:
             pd.DataFrame: The merged DataFrame.
         """
         if not self.dataframes:
-            raise ValueError("No dataframes to merge. Load data files first.")
+            raise ValueError("No dataframes to merge. Load data files first. Ensure")
         return pd.concat(self.dataframes, ignore_index=True)
 
     def _calibrate_data(self, df):

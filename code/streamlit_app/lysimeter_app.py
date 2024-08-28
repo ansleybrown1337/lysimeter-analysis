@@ -34,36 +34,37 @@ lysimeter_type = st.selectbox(
     "Lysimeter Type",
     [None, "SL", "LL"]
     )
+## numbers need to have same consistent data type (e.g., 'float') 
 custom_alpha = st.number_input(
     "Custom Alpha Value for Load Cell Calibration (kg/mV/V)",
-    min_value=1,
-    max_value=10000,
+    min_value=1.00,
+    max_value=10000.00,
     step=0.01,
     value=684.69
     )
 custom_beta = st.number_input(
     "Custom Beta Value for Load Cell Calibration (Surface Area in m²)",
     min_value=0.01,
-    max_value=1000,
+    max_value=1000.00,
     step=0.01,
     value=9.18
     )
 threshold = st.number_input(
     "NSE Detection Threshold",
     min_value=0.0001,
-    max_value=1,
+    max_value=1.0000,
     step=0.0001,
     value=0.0034
     )
 latitude = st.number_input(
     "Latitude",
-    step=1e-6,
+    step=0.0000,
     value=38.0385
     )
 longitude = st.number_input(
     "Longitude",
-    step=1e-6,
-    value=1274.064
+    step=0.0000,
+    value=1274.0640
     )
 
 # Date inputs for planting and harvest dates
