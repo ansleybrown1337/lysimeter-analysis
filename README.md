@@ -213,6 +213,13 @@ Use windows to schedule that .exe to run at a given period (e.g., 12 hours)
 - run code through linting and make sure it's all clean
 - Make front end app in streamlit or dash for other users
 - Perform analysis for 2022 data and compare to Lane's analysis results!
+    - results 28 Aug 2024: 
+        - 2022 ETr data is very similar with slight differences. Allan and I think this is due to me using the daily ASCE-PM and Lane using the hourly ASCE-PM, then aggregating to daily.
+        - 2022 Kc comparisons are close, but the python-derived Kc values have considerable variance.
+            - check/improve the NSE detection algorithm
+            - check/improve the ETc interpolation algorithm
+    - note on weather dates:
+        - check if the python code ASCE-PM data are on the correct dates; the 2022 budget from lane indicates that my data is off by a day.
 -->
 
 ## References

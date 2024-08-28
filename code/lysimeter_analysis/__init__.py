@@ -1,6 +1,6 @@
 # lysimeter_analysis/__init__.py
 
-__version__ = "0.6.5"
+__version__ = "0.7.0"
 
 from .dat_file_merger import DatFileMerger
 from .non_standard_events import NonStandardEvents

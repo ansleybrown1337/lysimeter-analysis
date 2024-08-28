@@ -73,7 +73,7 @@ class ReportGenerator:
         self.report_lines.append(f"Harvest Date: {harvest_date}")
         self.report_lines.append("Assumptions:")
         self.report_lines.append("Kc values are based on FAO-56 guidelines.")
-        self.report_lines.append("Kc = ETc / ETa")
+        self.report_lines.append("Kc = ETc / ETr")
         self.report_lines.append("ETa values are calculated using the ASCE Penman-Monteith method via pyfao56 and provided weather station data.")
         self.report_lines.append("Lysimeter crop conditions are assumed to be non-limiting (i.e., no plant stress)")
         self.report_lines.append("") # Add a blank line for spacing
