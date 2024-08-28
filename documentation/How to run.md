@@ -1,6 +1,14 @@
 # Summary:
 This document shows users how to install and run the code in this repository.  The code is designed to process lysimeter data from the Arkansas Valley Research Center in Rocky Ford, Colorado.  The code will process the data, detect non-standard events (NSEs), and save the results in a specified output directory.  Additionally, it will save time series plots with NSEs highlighted.
 
+## Prepare Data
+- requires: 
+    - lsyimeteter raw load cell data in mV/V (.dat file)
+- optional:
+    - CSV with manual non-standard events (NSEs) identified (see example)
+    - local daily weather station data sufficient for calculating ASCE PM reference ET (.dat file).
+    - CSV with calibration coefficients for environmental sensors found with lysimeter raw data
+
 ## Navigate to Project Directory:
 ```
 cd {insert file path here}
@@ -103,3 +111,6 @@ Copy/paste friendly version:
 ```batch
 python scripts\run_analysis.py --data_directory ..\private_test_data --output_directory ..\private_test_output --calibration_file ..\private_test_data\coefficients.csv --manual_nse_file_path ..\private_test_data\manual_nse_events.csv --input_timescale Min15 --frequency D --lysimeter_type LL --custom_alpha 684.694 --custom_beta 9.181 --threshold 0.0034 --weather_file_path ..\private_METS_data\METS_Daily_2022.dat --planting_date 05-15-2022 --harvest_date 10-15-2022 --latitude 38.0385 --elevation 1274.064
 ```
+
+## Review Results
+After running the analysis, check the output directory for results, including visualizations and reports.
