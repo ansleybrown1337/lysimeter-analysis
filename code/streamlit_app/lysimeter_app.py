@@ -21,18 +21,58 @@ weather_file = st.file_uploader("Upload Weather Data File (Optional)", type=['da
 output_directory = st.text_input("Output Directory", value=".")
 
 # Configuration settings
-input_timescale = st.selectbox("Input Timescale", ["Min5", "Min15", "Min60", "Daily"])
-frequency = st.selectbox("Aggregation Frequency", [None, "5T", "15T", "H", "D", "W"], index=1)
-lysimeter_type = st.selectbox("Lysimeter Type", [None, "SL", "LL"])
-custom_alpha = st.number_input("Custom Alpha Value (kg/mV/V)", value=0.0)
-custom_beta = st.number_input("Custom Beta Value (Surface Area in m²)", value=0.0)
-threshold = st.number_input("NSE Detection Threshold", value=0.0034)
-latitude = st.number_input("Latitude", value=38.0385)
-longitude = st.number_input("Longitude", value=1274.064)
+input_timescale = st.selectbox(
+    "Input Timescale (i.e., keyword in input file name that needs to be present)",
+    ["Min5", "Min15", "Min60", "Daily"]
+    )
+frequency = st.selectbox(
+    "Aggregation Frequency",
+    [None, "5T", "15T", "H", "D", "W"],
+    index=1
+    )
+lysimeter_type = st.selectbox(
+    "Lysimeter Type",
+    [None, "SL", "LL"]
+    )
+custom_alpha = st.number_input(
+    "Custom Alpha Value for Load Cell Calibration (kg/mV/V)",
+    min_value=1,
+    max_value=10000,
+    step=0.01,
+    value=684.69
+    )
+custom_beta = st.number_input(
+    "Custom Beta Value for Load Cell Calibration (Surface Area in m²)",
+    min_value=0.01,
+    max_value=1000,
+    step=0.01,
+    value=9.18
+    )
+threshold = st.number_input(
+    "NSE Detection Threshold",
+    min_value=0.0001,
+    max_value=1,
+    step=0.0001,
+    value=0.0034
+    )
+latitude = st.number_input(
+    "Latitude",
+    step=1e-6,
+    value=38.0385
+    )
+longitude = st.number_input(
+    "Longitude",
+    step=1e-6,
+    value=1274.064
+    )
 
 # Date inputs for planting and harvest dates
-planting_date = st.date_input("Planting Date")
-harvest_date = st.date_input("Harvest Date")
+planting_date = st.date_input(
+    "Planting Date"
+    )
+harvest_date = st.date_input(
+    "Harvest Date"
+    )
 
 # Run Analysis Button
 if st.button("Run Analysis"):

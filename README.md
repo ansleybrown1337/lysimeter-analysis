@@ -42,6 +42,9 @@ pip install -r requirements.txt
 ```
 
 ## Usage
+
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://csu-lysimeter-analysis.streamlit.app/)
+
 See the detailed ["How-To" guide](/documentation/How%20to%20run.md) created for installing and running this script.
 
 <!-- Alternatively, if you are not interested in coding yourself, you can find an online application here: -->

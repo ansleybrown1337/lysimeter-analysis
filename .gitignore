@@ -7,6 +7,7 @@ private_LL_output
 private_SL_data
 private_SL_output
 private_METS_data
+private_notes
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
