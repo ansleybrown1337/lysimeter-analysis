@@ -21,7 +21,7 @@ pip install -e .
 
 ## Execute ```run_analysis.py``` Script
 
-Here is the generic format for the command (notice that there are no line breaks, whereas the examples look like they have line breaks due to page size):
+Here is the generic format for the command:
 ```bash
 python scripts/run_analysis.py --data_directory <data_directory> --output_directory <output_directory> --calibration_file <calibration_file> --input_timescale <input_timescale> --frequency <aggregation_frequency> --lysimeter_type <lysimeter_type> --custom_alpha <custom_alpha> --custom_beta <custom_beta> --threshold <threshold_value>
 

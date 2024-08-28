@@ -5,21 +5,23 @@ import sys
 from colorama import Fore, Style, init
 import lysimeter_analysis as ly
 
-def main(data_directory, 
-         output_directory, 
-         calibration_file, 
-         input_timescale, 
-         manual_nse_file_path=None, 
-         frequency=None, 
-         lysimeter_type=None, 
-         custom_alpha=None, 
-         custom_beta=None, 
-         threshold=0.0034, 
-         weather_file_path=None,
-         planting_date='05-15-2022',
-         harvest_date='10-15-2022',
-         elevation=1274.064,
-         latitude=38.0385,):
+def run_analysis(
+    data_directory,
+    output_directory, 
+    calibration_file, 
+    input_timescale, 
+    manual_nse_file_path=None, 
+    frequency=None, 
+    lysimeter_type=None, 
+    custom_alpha=None, 
+    custom_beta=None, 
+    threshold=0.0034, 
+    weather_file_path=None,
+    planting_date='05-15-2022',
+    harvest_date='10-15-2022',
+    elevation=1274.064,
+    latitude=38.0385
+    ):
     
     # Load, merge, and calibrate data
     merger = ly.dat_file_merger.DatFileMerger()
@@ -101,6 +103,9 @@ def main(data_directory,
     
     elif frequency != 'D' and weather_file_path:
         print(Fore.YELLOW + "Warning: Weather data comparison is skipped because the lysimeter data is not aggregated to a daily timescale." + Style.RESET_ALL)
+    
+    elif frequency == 'D' and not weather_file_path:
+        print(Fore.YELLOW + "Warning: Weather data comparison is skipped because the weather data file path is not provided." + Style.RESET_ALL)
 
     # Generate and export the report
     report_generator = ly.report_generator.ReportGenerator()
@@ -140,7 +145,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    main(
+    run_analysis(
         data_directory=args.data_directory,
         output_directory=args.output_directory,
         calibration_file=args.calibration_file,

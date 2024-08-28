@@ -1,7 +1,12 @@
-import streamlit as st
-import lysimeter_analysis as ly
+import sys
 import os
-from lysimeter_analysis.scripts.run_analysis import main as run_analysis
+import streamlit as st
+
+# Add the 'code' directory to the Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# Now you can import your lysimeter_analysis package
+from scripts.run_analysis import run_analysis
 
 # Title
 st.title("Lysimeter Data Analysis Tool")
@@ -26,8 +31,8 @@ latitude = st.number_input("Latitude", value=38.0385)
 longitude = st.number_input("Longitude", value=1274.064)
 
 # Date inputs for planting and harvest dates
-planting_date = st.date_input("Planting Date", value=None)
-harvest_date = st.date_input("Harvest Date", value=None)
+planting_date = st.date_input("Planting Date")
+harvest_date = st.date_input("Harvest Date")
 
 # Run Analysis Button
 if st.button("Run Analysis"):
@@ -72,7 +77,9 @@ if st.button("Run Analysis"):
             threshold=threshold,
             weather_file_path=weather_file_path,
             planting_date=planting_date.strftime('%m-%d-%Y') if planting_date else None,
-            harvest_date=harvest_date.strftime('%m-%d-%Y') if harvest_date else None
+            harvest_date=harvest_date.strftime('%m-%d-%Y') if harvest_date else None,
+            latitude=latitude,
+            elevation=longitude  # assuming longitude was intended to be elevation
         )
 
         st.success("Analysis Completed! Check the output directory for results.")
