@@ -121,17 +121,18 @@ def run_analysis(
     # Set up Load Cell Calibration
     calibration = ly.load_cell_calibration.LoadCellCalibration()
 
-    # Set custom alpha and beta values if provided, otherwise use the lysimeter type defaults
-    if custom_alpha is not None:
-        calibration.set_alpha(custom_alpha)
-    if custom_beta is not None:
-        calibration.set_beta(custom_beta)
+    # Check if custom alpha and beta values are provided
+    custom_values_provided = custom_alpha is not None and custom_beta is not None
 
-    if not calibration.custom_values_provided:
+    # Set custom alpha and beta if provided, otherwise use the lysimeter type defaults
+    if custom_values_provided:
+        calibration.set_alpha(custom_alpha)
+        calibration.set_beta(custom_beta)
+    else:
         if lysimeter_type:
             calibration.get_calibration_factor(lysimeter_type)
         else:
-            calibration.get_calibration_factor()  # defaults to 'LL'
+            calibration.get_calibration_factor() # defaults to 'LL'
 
 
     # Calculate Water Balance

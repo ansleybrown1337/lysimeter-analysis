@@ -49,26 +49,32 @@ output_directory = '.'
 
 # Configuration settings
 st.markdown("## Lysimeter Data Configuration Settings:")
+
 input_timescale = st.selectbox(
     "Input Timescale (i.e., keyword in input file name that needs to be present)",
     ["Min5", "Min15", "Min60", "Daily"]
 )
+
 frequency = st.selectbox(
     "Data Aggregation Frequency (if any)",
     [None, "5T", "15T", "H", "D", "W"],
     index=1
 )
+
 lysimeter_type = st.selectbox(
     "Lysimeter Type (if any)",
     [None, "SL", "LL"]
 )
+
 threshold = st.number_input(
     "Non Standard Event (NSE) Detection Threshold (mV/V)",
     min_value=0.0001,
     max_value=1.0000,
     step=0.0001,
-    value=0.0034
+    value=0.0034,
+    format="%.4f"
 )
+
 
 # Load Cell Calibration Settings
 st.markdown("## Custom Load Cell Calibration Settings:")
@@ -86,20 +92,19 @@ $$
 $$
 ''')
 
-
 custom_alpha = st.number_input(
     "Custom Alpha Value for Load Cell Calibration ($\\alpha$ in kg/mV/V)",
     min_value=1.00,
     max_value=10000.00,
     step=0.01,
-    value=684.69
+    value=None
 )
 custom_beta = st.number_input(
     "Custom Beta Value for Load Cell Calibration (Surface Area $\\beta$ in m²)",
     min_value=0.01,
     max_value=1000.00,
     step=0.01,
-    value=9.18
+    value=None
 )
 
 # ASCE-PM reference ET settings
@@ -189,6 +194,7 @@ if st.button("Run Analysis"):
                 latitude=latitude,
                 elevation=elevation
             )
+
             st.success("Analysis Completed!")
             # (Rest of the code for displaying results and download buttons)
             st.download_button(
