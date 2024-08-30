@@ -200,7 +200,7 @@ Use windows to schedule that .exe to run at a given period (e.g., 12 hours)
 - ~~Import weather data, calculate reference ETr, and compare to lysimeter ETc so that a crop coefficient is calculated (Kc = ETc / ETr), then fit a polynomial curve to the Kc values for a seasonal trend.~~
 - ~~create a function in utils.py that allows users to aggregate data to a different time interval (e.g., 5min to 15min to 1hr to daily etc.) and output results in that selected interval.~~
     - ~~create error if user selects timestep that is smaller than input data timestep~~
-- Add simulated data to put in github repo for public use, and make readme more public friendly
+- ~~Add simulated data to put in github repo for public use, and make readme more public friendly~~
 - ~~Add weather data script that calculates reference ETr and Kc values~~
     - ~~Double check that pyfao56 is working correctly~~
     - ~~manually calculate dewpoint for asce pm equation~~
@@ -212,9 +212,14 @@ Use windows to schedule that .exe to run at a given period (e.g., 12 hours)
 - ~~remove cumulative lines on Kc and instantaneous ET plots~~
 - ~~Add weather data info to report generator~~
 - ~~Add manual NSE detection to report generator~~
-- Make NSE dots colored by NSE Type, and HoverTool to show NSE Type in plotly
+- ~~Make NSE dots colored by NSE Type, and HoverTool to show NSE Type in plotly~~
+- ~~Make front end app in streamlit or dash for other users~~
+- FIX NSE INTERPOLATION
+    - cumulative values used to be 820 mm ish as of 30 Aug 2024 at 12:42pm
+    - after changing nse's to detect manually first then automatically, the cumulative values are now 1500! This is a huge error that needs to be fixed.
+        - this only occurs on the streamlit app, but not when ran via terminal. This is likely due to the way the streamlit app is handling the data.
+        - I need to integrate some sort of resetting each time the user click's run analysis, or similar.
 - run code through linting and make sure it's all clean
-- Make front end app in streamlit or dash for other users
 - Perform analysis for 2022 data and compare to Lane's analysis results!
     - results 28 Aug 2024: 
         - 2022 ETr data is very similar with slight differences. Allan and I think this is due to me using the daily ASCE-PM and Lane using the hourly ASCE-PM, then aggregating to daily.

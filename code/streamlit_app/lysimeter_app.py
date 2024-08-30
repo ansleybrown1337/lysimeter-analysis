@@ -115,12 +115,14 @@ st.markdown(
 latitude = st.number_input(
     "Latitude (decimal degrees)",
     step=0.0000,
-    value=38.0385
+    value=38.0385,
+    format="%.4f"
 )
 elevation = st.number_input(
     "Elevation (meters)",
     step=0.0000,
-    value=1274.0640
+    value=1274.0640,
+    format="%.4f"
 )
 
 # Date inputs for Kc graphing
