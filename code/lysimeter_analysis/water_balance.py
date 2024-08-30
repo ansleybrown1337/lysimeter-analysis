@@ -112,8 +112,6 @@ class WaterBalance:
                 if (self.df[eta_column] == self.df[delta_weight_column]).all():
                     print("Warning: Interpolation did not change any values. Ensure that there are valid data points before and after NSEs.")
 
-
-
     def _calculate_cumulative_eta(self):
         """
         Calculates the cumulative ETa for each ETa column in the dataframe.
@@ -126,12 +124,12 @@ class WaterBalance:
 
     def plot_eta_with_nse(self):
         """
-        Plots the ETa timeseries with NSEs highlighted and saves the plot as an HTML file.
-        This is a private method that is automatically called within the `calculate_eta` method.
+        Plots the ETa timeseries with NSEs highlighted, saves the plot as an HTML file, 
+        and returns the Plotly figure.
+        
+        Returns:
+            plotly.graph_objects.Figure: The Plotly figure object.
         """
-        if not self.output_directory:
-            raise ValueError("Output directory must be set before plotting.")
-
         fig = go.Figure()
 
         # Add ETa columns to the plot
@@ -154,20 +152,23 @@ class WaterBalance:
         )
 
         # Save the plot as an HTML file
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_filename_html = os.path.join(self.output_directory, f"ETa_instance_{timestamp}.html")
-        fig.write_html(output_filename_html)
+        if self.output_directory:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_filename_html = os.path.join(self.output_directory, f"ETa_instance_{timestamp}.html")
+            fig.write_html(output_filename_html)
+            print(f"Interactive plot saved to {output_filename_html}")
 
-        print(f"Interactive plot saved to {output_filename_html}")
+        # Return the Plotly figure
+        return fig
 
     def plot_cumulative_eta(self):
         """
-        Plots the cumulative ETa over time and saves the plot as an HTML file.
-        This is a private method that is automatically called within the `calculate_eta` method.
+        Plots the cumulative ETa over time, saves the plot as an HTML file, 
+        and returns the Plotly figure.
+        
+        Returns:
+            plotly.graph_objects.Figure: The Plotly figure object.
         """
-        if not self.output_directory:
-            raise ValueError("Output directory must be set before plotting.")
-
         fig = go.Figure()
 
         # Add cumulative ETa columns to the plot
@@ -183,8 +184,11 @@ class WaterBalance:
         )
 
         # Save the plot as an HTML file
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_filename_html = os.path.join(self.output_directory, f"Cumulative_ETa_{timestamp}.html")
-        fig.write_html(output_filename_html)
+        if self.output_directory:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_filename_html = os.path.join(self.output_directory, f"Cumulative_ETa_{timestamp}.html")
+            fig.write_html(output_filename_html)
+            print(f"Cumulative ETa plot saved to {output_filename_html}")
 
-        print(f"Cumulative ETa plot saved to {output_filename_html}")
+        # Return the Plotly figure
+        return fig

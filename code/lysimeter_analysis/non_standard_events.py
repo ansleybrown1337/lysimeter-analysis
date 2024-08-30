@@ -4,7 +4,6 @@ import pandas as pd
 import plotly.graph_objects as go
 import os
 from datetime import datetime
-import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter1d
 from lysimeter_analysis.utils import awat_filter
 
@@ -23,6 +22,7 @@ class NonStandardEvents:
         self.possible_columns = None  # New attribute for possible columns
         self.NSEcount = {}  # Attribute to store NSE counts
         self.manual_nse_df = None  # DataFrame for manually defined NSEs
+        self.plotly_figure = None  # Attribute to store the Plotly figure
 
     def set_dataframe(self, dataframe):
         """Sets the dataframe to be used for NSE detection."""
@@ -114,37 +114,13 @@ class NonStandardEvents:
 
         return self.df
 
-
-
     def plot_nse(self):
         """
-        Plots the time series with NSE values highlighted and saves the plot as both a PNG file and an HTML file.
-        Also adds Gaussian-smoothed and AWAT-filtered data to the Plotly graph.
+        Creates an interactive Plotly plot highlighting NSEs, adds Gaussian-smoothed data, and returns the figure.
+        
+        Returns:
+            plotly.graph_objects.Figure: The Plotly figure object.
         """
-        # Static Matplotlib Plot
-        plt.figure(figsize=(14, 8))
-        colors = ['blue', 'green', 'red', 'orange']
-
-        for idx, column in enumerate(self.columns):
-            plt.plot(self.df['TIMESTAMP'], self.df[column], label=column, color=colors[idx % len(colors)])
-            # Highlight NSEs
-            nse_points = self.df[self.df[f'{column}_NSE'] == 1]
-            plt.scatter(nse_points['TIMESTAMP'], nse_points[column], color=colors[(idx + 2) % len(colors)], label=f'NSE {column}', zorder=5)
-        
-        plt.xlabel('Timestamp')
-        plt.ylabel('mV/V')
-        plt.title('Time Series with NSEs Highlighted')
-        plt.legend()
-        plt.grid(True)
-
-        # Save the plot as a PNG file
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_filename_png = os.path.join(self.output_directory, f"NSE_plot_{timestamp}.png")
-        plt.savefig(output_filename_png)
-        plt.close()
-        
-        print(f"Static NSE plot saved to {output_filename_png}")
-
         # Interactive Plotly Plot
         fig = go.Figure()
 
@@ -168,7 +144,15 @@ class NonStandardEvents:
             template='plotly_white'
         )
 
-        output_filename_html = os.path.join(self.output_directory, f"NSE_plot_{timestamp}.html")
-        fig.write_html(output_filename_html)
+        # Store the figure as a class attribute
+        self.plotly_figure = fig
 
-        print(f"Interactive NSE plot saved to {output_filename_html}")
+        # Optionally save the plot to an HTML file (comment this out if not needed)
+        if self.output_directory:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_filename_html = os.path.join(self.output_directory, f"NSE_plot_{timestamp}.html")
+            fig.write_html(output_filename_html)
+            print(f"Interactive NSE plot saved to {output_filename_html}")
+
+        # Return the Plotly figure
+        return fig

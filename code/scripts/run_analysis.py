@@ -22,6 +22,67 @@ def run_analysis(
     elevation=1274.064,
     latitude=38.0385
     ):
+    """
+    Run the lysimeter analysis process, which includes data merging, calibration,
+    NSE detection, ETa calculation, water balance analysis, and optional comparison
+    with weather data.
+
+    Parameters:
+    -----------
+    data_directory : str
+        The directory containing the lysimeter data files (.dat) to process.
+    output_directory : str
+        The directory where the output files will be saved.
+    calibration_file : str
+        The path to the calibration coefficients CSV file.
+    input_timescale : str
+        The timescale of the input data (e.g., Min15).
+    manual_nse_file_path : str, optional
+        Path to the CSV file containing manually defined NSEs (default is None).
+    frequency : str, optional
+        The frequency to aggregate the data (e.g., H for hourly, D for daily).
+    lysimeter_type : str, optional
+        The type of lysimeter (SL or LL). If not provided, defaults to using custom values or LL.
+    custom_alpha : float, optional
+        Custom alpha value for load cell calibration (kg/mV/V) (default is None).
+    custom_beta : float, optional
+        Custom beta value for load cell calibration (surface area in m²) (default is None).
+    threshold : float, optional
+        Threshold for detecting non-standard events (NSEs) (default is 0.0034).
+    weather_file_path : str, optional
+        Path to the weather data file for ETr calculation (default is None).
+    planting_date : str, optional
+        The lysimeter crop planting date in the format 'MM-DD-YYYY' (default is '05-15-2022').
+    harvest_date : str, optional
+        The lysimeter crop harvest date in the format 'MM-DD-YYYY' (default is '10-15-2022').
+    elevation : float, optional
+        The elevation of the lysimeter site in meters (default is 1274.064).
+    latitude : float, optional
+        The latitude of the lysimeter site in decimal degrees (default is 38.0385).
+
+    Returns:
+    --------
+    eta_df : pd.DataFrame
+        The final dataframe containing NSE columns, ETa, ETr, and Kc if applicable.
+    nse_fig : plotly.graph_objects.Figure
+        The Plotly figure object of NSE detection results.
+    eta_fig : plotly.graph_objects.Figure
+        The Plotly figure object of ETa timeseries with NSEs highlighted.
+    cumulative_eta_fig : plotly.graph_objects.Figure
+        The Plotly figure object of cumulative ETa over time.
+    etr_vs_eta_fig : plotly.graph_objects.Figure or None
+        The Plotly figure object of ETa vs ETr comparison, or None if not applicable.
+    kc_with_fit_fig : plotly.graph_objects.Figure or None
+        The Plotly figure object of Kc values with polynomial fit, or None if not applicable.
+    report_str : str
+        The run report as a single string.
+
+    Notes:
+    ------
+    This function orchestrates the entire lysimeter analysis process, including data merging,
+    NSE detection, ETa and water balance calculations, and optional weather data comparison.
+    It generates and saves relevant plots and returns them for further use.
+    """
     
     # Load, merge, and calibrate data
     merger = ly.dat_file_merger.DatFileMerger()
@@ -50,7 +111,7 @@ def run_analysis(
     nse_df = nse_detector.detect_nse()
     
     ## Plot NSEs after integrating manual NSEs
-    nse_detector.plot_nse()
+    nse_fig = nse_detector.plot_nse()
 
     # Aggregate data if frequency is specified
     if frequency:
@@ -59,10 +120,18 @@ def run_analysis(
     # Set up Load Cell Calibration
     calibration = ly.load_cell_calibration.LoadCellCalibration()
 
-    if lysimeter_type:
-        calibration.get_calibration_factor(lysimeter_type)
-    else:
-        calibration.get_calibration_factor()
+    # Set custom alpha and beta values if provided, otherwise use the lysimeter type defaults
+    if custom_alpha is not None:
+        calibration.set_alpha(custom_alpha)
+    if custom_beta is not None:
+        calibration.set_beta(custom_beta)
+
+    if not calibration.custom_values_provided:
+        if lysimeter_type:
+            calibration.get_calibration_factor(lysimeter_type)
+        else:
+            calibration.get_calibration_factor()  # defaults to 'LL'
+
 
     # Calculate Water Balance
     water_balance = ly.water_balance.WaterBalance()
@@ -70,10 +139,13 @@ def run_analysis(
     water_balance.set_output_directory(output_directory)
     water_balance.set_custom_calibration_factor(calibration.calibration_factor)
     eta_df = water_balance.calculate_eta()
-    water_balance.plot_eta_with_nse()
-    water_balance.plot_cumulative_eta()
+    eta_fig = water_balance.plot_eta_with_nse()
+    cumulative_eta_fig = water_balance.plot_cumulative_eta()
 
     # Compare ETa to ASCE PM ETr via local weather data (daily for now)
+    ## initialize figs to be None if weather data is not provided
+    etr_vs_eta_fig = None
+    kc_with_fit_fig = None
     if frequency == 'D' and weather_file_path:
         weather_etr = ly.weather.WeatherETR()
         weather_etr.set_latitude(latitude)
@@ -94,12 +166,12 @@ def run_analysis(
         eta_df = weather_etr.df
 
         # Plot and save ETa vs ETr
-        weather_etr.plot_etr_vs_eta()
+        etr_vs_eta_fig = weather_etr.plot_etr_vs_eta()
 
         # Plot and save Kc with 2nd order polynomial fit
         weather_etr.set_planting_date(planting_date)
         weather_etr.set_harvest_date(harvest_date)
-        weather_etr.plot_kc_with_fit()
+        kc_with_fit_fig = weather_etr.plot_kc_with_fit()
     
     elif frequency != 'D' and weather_file_path:
         print(Fore.YELLOW + "Warning: Weather data comparison is skipped because the lysimeter data is not aggregated to a daily timescale." + Style.RESET_ALL)
@@ -119,12 +191,13 @@ def run_analysis(
         beta=calibration.beta
     )
     report_generator.add_ETa_Kc_info(planting_date, harvest_date)
+    report_str = report_generator.merge_report()
     report_generator.export_report(output_directory)
 
     # Export the final dataframe including NSE columns, ETa, ETr, and Kc if applicable
     ly.utils.export_to_csv(eta_df, output_directory)
 
-    return eta_df
+    return eta_df, nse_fig, eta_fig, cumulative_eta_fig, etr_vs_eta_fig, kc_with_fit_fig, report_str
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run the lysimeter analysis.')

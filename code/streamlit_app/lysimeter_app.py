@@ -26,6 +26,7 @@ st.number_input
 import sys
 import os
 import streamlit as st
+import plotly.io as pio
 
 # Add the 'code' directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -45,32 +46,31 @@ weather_file = st.file_uploader("Upload Weather Data File (Optional)", type=['da
 
 # Output directory (not needed w/ download button)
 output_directory = '.'
-#output_directory = st.text_input("Output Directory", value=".")
 
 # Configuration settings
 st.markdown("## Lysimeter Data Configuration Settings:")
 input_timescale = st.selectbox(
     "Input Timescale (i.e., keyword in input file name that needs to be present)",
     ["Min5", "Min15", "Min60", "Daily"]
-    )
+)
 frequency = st.selectbox(
     "Data Aggregation Frequency (if any)",
     [None, "5T", "15T", "H", "D", "W"],
     index=1
-    )
+)
 lysimeter_type = st.selectbox(
     "Lysimeter Type (if any)",
     [None, "SL", "LL"]
-    )
+)
 threshold = st.number_input(
     "Non Standard Event (NSE) Detection Threshold (mV/V)",
     min_value=0.0001,
     max_value=1.0000,
     step=0.0001,
     value=0.0034
-    )
+)
 
-## Load Cell Calibration Settings
+# Load Cell Calibration Settings
 st.markdown("## Custom Load Cell Calibration Settings:")
 st.markdown('''
 ### Calibration Factor Equation
@@ -105,30 +105,46 @@ custom_beta = st.number_input(
 st.markdown(
     '## ASCE-PM ETref Settings:',
     help='ETref is only calculated if data is at or aggregated to a daily value'
-    )
+)
 latitude = st.number_input(
     "Latitude (decimal degrees)",
     step=0.0000,
     value=38.0385
-    )
+)
 elevation = st.number_input(
     "Elevation (meters)",
     step=0.0000,
     value=1274.0640
-    )
+)
 
 # Date inputs for Kc graphing
 planting_date = st.date_input(
     "Lysimeter Crop Planting Date (YYYY/MM/DD)"
-    )
+)
 harvest_date = st.date_input(
     "Lysimeter Crop Harvest Date (YYYY/MM/DD)"
-    )
+)
 
 # Run Analysis Button
 if st.button("Run Analysis"):
-    if data_directory and calibration_file and output_directory:
-        # Save uploaded files to the output directory
+    missing_files = []
+
+    # Check each required file and add to missing_files list if not present
+    if not data_directory:
+        missing_files.append("Lysimeter Data Files")
+
+    if not calibration_file:
+        missing_files.append("Calibration File")
+
+    if not output_directory:
+        missing_files.append("Output Directory")
+
+    if missing_files:
+        # Show specific error messages for each missing file
+        for missing_file in missing_files:
+            st.error(f"Missing required input: {missing_file}")
+    else:
+        # Proceed with the analysis if no files are missing
         os.makedirs(output_directory, exist_ok=True)
         
         data_directory_path = os.path.join(output_directory, 'data_directory')
@@ -155,38 +171,90 @@ if st.button("Run Analysis"):
                 f.write(weather_file.getbuffer())
 
         # Run the analysis
-        eta_df = run_analysis(
-            data_directory=data_directory_path,
-            output_directory=output_directory,
-            calibration_file=calibration_file_path,
-            input_timescale=input_timescale,
-            manual_nse_file_path=manual_nse_file_path,
-            frequency=frequency,
-            lysimeter_type=lysimeter_type,
-            custom_alpha=custom_alpha if custom_alpha else None,
-            custom_beta=custom_beta if custom_beta else None,
-            threshold=threshold,
-            weather_file_path=weather_file_path,
-            planting_date=planting_date.strftime('%m-%d-%Y') if planting_date else None,
-            harvest_date=harvest_date.strftime('%m-%d-%Y') if harvest_date else None,
-            latitude=latitude,
-            elevation=elevation
-        )
+        try:
+            eta_df, nse_fig, eta_fig, cumulative_eta_fig, etr_vs_eta_fig, kc_with_fit_fig, report_str = run_analysis(
+                data_directory=data_directory_path,
+                output_directory=output_directory,
+                calibration_file=calibration_file_path,
+                input_timescale=input_timescale,
+                manual_nse_file_path=manual_nse_file_path,
+                frequency=frequency,
+                lysimeter_type=lysimeter_type,
+                custom_alpha=custom_alpha if custom_alpha else None,
+                custom_beta=custom_beta if custom_beta else None,
+                threshold=threshold,
+                weather_file_path=weather_file_path,
+                planting_date=planting_date.strftime('%m-%d-%Y') if planting_date else None,
+                harvest_date=harvest_date.strftime('%m-%d-%Y') if harvest_date else None,
+                latitude=latitude,
+                elevation=elevation
+            )
+            st.success("Analysis Completed!")
+            # (Rest of the code for displaying results and download buttons)
+            st.download_button(
+                label="Download Results",
+                data=eta_df.to_csv().encode(),
+                file_name="processed_lysimeter_data.csv",
+                mime="text/csv"
+            )
 
-        st.success("Analysis Completed!")
-        st.download_button(
-            label="Download Results",
-            data=eta_df.to_csv().encode(),
-            file_name="processed_lysimeter_data.csv",
-            mime="text/csv"
-        )
-        # TODO: embed plotly charts here
-        st.line_chart(
-            eta_df,
-            x="TIMESTAMP",
-            y="SM50_1_Avg_ETa",
-            xlabel="",
-            ylabel="ETa (mm)"
-        )
-    else:
-        st.error("Please upload all required files and specify the output directory.")
+            st.download_button(
+                label="Download Analysis Report",
+                data=report_str.encode(),
+                file_name="lysimeter_analysis_report.txt",
+                mime="text/plain"
+            )
+
+            # Display the charts and add download buttons
+            if nse_fig:
+                st.plotly_chart(nse_fig, use_container_width=True)
+                nse_fig_html = pio.to_html(nse_fig, full_html=False)
+                st.download_button(
+                    label="Download NSE Plot (HTML)",
+                    data=nse_fig_html.encode(),
+                    file_name="nse_plot.html",
+                    mime="text/html"
+                )
+
+            if eta_fig:
+                st.plotly_chart(eta_fig, use_container_width=True)
+                eta_fig_html = pio.to_html(eta_fig, full_html=False)
+                st.download_button(
+                    label="Download ETa Plot (HTML)",
+                    data=eta_fig_html.encode(),
+                    file_name="eta_plot.html",
+                    mime="text/html"
+                )
+
+            if cumulative_eta_fig:
+                st.plotly_chart(cumulative_eta_fig, use_container_width=True)
+                cumulative_eta_fig_html = pio.to_html(cumulative_eta_fig, full_html=False)
+                st.download_button(
+                    label="Download Cumulative ETa Plot (HTML)",
+                    data=cumulative_eta_fig_html.encode(),
+                    file_name="cumulative_eta_plot.html",
+                    mime="text/html"
+                )
+
+            if etr_vs_eta_fig:
+                st.plotly_chart(etr_vs_eta_fig, use_container_width=True)
+                etr_vs_eta_fig_html = pio.to_html(etr_vs_eta_fig, full_html=False)
+                st.download_button(
+                    label="Download ETa vs ETr Plot (HTML)",
+                    data=etr_vs_eta_fig_html.encode(),
+                    file_name="eta_vs_etr_plot.html",
+                    mime="text/html"
+                )
+
+            if kc_with_fit_fig:
+                st.plotly_chart(kc_with_fit_fig, use_container_width=True)
+                kc_with_fit_fig_html = pio.to_html(kc_with_fit_fig, full_html=False)
+                st.download_button(
+                    label="Download Kc with Fit Plot (HTML)",
+                    data=kc_with_fit_fig_html.encode(),
+                    file_name="kc_with_fit_plot.html",
+                    mime="text/html"
+                )
+
+        except Exception as e:
+            st.error(f"An error occurred during analysis: {str(e)}")

@@ -1,3 +1,5 @@
+# lysimeter_analysis/weather.py
+
 import pandas as pd
 import numpy as np
 import os
@@ -118,7 +120,6 @@ class WeatherETR:
         self.planting_date = planting_date
         print(f"Planting date set to {self.planting_date}")
 
-
     def set_harvest_date(self, harvest_date):
         """
         Sets the harvest date.
@@ -128,8 +129,6 @@ class WeatherETR:
         """
         self.harvest_date = harvest_date
         print(f"Harvest date set to {self.harvest_date}")
-
-
 
     def calculate_daily_etr(self):
         """
@@ -196,14 +195,14 @@ class WeatherETR:
     
     def plot_etr_vs_eta(self, eta_columns=None):
         """
-        Plots a time series of ETa and ETr values and saves it as an HTML file.
+        Plots a time series of ETa and ETr values, saves it as an HTML file, and returns the Plotly figure.
         
         Args:
             eta_columns (list): List of column names for Actual Evapotranspiration (ETa).
                                 If None, it will automatically detect columns ending with '_ETa' but not '_Cumulative_ETa'.
         
         Returns:
-            None: The plot is saved as an HTML file.
+            plotly.graph_objects.Figure: The Plotly figure object.
         """
         if self.df is None:
             raise ValueError("DataFrame is empty. Please load and preprocess data first.")
@@ -239,16 +238,19 @@ class WeatherETR:
 
         print(f"Interactive plot saved to {output_filename_html}")
 
+        # Return the Plotly figure
+        return fig
+
     def plot_kc_with_fit(self, kc_columns=None):
         """
-        Plots a time series of Kc values and saves it as an HTML file.
+        Plots a time series of Kc values, saves it as an HTML file, and returns the Plotly figure.
         
         Args:
             kc_columns (list): List of column names for Crop Coefficient (Kc).
                             If None, it will automatically detect columns ending with '_Kc'.
         
         Returns:
-            None: The plot is saved as an HTML file.
+            plotly.graph_objects.Figure: The Plotly figure object.
         """
         if self.df is None:
             raise ValueError("DataFrame is empty. Please load and preprocess data first.")
@@ -296,3 +298,6 @@ class WeatherETR:
         fig.write_html(output_filename_html)
 
         print(f"Interactive plot saved to {output_filename_html}")
+
+        # Return the Plotly figure
+        return fig

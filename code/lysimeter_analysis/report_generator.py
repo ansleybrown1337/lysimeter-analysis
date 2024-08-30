@@ -7,6 +7,7 @@ class ReportGenerator:
     def __init__(self):
         self.report_lines = []
         self.start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.report_compiled = False  # Flag to track if the report has been compiled
 
     def add_file_info(self, merged_files):
         self.report_lines.append("## Merged Files:")
@@ -78,15 +79,43 @@ class ReportGenerator:
         self.report_lines.append("Lysimeter crop conditions are assumed to be non-limiting (i.e., no plant stress)")
         self.report_lines.append("") # Add a blank line for spacing
 
+    def merge_report(self):
+        """
+        Returns the report as a single string.
+
+        Returns:
+        --------
+        report_str : str
+            The entire report as a single string, with each line separated by a newline character.
+        """
+        if not self.report_compiled:
+            self.report_lines.append("## Analysis Model Run Times")
+            self.report_lines.append(f"Run Start Time: {self.start_time}")
+            self.report_lines.append(f"Run End Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            self.report_compiled = True
+
+        report_str = "\n".join(self.report_lines)
+        return report_str
+
     def export_report(self, output_directory, prefix="run_report"):
+        """
+        Exports the report to a text file.
+
+        Args:
+        -----
+        output_directory : str
+            The directory where the report file will be saved.
+        prefix : str, optional
+            The prefix for the report file name (default is "run_report").
+        """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_filename = os.path.join(output_directory, f"{prefix}_{timestamp}.txt")
-        
-        self.report_lines.append("## Analysis Model Run Times")
-        self.report_lines.append(f"Run Start Time: {self.start_time}")
-        self.report_lines.append(f"Run End Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        
+
+        # Get the full report as a string
+        report_str = self.merge_report()
+
+        # Write the report to a file
         with open(output_filename, 'w') as f:
-            f.write("\n".join(self.report_lines))
-        
+            f.write(report_str)
+
         print(f"Run report exported to {output_filename}")
