@@ -76,7 +76,7 @@ st.markdown('''
 ### Calibration Factor Equation
 
 $$
-\\text{Calibration Factor} = \\alpha \\left(\\frac{\\text{kg}}{\\text{mV/V}}\\right) \\times \\left(\\frac{1 \\, \\text{m}^3}{1000 \\, \\text{kg}}\\right) \\times \\left(\\frac{1}{\\beta \\, \\text{m}^2}\\right) \\times \\left(\\frac{1000 \\, \\text{mm}}{1 \\, \\text{m}}\\right) = \\text{Calibration Factor} \\left(\\frac{\\text{mm}}{\\text{mV/V}}\\right)
+\\text{Calibration Factor} = \\alpha \\left(\\frac{\\text{kg}}{\\text{mV/V}}\\right) \\times \\left(\\frac{1 \\, \\text{m}^3}{1000 \\, \\text{kg}}\\right) \\times \\left(\\frac{1}{\\beta \\, \\text{m}^2}\\right) \\times \\left(\\frac{1000 \\, \\text{mm}}{1 \\, \\text{m}}\\right)
 $$
 
 ### Depth of Water Equation
