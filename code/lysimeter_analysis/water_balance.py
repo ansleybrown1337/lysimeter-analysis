@@ -142,7 +142,7 @@ class WaterBalance:
                 if nse_column in self.df.columns:
                     nse_points = self.df[self.df[nse_column] == 1]
                     fig.add_trace(go.Scatter(x=nse_points['TIMESTAMP'], y=nse_points[column], mode='markers',
-                                             name=f'NSE {column}', marker=dict(color='red', size=10)))
+                                             name=f'NSE {column}', marker=dict(color='red', size=7)))
 
         fig.update_layout(
             title='ETa Timeseries with NSEs Highlighted',

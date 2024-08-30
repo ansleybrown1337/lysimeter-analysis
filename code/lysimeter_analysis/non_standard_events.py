@@ -74,7 +74,8 @@ class NonStandardEvents:
 
     def detect_nse(self):
         """
-        Detects non-standard events (NSEs) based on sharp increases in the specified columns and incorporates manually defined events.
+        Detects non-standard events (NSEs) based on manually defined events first, 
+        and then applies auto-detection based on sharp increases in the specified columns.
         
         Returns:
             pd.DataFrame: A DataFrame with additional columns indicating NSEs and their type.
@@ -87,13 +88,8 @@ class NonStandardEvents:
             # Initialize the NSE detection columns
             self.df[f'{column}_NSE'] = 0
             self.df[f'{column}_NSE_Type'] = None
-            
-            # Detect auto-detected NSEs
-            auto_detect_mask = self.df[f'{column}_deltaMVV'] > self.threshold
-            self.df.loc[auto_detect_mask, f'{column}_NSE'] = 1
-            self.df.loc[auto_detect_mask, f'{column}_NSE_Type'] = 'auto-detected'
-            
-            # Incorporate manually defined NSEs
+
+            # Incorporate manually defined NSEs first
             if self.manual_nse_df is not None:
                 for _, row in self.manual_nse_df.iterrows():
                     start = row['Start Datetime']
@@ -102,12 +98,17 @@ class NonStandardEvents:
                     # Flag the NSEs within the manually defined range
                     manual_nse_mask = (self.df['TIMESTAMP'] >= start) & (self.df['TIMESTAMP'] <= stop)
                     
-                    # Update NSE flag and type only if not already flagged
+                    # Update NSE flag and type
                     self.df.loc[manual_nse_mask, f'{column}_NSE'] = 1
                     self.df.loc[manual_nse_mask & (self.df[f'{column}_NSE_Type'].isna()), f'{column}_NSE_Type'] = event_type
                     
                     # If already flagged, append the manual event type to existing type
                     self.df.loc[manual_nse_mask & (~self.df[f'{column}_NSE_Type'].isna()), f'{column}_NSE_Type'] += f', {event_type}'
+
+            # Now apply auto-detection, but only where no manual NSE is already flagged
+            auto_detect_mask = (self.df[f'{column}_deltaMVV'] > self.threshold) & (self.df[f'{column}_NSE'] == 0)
+            self.df.loc[auto_detect_mask, f'{column}_NSE'] = 1
+            self.df.loc[auto_detect_mask, f'{column}_NSE_Type'] = 'auto-detected'
 
             # Store the NSE count in the dictionary
             self.NSEcount[column] = self.df[f'{column}_NSE'].sum()
@@ -116,7 +117,7 @@ class NonStandardEvents:
 
     def plot_nse(self):
         """
-        Creates an interactive Plotly plot highlighting NSEs, adds Gaussian-smoothed data, and returns the figure.
+        Creates an interactive Plotly plot highlighting NSEs, colors points by NSE types, and returns the figure.
         
         Returns:
             plotly.graph_objects.Figure: The Plotly figure object.
@@ -128,17 +129,32 @@ class NonStandardEvents:
             # Plot original data
             fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=self.df[column], mode='lines', name=column))
 
-            # Apply Gaussian smoothing and plot the smoothed data
-            smoothed_data = gaussian_filter1d(self.df[column], sigma=1)  # Adjust sigma as needed
-            fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=smoothed_data, mode='lines', name=f'{column} (Gaussian Smoothed)', line=dict(dash='dash')))
+            # Optionally apply Gaussian smoothing and plot the smoothed data (commented out)
+            # smoothed_data = gaussian_filter1d(self.df[column], sigma=1)  # Adjust sigma as needed
+            # fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=smoothed_data, mode='lines', name=f'{column} (Gaussian Smoothed)', line=dict(dash='dash')))
 
-            # Highlight NSEs
+            # Highlight NSEs with different colors based on NSE types
             nse_points = self.df[self.df[f'{column}_NSE'] == 1]
-            fig.add_trace(go.Scatter(x=nse_points['TIMESTAMP'], y=nse_points[column], mode='markers', 
-                                     name=f'NSE {column}', marker=dict(color='red', size=10)))
+            
+            # Extract unique NSE types
+            nse_types = nse_points[f'{column}_NSE_Type'].unique()
+            
+            # Assign a color for each unique NSE type
+            colors = ['red', 'blue', 'green', 'orange', 'purple', 'cyan']  # Add more colors if needed
+            color_map = {nse_type: colors[i % len(colors)] for i, nse_type in enumerate(nse_types)}
+
+            for nse_type in nse_types:
+                type_mask = nse_points[f'{column}_NSE_Type'] == nse_type
+                fig.add_trace(go.Scatter(
+                    x=nse_points['TIMESTAMP'][type_mask],
+                    y=nse_points[column][type_mask],
+                    mode='markers',
+                    name=f'{nse_type} ({column})',
+                    marker=dict(color=color_map[nse_type], size=7)
+                ))
 
         fig.update_layout(
-            title='Time Series with NSEs Highlighted (Including Smoothed Data)',
+            title='Time Series with NSEs Highlighted by Type',
             xaxis_title='Timestamp',
             yaxis_title='mV/V',
             template='plotly_white'
@@ -156,3 +172,4 @@ class NonStandardEvents:
 
         # Return the Plotly figure
         return fig
+
