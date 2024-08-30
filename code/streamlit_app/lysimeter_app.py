@@ -76,15 +76,16 @@ st.markdown('''
 ### Calibration Factor Equation
 
 $$
-\text{Calibration Factor} = \alpha \left(\frac{\text{kg}}{\text{mV/V}}\right) \times \left(\frac{1 \, \text{m}^3}{1000 \, \text{kg}}\right) \times \left(\frac{1}{\beta \, \text{m}^2}\right) \times \left(\frac{1000 \, \text{mm}}{1 \, \text{m}}\right) = \text{Calibration Factor} \left(\frac{\text{mm}}{\text{mV/V}}\right)
+\\text{Calibration Factor} = \\alpha \\left(\\frac{\\text{kg}}{\\text{mV/V}}\\right) \\times \\left(\\frac{1 \\, \\text{m}^3}{1000 \\, \\text{kg}}\\right) \\times \\left(\\frac{1}{\\beta \\, \\text{m}^2}\\right) \\times \\left(\\frac{1000 \\, \\text{mm}}{1 \\, \\text{m}}\\right) = \\text{Calibration Factor} \\left(\\frac{\\text{mm}}{\\text{mV/V}}\\right)
 $$
 
 ### Depth of Water Equation
 
 $$
-\text{DoW (mm)} = \left(\frac{\text{mV/V}}{1}\right) \times \text{Calibration Factor}
+\\text{DoW (mm)} = \\left(\\frac{\\text{mV/V}}{1}\\right) \\times \\text{Calibration Factor}
 $$
 ''')
+
 custom_alpha = st.number_input(
     "Custom Alpha Value for Load Cell Calibration ($\\alpha$ in kg/mV/V)",
     min_value=1.00,
