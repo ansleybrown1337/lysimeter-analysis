@@ -20,7 +20,8 @@ A Python module that processes and analyzes weighing lysimeter data for quantify
 3. [Usage](#usage)
 4. [Core Functionalities](#core-functionalities)
 5. [Workflow](#workflow)
-6. [References](#references)
+6. [Data Disclosure](#data-disclosure)
+7. [References](#references)
 
 ## Introduction
 Precision weighing lysimeters are advanced instruments used to measure crop water use with high accuracy. They work by continuously weighing a soil-plant system to determine the amount of water lost through evapotranspiration (ET). This data is crucial for optimizing irrigation practices, improving water use efficiency, and enhancing crop yield.
@@ -221,6 +222,8 @@ Use windows to schedule that .exe to run at a given period (e.g., 12 hours)
     - note on weather dates:
         - check if the python code ASCE-PM data are on the correct dates; the 2022 budget from lane indicates that my data is off by a day.
 -->
+## Data Disclosure
+The data provided in this Repository is for example purposes only, and has been anonymized to prevent unintentional interpretation or use in other applications. Users are explicitly discouraged from interpreting, sharing, or using this data for applications other than illustrative or educational examples related to the Repository's described purposes. 
 
 ## References
  - (2024) Thorp, K. R., DeJonge, K. C., Pokoski, T., Gulati, D., Kukal, M., Farag, F., Hashem, A., Erismann, G., Baumgartner, T., Holzkaemper, A., 2024. Version 1.3.0 - pyfao56: FAO-56 evapotranspiration in Python. SoftwareX. In review.
