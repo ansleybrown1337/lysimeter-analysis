@@ -134,9 +134,6 @@ if st.button("Run Analysis"):
     if not data_directory:
         missing_files.append("Lysimeter Data Files")
 
-    if not calibration_file:
-        missing_files.append("Calibration File")
-
     if not output_directory:
         missing_files.append("Output Directory")
 
@@ -155,9 +152,11 @@ if st.button("Run Analysis"):
             with open(os.path.join(data_directory_path, data_file.name), 'wb') as f:
                 f.write(data_file.getbuffer())
 
-        calibration_file_path = os.path.join(output_directory, calibration_file.name)
-        with open(calibration_file_path, 'wb') as f:
-            f.write(calibration_file.getbuffer())
+        calibration_file_path = None
+        if calibration_file:  # Check if calibration file is provided
+            calibration_file_path = os.path.join(output_directory, calibration_file.name)
+            with open(calibration_file_path, 'wb') as f:
+                f.write(calibration_file.getbuffer())
         
         manual_nse_file_path = None
         if manual_nse_file:
