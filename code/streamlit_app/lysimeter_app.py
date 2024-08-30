@@ -40,9 +40,9 @@ st.title("Lysimeter Data Analysis Tool")
 # File uploads
 st.markdown("## Upload the following files to run the analysis:")
 data_directory = st.file_uploader("Upload Lysimeter Data Files", type=['dat'], accept_multiple_files=True)
-calibration_file = st.file_uploader("Upload Lysimeter Weather Station Sensor Calibration File (Optional)", type=['csv'])
 manual_nse_file = st.file_uploader("Upload Manual NSE File (Optional)", type=['csv'])
 weather_file = st.file_uploader("Upload Weather Data File (Optional)", type=['dat', 'csv'])
+calibration_file = st.file_uploader("Upload Lysimeter Weather Station Sensor Calibration File (Optional)", type=['csv'])
 
 # Output directory (not needed w/ download button)
 output_directory = '.'

@@ -38,11 +38,11 @@ Where:
 *Required parameters:*
 - **`--data_directory <data_directory>`**: The directory containing the data files to process.
 - **`--output_directory <output_directory>`**: The directory where the output files will be saved.
-- **`--calibration_file <calibration_file>`**: The path to the calibration coefficients CSV file.
 - **`--input_timescale <input timescale>`**: The timescale to search for in the filenames 
     - Available Options: 'Min5', 'Min15', 'Min60', 'Daily'
     - You **must** have one of these text options in the input data file name
 *Optional parameters:*
+- **`[--calibration_file <calibration_file>]`**: The path to the calibration coefficients CSV file.
 - **`[--manual_nse_file_path <manual_nse_file_path>]`**: (Optional) Path to a CSV file containing manually identified non-standard events (NSEs). The file should have columns 'Event Type', 'Start Datetime', 'Stop Datetime', and 'Notes' with the start and end times of the NSEs in the format 'MM/DD/YYY HH:MM:SS'. Please also ensure that the 'Event Type' column contains consistent naming conventions for the NSEs. For example, the CSU lysimeters in Rocky Ford, CO, U.S.A use 'Rain', 'Drain', 'Irrigation', 'Fertilizer', 'Unknown'
 - **`[--frequency <aggregation_frequency>]`**: (Optional) The frequency to aggregate the data to.
     - Options: 'T' (minute), 'H' (hour), 'D' (day), 'W' (week), 'M' (month), 'Q' (quarter), 'A' (year)

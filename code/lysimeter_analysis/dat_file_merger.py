@@ -48,20 +48,23 @@ class DatFileMerger:
         self.output_directory = path
 
     def set_calibration_file(self, path):
-        """Sets the calibration file path and loads the calibration data."""
-        self.calibration_file = path
-        self._load_calibration_df()
+        """Sets the calibration file path and loads the calibration data if provided."""
+        if path:
+            self.calibration_file = path
+            self._load_calibration_df()
+        else:
+            self.calibration_file = None
 
     def set_timescale(self, timescale):
         """Sets the timescale to search for in filenames (e.g., 'Min15', 'Min5', 'Min60')."""
         self.timescale = timescale
 
     def _load_calibration_df(self):
-        """Loads the calibration coefficients from a CSV file."""
+        """Loads the calibration coefficients from a CSV file if the calibration file is set."""
         if self.calibration_file:
             self.calibration_df = pd.read_csv(self.calibration_file, encoding='utf-8')
         else:
-            raise ValueError("Calibration file path is not set.")
+            self.calibration_df = None
 
     def _load_dat_files(self):
         """
@@ -142,7 +145,8 @@ class DatFileMerger:
             pd.DataFrame: The DataFrame with calibrated data.
         """
         if self.calibration_df is None:
-            raise ValueError("Calibration dataframe not loaded.")
+            print(Fore.YELLOW + "No calibration file provided. Proceeding without calibration." + Style.RESET_ALL)
+            return df  # Return the original dataframe if no calibration is applied
 
         q7_rn_plus_coefficient = self.calibration_df[self.calibration_df['Variable'] == 'Q7_Rn_Plus']['Coefficient'].values[0]
         q7_rn_minus_coefficient = self.calibration_df[self.calibration_df['Variable'] == 'Q7_Rn_Minus']['Coefficient'].values[0]
@@ -165,6 +169,7 @@ class DatFileMerger:
                 df[new_col_name] = df[col_name] * coefficient
 
         return df
+
     
     def get_merged_files(self):
         """
@@ -180,12 +185,16 @@ class DatFileMerger:
         The main function to load, merge, clean, and calibrate data, and return the processed DataFrame.
         
         Returns:
-            pd.DataFrame: The cleaned and calibrated DataFrame.
+            pd.DataFrame: The cleaned and calibrated DataFrame, or just cleaned if calibration is not applied.
         """
         self._load_dat_files()
         merged_df = self._merge_dataframes()
-        calibrated_df = self._calibrate_data(merged_df)
-        return calibrated_df
+        
+        if self.calibration_df is not None:
+            return self._calibrate_data(merged_df)
+        else:
+            return merged_df
+
 
     def export_to_csv(self, df):
         """

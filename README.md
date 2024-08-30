@@ -1,6 +1,8 @@
 # lysimeter-analysis python module
 A Python module that processes and analyzes weighing lysimeter data for quantifying crop water use (i.e., evapotranspiration).
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://csu-lysimeter-analysis.streamlit.app/)
+
  Created by:<br/>
  A.J. Brown<br/>
  Agricultural Data Scientist<br/>
