@@ -114,10 +114,12 @@ def run_analysis(
     ## Plot NSEs after integrating manual NSEs
     nse_fig = nse_detector.plot_nse()
 
+    '''
+    # commented out to test aggregation later in the process
     # Aggregate data if frequency is specified
     if frequency:
         nse_df = ly.utils.aggregate_data(nse_df, frequency, timestamp_col='TIMESTAMP', input_timescale=input_timescale)
-
+    '''
     # Set up Load Cell Calibration
     calibration = ly.load_cell_calibration.LoadCellCalibration()
 
@@ -143,6 +145,10 @@ def run_analysis(
     eta_df = water_balance.calculate_eta()
     eta_fig = water_balance.plot_eta_with_nse()
     cumulative_eta_fig = water_balance.plot_cumulative_eta()
+
+    # Aggregate data if frequency is specified
+    if frequency:
+        eta_df = ly.utils.aggregate_data(eta_df, frequency, timestamp_col='TIMESTAMP', input_timescale=input_timescale)
 
     # Compare ETa to ASCE PM ETr via local weather data (daily for now)
     ## initialize figs to be None if weather data is not provided

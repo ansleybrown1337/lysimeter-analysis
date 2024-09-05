@@ -219,6 +219,7 @@ Use windows to schedule that .exe to run at a given period (e.g., 12 hours)
     - after changing nse's to detect manually first then automatically, the cumulative values are now 1500! This is a huge error that needs to be fixed.
         - this only occurs on the streamlit app, but not when ran via terminal. This is likely due to the way the streamlit app is handling the data.
         - I need to integrate some sort of resetting each time the user click's run analysis, or similar.
+        - 5 Sep 2024: discovered aggregation occured before interpolation. Going to reverse this then check again.
 - run code through linting and make sure it's all clean
 - Perform analysis for 2022 data and compare to Lane's analysis results!
     - results 28 Aug 2024: 
@@ -228,6 +229,9 @@ Use windows to schedule that .exe to run at a given period (e.g., 12 hours)
             - check/improve the ETc interpolation algorithm
     - note on weather dates:
         - check if the python code ASCE-PM data are on the correct dates; the 2022 budget from lane indicates that my data is off by a day.
+        - ASCEPM data is off by a day in my ET instantaneous graph as well. It is 1 day ahead of the lysimeter data.
+    - It seems that the ETa data is noisy by nature. I will add a NSE-equivalent interpolation for these data as well I think. Base it off of % change rather than absolute change (i.e., % over mm).
+        - % change isn't a reliable smoothing method.  Need to try others.
 -->
 ## Data Disclosure
 The data provided in this Repository is for example purposes only, and has been anonymized to prevent unintentional interpretation or use in other applications. Users are explicitly discouraged from interpreting, sharing, or using this data for applications other than illustrative or educational examples related to the Repository's described purposes. 

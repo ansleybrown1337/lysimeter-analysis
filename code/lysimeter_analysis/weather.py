@@ -195,7 +195,8 @@ class WeatherETR:
     
     def plot_etr_vs_eta(self, eta_columns=None):
         """
-        Plots a time series of ETa and ETr values, saves it as an HTML file, and returns the Plotly figure.
+        Plots a time series of ETa and ETr values, including points on the lines, saves it as an HTML file, 
+        and returns the Plotly figure.
         
         Args:
             eta_columns (list): List of column names for Actual Evapotranspiration (ETa).
@@ -213,13 +214,13 @@ class WeatherETR:
         
         fig = go.Figure()
         
-        # Plot ETr
-        fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=self.df['ETr'], mode='lines', name='ETr'))
+        # Plot ETr with points and lines
+        fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=self.df['ETr'], mode='lines+markers', name='ETr'))
         
-        # Plot each ETa column
+        # Plot each ETa column with points and lines
         for eta_col in eta_columns:
             if eta_col in self.df.columns:
-                fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=self.df[eta_col], mode='lines', name=eta_col))
+                fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=self.df[eta_col], mode='lines+markers', name=eta_col))
         
         fig.update_layout(
             title='Time Series of ETa and ETr',
@@ -240,6 +241,7 @@ class WeatherETR:
 
         # Return the Plotly figure
         return fig
+
 
     def plot_kc_with_fit(self, kc_columns=None):
         """

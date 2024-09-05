@@ -140,11 +140,11 @@ def convert_to_minutes(time_string):
     # Convert to minutes
     return numeric_part * time_units.get(unit_part, 0)
 
-
 def aggregate_data(df, frequency, timestamp_col='TIMESTAMP', input_timescale=None):
     """
-    Aggregates the DataFrame into a specified time frequency by summing numeric values,
-    carrying forward any NSE flags, and combining unique event types into a single string.
+    Aggregates the DataFrame into a specified time frequency by averaging numeric values, except for columns
+    with '_ETa', '_deltaMM', or '_deltaMVV', which are summed. NSE flags are carried forward, and unique event 
+    types are combined into a single string.
 
     Args:
         df (pd.DataFrame): The DataFrame to be aggregated.
@@ -189,7 +189,6 @@ def aggregate_data(df, frequency, timestamp_col='TIMESTAMP', input_timescale=Non
     frequency_minutes = convert_to_minutes(frequency)
 
     # Check if the user is trying to downsample to a smaller timescale
-    #print(f"Detected minutes: {detected_minutes}, Frequency minutes: {frequency_minutes}")
     if detected_minutes > frequency_minutes:
         raise ValueError(f"Cannot aggregate to a smaller timescale than the input timescale. "
                          f"Input timescale: {detected_timescale}, requested frequency: {frequency}")
@@ -207,8 +206,12 @@ def aggregate_data(df, frequency, timestamp_col='TIMESTAMP', input_timescale=Non
             # Combine unique event types into a comma-separated string
             agg_dict[col] = lambda x: ', '.join(sorted(set(x.dropna())))
         elif pd.api.types.is_numeric_dtype(df[col]):
-            # Use 'sum' for numeric columns
-            agg_dict[col] = 'sum'
+            # For columns with '_ETa', '_deltaMM', or '_deltaMVV', sum the values
+            if any(keyword in col for keyword in ['_ETa', '_deltaMM', '_deltaMVV']):
+                agg_dict[col] = 'sum'
+            else:
+                # For other numeric columns, use 'mean' for average
+                agg_dict[col] = 'mean'
         else:
             # For non-numeric columns, take the first non-null entry
             agg_dict[col] = 'first'
@@ -217,4 +220,3 @@ def aggregate_data(df, frequency, timestamp_col='TIMESTAMP', input_timescale=Non
     df_resampled = df.resample(frequency).agg(agg_dict).reset_index()
 
     return df_resampled
-

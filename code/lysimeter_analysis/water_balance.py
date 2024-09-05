@@ -63,7 +63,7 @@ class WaterBalance:
 
     def calculate_eta(self):
         """
-        Calculates the ETa, interpolates values for NSE periods, and creates plots with NSEs highlighted.
+        Calculates the ETa, interpolates values for NSE periods and noisy data, and creates plots with NSEs highlighted.
         
         Returns:
             pd.DataFrame: DataFrame with ETa columns.
@@ -76,12 +76,27 @@ class WaterBalance:
             if "_deltaMVV" in column:
                 delta_weight_column = column.replace("_deltaMVV", "_deltaMM")
                 self.df[delta_weight_column] = self.df[column] * self.custom_calibration_factor * -1
-                self._interpolate_nse_eta(delta_weight_column)
+                eta_column_raw = delta_weight_column.replace("_deltaMM", "_ETa_Raw")
+                
+                # Store the raw ETa values
+                self.df[eta_column_raw] = self.df[delta_weight_column].copy()
 
-        # Calculate cumulative ETa
+                # Interpolate NSE periods
+                self._interpolate_nse_eta(delta_weight_column)
+                eta_column = eta_column_raw.replace("_ETa_Raw", "_ETa")
+
+                # Create the clean _ETa column before noisy interpolation
+                self.df[eta_column] = self.df[eta_column_raw].copy()
+
+                # Interpolate noisy ETa values based on the raw data
+                self._interpolate_noisy_eta(eta_column_raw)
+
+            # Calculate cumulative ETa after ETa interpolation
         self._calculate_cumulative_eta()
 
         return self.df
+
+
 
     def _interpolate_nse_eta(self, delta_weight_column):
         """
@@ -98,7 +113,7 @@ class WaterBalance:
             
             if nse_mask.any():
                 # Create a new column for interpolated ETa values
-                eta_column = delta_weight_column.replace("_deltaMM", "_ETa")
+                eta_column = delta_weight_column.replace("_deltaMM", "_ETa_Raw")
                 self.df[eta_column] = self.df[delta_weight_column].copy()
 
                 # Interpolate ETa values for NSEs using linear interpolation
@@ -112,40 +127,99 @@ class WaterBalance:
                 if (self.df[eta_column] == self.df[delta_weight_column]).all():
                     print("Warning: Interpolation did not change any values. Ensure that there are valid data points before and after NSEs.")
 
+    def _interpolate_noisy_eta(self, eta_column_raw, threshold_percent=70):
+        """
+        Identifies noisy ETa values based on the percentage difference from the previous value, 
+        and linearly interpolates over those values.
+
+        Args:
+            eta_column_raw (str): The name of the raw ETa column to be processed for noise.
+            threshold_percent (float): The percentage threshold to detect noisy values. Default is 50%.
+        """
+        if eta_column_raw not in self.df.columns:
+            raise ValueError(f"Column {eta_column_raw} not found in DataFrame.")
+        
+        # Create a copy of the ETa column for manipulation
+        eta_values = self.df[eta_column_raw].copy()
+
+        # Calculate the percentage difference between consecutive values
+        percentage_diff = eta_values.pct_change() * 100
+
+        # Identify noisy values where the percentage difference exceeds the threshold
+        noisy_mask = percentage_diff.abs() > threshold_percent
+
+        # Create a noisy flag column to indicate where noisy values were detected
+        noisy_flag_column = eta_column_raw.replace("_ETa_Raw", "_Noisy_Flag")
+        self.df[noisy_flag_column] = noisy_mask.astype(int)  # 1 for noisy, 0 for not noisy
+
+        # Create a new column for the interpolated ETa values, this will be the final '_ETa' column
+        eta_column = eta_column_raw.replace("_ETa_Raw", "_ETa")
+        self.df[eta_column] = eta_values.copy()
+
+        # Interpolate noisy values by ignoring them and using linear interpolation
+        self.df[eta_column] = self.df[eta_column].where(~noisy_mask).interpolate(method='linear')
+
+        # Optionally fill any NaN values created during interpolation (e.g., at the start or end of the data)
+        self.df[eta_column].fillna(method='ffill', inplace=True)
+        self.df[eta_column].fillna(method='bfill', inplace=True)
+
+        # Log any changes for debugging purposes
+        num_noisy_values = noisy_mask.sum()
+        if num_noisy_values > 0:
+            print(f"Interpolated {num_noisy_values} noisy ETa values in column {eta_column}.")
+        else:
+            print(f"No noisy values detected in column {eta_column}.")
+
+
     def _calculate_cumulative_eta(self):
         """
         Calculates the cumulative ETa for each ETa column in the dataframe.
         This is a private method that is automatically called within the `calculate_eta` method.
         """
         for column in self.df.columns:
-            if "_ETa" in column:
+            if "_ETa" in column and "_Cumulative_ETa" not in column:
                 cumulative_column = column.replace("_ETa", "_Cumulative_ETa")
                 self.df[cumulative_column] = self.df[column].cumsum()
 
     def plot_eta_with_nse(self):
         """
-        Plots the ETa timeseries with NSEs highlighted, saves the plot as an HTML file, 
-        and returns the Plotly figure.
+        Plots the ETa timeseries with NSEs and noisy points highlighted, 
+        saves the plot as an HTML file, and returns the Plotly figure.
         
         Returns:
             plotly.graph_objects.Figure: The Plotly figure object.
         """
         fig = go.Figure()
 
-        # Add ETa columns to the plot
+        # Add raw and clean ETa columns to the plot, excluding cumulative ETa
         for column in self.df.columns:
-            if "_ETa" in column and "_Cumulative_ETa" not in column:
-                fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=self.df[column], mode='lines', name=column))
+            if "_ETa_Raw" in column and "_Cumulative_ETa" not in column:
+                # Plot raw ETa values
+                clean_column = column.replace("_ETa_Raw", "_ETa")
+                
+                # Plot the raw ETa line
+                fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=self.df[column], mode='lines', name=f'Raw {column}', line=dict(dash='dot')))
+                
+                # Plot the clean ETa line
+                if clean_column in self.df.columns:
+                    fig.add_trace(go.Scatter(x=self.df['TIMESTAMP'], y=self.df[clean_column], mode='lines', name=f'Clean {clean_column}'))
 
-                # Highlight NSEs
-                nse_column = column.replace("_ETa", "_NSE")
+                # Highlight NSEs for the clean ETa
+                nse_column = clean_column.replace("_ETa", "_NSE")
                 if nse_column in self.df.columns:
                     nse_points = self.df[self.df[nse_column] == 1]
-                    fig.add_trace(go.Scatter(x=nse_points['TIMESTAMP'], y=nse_points[column], mode='markers',
-                                             name=f'NSE {column}', marker=dict(color='red', size=7)))
+                    fig.add_trace(go.Scatter(x=nse_points['TIMESTAMP'], y=nse_points[clean_column], mode='markers',
+                                            name=f'NSE {clean_column}', marker=dict(color='red', size=7)))
+
+                # Highlight noisy points for the clean ETa
+                noisy_flag_column = clean_column.replace("_ETa", "_Noisy_Flag")
+                if noisy_flag_column in self.df.columns:
+                    noisy_points = self.df[self.df[noisy_flag_column] == 1]
+                    fig.add_trace(go.Scatter(x=noisy_points['TIMESTAMP'], y=noisy_points[clean_column], mode='markers',
+                                            name=f'Noisy {clean_column}', marker=dict(color='blue', size=7)))
 
         fig.update_layout(
-            title='ETa Timeseries with NSEs Highlighted',
+            title='ETa Timeseries with NSEs and Noisy Points Highlighted',
             xaxis_title='Timestamp',
             yaxis_title='ETa (mm)',
             template='plotly_white'
@@ -160,6 +234,8 @@ class WaterBalance:
 
         # Return the Plotly figure
         return fig
+
+
 
     def plot_cumulative_eta(self):
         """
