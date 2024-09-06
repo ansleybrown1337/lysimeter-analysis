@@ -27,10 +27,11 @@ import sys
 import os
 import streamlit as st
 import plotly.io as pio
-from scripts.run_analysis import run_analysis
+
 
 # Add the 'code' directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from scripts.run_analysis import run_analysis  # noqa: E402
 
 # Title
 st.title("Lysimeter Data Analysis Tool")
