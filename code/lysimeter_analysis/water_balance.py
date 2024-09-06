@@ -127,14 +127,15 @@ class WaterBalance:
                 if (self.df[eta_column] == self.df[delta_weight_column]).all():
                     print("Warning: Interpolation did not change any values. Ensure that there are valid data points before and after NSEs.")
 
-    def _interpolate_noisy_eta(self, eta_column_raw, threshold_percent=70):
+    def _interpolate_noisy_eta(self, eta_column_raw, threshold_percent=75):
         """
-        Identifies noisy ETa values based on the percentage difference from the previous value, 
-        and linearly interpolates over those values.
+        Identifies noisy ETa values based on the percentage difference from the previous value 
+        and if they are more than 3 standard deviations from the mean of the '_ETa_Raw' series.
+        Linearly interpolates over those noisy values.
 
         Args:
             eta_column_raw (str): The name of the raw ETa column to be processed for noise.
-            threshold_percent (float): The percentage threshold to detect noisy values. Default is 50%.
+            threshold_percent (float): The percentage threshold to detect noisy values. Default is 75%.
         """
         if eta_column_raw not in self.df.columns:
             raise ValueError(f"Column {eta_column_raw} not found in DataFrame.")
@@ -146,7 +147,17 @@ class WaterBalance:
         percentage_diff = eta_values.pct_change() * 100
 
         # Identify noisy values where the percentage difference exceeds the threshold
-        noisy_mask = percentage_diff.abs() > threshold_percent
+        noisy_mask_percent_diff = percentage_diff.abs() > threshold_percent
+
+        # Calculate the mean and standard deviation of the ETa raw values
+        mean_eta = eta_values.mean()
+        std_eta = eta_values.std()
+
+        # Identify noisy values that are more than 3 standard deviations from the mean
+        noisy_mask_std_dev = (eta_values < (mean_eta - 3 * std_eta)) | (eta_values > (mean_eta + 3 * std_eta))
+
+        # Combine the two noisy conditions: percentage difference and standard deviation outliers
+        noisy_mask = noisy_mask_percent_diff | noisy_mask_std_dev
 
         # Create a noisy flag column to indicate where noisy values were detected
         noisy_flag_column = eta_column_raw.replace("_ETa_Raw", "_Noisy_Flag")
@@ -169,6 +180,7 @@ class WaterBalance:
             print(f"Interpolated {num_noisy_values} noisy ETa values in column {eta_column}.")
         else:
             print(f"No noisy values detected in column {eta_column}.")
+
 
 
     def _calculate_cumulative_eta(self):
