@@ -1,5 +1,5 @@
 # Contributer Code of Conduct
-Contributers to AWQP repositories are expected to contribute in accordance with the [Colorado State University Principles of Community](https://inclusiveexcellence.colostate.edu/resources/principles-of-community/).
+Contributers to this repository are expected to contribute in accordance with the [Colorado State University Principles of Community](https://inclusiveexcellence.colostate.edu/resources/principles-of-community/).
 
 ## Community
 The principles of community support the Colorado State University

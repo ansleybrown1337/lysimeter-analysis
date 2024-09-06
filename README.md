@@ -37,12 +37,12 @@ To address this challenge, this python module titled `lysimeter-analysis` simpli
 This module was created originally to serve the [Arkansas Valley Lysimeter Project](https://webdoc.agsci.colostate.edu/aes/AES/RCConf/2016/Andales2016CAESLysimeter&WISE.pdf), located at the Colorado State University (CSU) Arkansas Valley Research Center (AVRC). For more information, review [Andales *et al.* (2018)](https://www.researchgate.net/publication/324736388_Design_and_Construction_of_a_Precision_Weighing_Lysimeter_in_Southeast_Colorado).
 
 ## Installation
-To use the module, ensure you have Python 3.6 or higher installed. Then, clone the repository and install the dependencies:
+To use the module, ensure you have Python 3.6 or higher installed. Then, clone the repository and install the module.
 ```bash
-git clone https://github.com/{yourusername}/lysimeter-analysis.git
-cd lysimeter-analysis
-pip install -r requirements.txt
+git clone https://github.com/ansleybrown1337/lysimeter-analysis.git
+
 ```
+Then follow the instructions on the ["How-To" guide](/documentation/How%20to%20run.md) to install the required packages and run the analysis.
 
 ## Usage
 
