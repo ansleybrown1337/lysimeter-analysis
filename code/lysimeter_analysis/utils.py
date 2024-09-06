@@ -8,8 +8,6 @@ import os
 import pandas as pd
 import numpy as np
 from datetime import datetime
-from scipy.signal import savgol_filter
-from scipy.stats import t
 from warnings import warn
 
 def export_to_csv(df, output_directory, prefix="merged_data"):
@@ -68,15 +66,21 @@ def awat_filter(data, wmax=31, delta_max=0.24, kmax=6):
 
                 # Calculate AICc
                 if len(residuals) > k + 2:
-                    aicc = len(residuals) * np.log(ssq / len(residuals)) + 2 * (k + 1) + \
-                           (2 * (k + 1) * (k + 2)) / (len(residuals) - k - 2)
+                    aicc = (
+                        len(residuals) * np.log(ssq / len(residuals)) + 
+                        2 * (k + 1) + 
+                        (2 * (k + 1) * (k + 2)) / (len(residuals) - k - 2)
+                    )
                     if aicc < best_aicc:
                         best_aicc = aicc
                         best_order = k
             else:
-                warn(f"Insufficient residuals for reliable AICc calculation at index {i}. "
-                     f"Consider increasing wmax.", UserWarning)
+                warn(
+                    f"Insufficient residuals for reliable AICc calculation at index {i}"
+                    f"Consider increasing wmax.", UserWarning
+                )
                 break
+
 
         # Refit the polynomial with the best order if AICc was successfully calculated
         if best_aicc != np.inf:
@@ -142,13 +146,15 @@ def convert_to_minutes(time_string):
 
 def aggregate_data(df, frequency, timestamp_col='TIMESTAMP', input_timescale=None):
     """
-    Aggregates the DataFrame into a specified time frequency by averaging numeric values, except for columns
-    with '_ETa', '_deltaMM', or '_deltaMVV', which are summed. NSE flags are carried forward, and unique event 
-    types are combined into a single string.
+    Aggregates the DataFrame into a specified time frequency by averaging numeric 
+    values, except for columns with '_ETa', '_deltaMM', or '_deltaMVV', which are 
+    summed. NSE flags are carried forward, and unique event types are combined into a 
+    single string.
 
     Args:
         df (pd.DataFrame): The DataFrame to be aggregated.
-        frequency (str): The frequency to aggregate by (e.g., 'H' for hourly, 'D' for daily).
+        frequency (str): The frequency to aggregate by (e.g., 'H' for hourly, 'D' for 
+                         daily).
         timestamp_col (str): The name of the timestamp column. Defaults to 'TIMESTAMP'.
         input_timescale (str): Optional. The input timescale provided by the user.
 
@@ -168,20 +174,27 @@ def aggregate_data(df, frequency, timestamp_col='TIMESTAMP', input_timescale=Non
 
     # Detect the actual frequency of the input data
     detected_timescale = pd.infer_freq(df[timestamp_col])
-    print(f"Inferred input data frequency: {detected_timescale}")  # Print the detected frequency for debugging
+    print(f"Inferred input data frequency: {detected_timescale}")
 
-    # If frequency cannot be inferred, fall back to input_timescale or fallback dictionary
+    # fall back timsescale when none detected
     if detected_timescale is None:
         if input_timescale in fallback_timescale_dict:
             detected_timescale = fallback_timescale_dict[input_timescale]
-            print(f"Using fallback timescale for '{input_timescale}': {detected_timescale}")
+            print(
+                f"Using fallback timescale for '{input_timescale}': "
+                f"{detected_timescale}"
+            )
         elif input_timescale is not None:
             detected_timescale = input_timescale
             print(f"Using provided input_timescale: {detected_timescale}")
         else:
-            raise ValueError("Could not infer the frequency of the input data. Please check the TIMESTAMP column, or ensure that the lysimeter filename contains 'Min5', 'Min15', 'Min60', or 'Daily'.")
+            raise ValueError(
+                "Could not infer the frequency of the input data. Please check the "
+                "TIMESTAMP column, or ensure that the lysimeter filename contains "
+                "'Min5', 'Min15', 'Min60', or 'Daily'."
+            )
 
-    # Convert custom frequency strings (e.g., Min15) to valid pandas offset aliases (e.g., 15T)
+    # Convert custom frequency strings (e.g., Min15) to valid pandas aliases (e.g., 15T)
     frequency = fallback_timescale_dict.get(frequency, frequency)
 
     # Convert both detected_timescale and frequency to minutes for comparison
@@ -190,8 +203,10 @@ def aggregate_data(df, frequency, timestamp_col='TIMESTAMP', input_timescale=Non
 
     # Check if the user is trying to downsample to a smaller timescale
     if detected_minutes > frequency_minutes:
-        raise ValueError(f"Cannot aggregate to a smaller timescale than the input timescale. "
-                         f"Input timescale: {detected_timescale}, requested frequency: {frequency}")
+        raise ValueError(
+            f"Cannot aggregate to a smaller timescale than the input timescale. "
+            f"Input timescale: {detected_timescale}, requested frequency: {frequency}"
+            )
 
     # Set the timestamp column as the index for resampling
     df = df.set_index(timestamp_col)
@@ -200,7 +215,7 @@ def aggregate_data(df, frequency, timestamp_col='TIMESTAMP', input_timescale=Non
     agg_dict = {}
     for col in df.columns:
         if '_NSE' in col and df[col].dtype != 'object':
-            # Use 'max' to carry forward the NSE flag if any exists in the period for numeric NSE columns
+            # Use 'max' to carry forward the NSE flag if any exists in NSE period
             agg_dict[col] = 'max'
         elif '_NSE_Type' in col:
             # Combine unique event types into a comma-separated string

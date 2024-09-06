@@ -11,7 +11,7 @@ class LoadCellCalibration:
         self.beta = None
         self.calibration_factor = None
         self.lysimeter_type = None
-        self.custom_values_provided = False  # Flag to track if custom values were provided
+        self.custom_values_provided = False  
 
     def set_alpha(self, alpha):
         self.alpha = alpha
@@ -51,9 +51,15 @@ class LoadCellCalibration:
 
     def _print_default_values_warning(self):
         """
-        Prints a warning message when neither a lysimeter type nor custom alpha and beta values are provided.
+        Prints a warning message when neither a lysimeter type nor custom alpha and beta
+        values are provided.
         """
-        print(Fore.YELLOW + "Warning: No lysimeter type or custom alpha/beta values provided. Default LL values are being used. Please see the report for details." + Style.RESET_ALL)
+        print(
+            Fore.YELLOW + 
+            "Warning: No lysimeter type or custom alpha/beta values provided. "
+            "Default LL values are being used. Please see the report for details." + 
+            Style.RESET_ALL
+        )
 
     def calculate_calibration_factor(self):
         self._update_calibration_factor()

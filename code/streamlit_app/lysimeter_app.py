@@ -27,22 +27,28 @@ import sys
 import os
 import streamlit as st
 import plotly.io as pio
+from scripts.run_analysis import run_analysis
 
 # Add the 'code' directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-# Now you can import your lysimeter_analysis package
-from scripts.run_analysis import run_analysis
 
 # Title
 st.title("Lysimeter Data Analysis Tool")
 
 # File uploads
 st.markdown("## Upload the following files to run the analysis:")
-data_directory = st.file_uploader("Upload Lysimeter Data Files", type=['dat'], accept_multiple_files=True)
-manual_nse_file = st.file_uploader("Upload Manual NSE File (Optional)", type=['csv'])
-weather_file = st.file_uploader("Upload Weather Data File (Optional)", type=['dat', 'csv'])
-calibration_file = st.file_uploader("Upload Lysimeter Weather Station Sensor Calibration File (Optional)", type=['csv'])
+data_directory = st.file_uploader(
+    "Upload Lysimeter Data Files", type=['dat'], accept_multiple_files=True
+    )
+manual_nse_file = st.file_uploader(
+    "Upload Manual NSE File (Optional)", type=['csv']
+    )
+weather_file = st.file_uploader(
+    "Upload Weather Data File (Optional)", type=['dat', 'csv']
+    )
+calibration_file = st.file_uploader(
+    "Upload Lysimeter Weather Station Sensor Calibration File (Optional)", type=['csv']
+    )
 
 # Output directory (not needed w/ download button)
 output_directory = '.'
@@ -82,13 +88,19 @@ st.markdown('''
 ### Calibration Factor Equation
 
 $$
-\\text{Calibration Factor} \\left(\\frac{\\text{mm}}{\\text{mV/V}}\\right) = \\alpha \\left(\\frac{\\text{kg}}{\\text{mV/V}}\\right) \\times \\left(\\frac{1 \\, \\text{m}^3}{1000 \\, \\text{kg}}\\right) \\times \\left(\\frac{1}{\\beta \\, \\text{m}^2}\\right) \\times \\left(\\frac{1000 \\, \\text{mm}}{1 \\, \\text{m}}\\right)
+\\text{Calibration Factor} \\left(\\frac{\\text{mm}}{\\text{mV/V}}\\right) = 
+\\alpha \\left(\\frac{\\text{kg}}{\\text{mV/V}}\\right) \\times 
+\\left(\\frac{1 \\, \\text{m}^3}{1000 \\, \\text{kg}}\\right) \\times 
+\\left(\\frac{1}{\\beta \\, \\text{m}^2}\\right) \\times 
+\\left(\\frac{1000 \\, \\text{mm}}{1 \\, \\text{m}}\\right)
 $$
 
 ### Depth of Water Equation
 
 $$
-\\text{DoW (mm)} = \\left(\\frac{\\text{mV/V}}{1}\\right) \\times \\text{Calibration Factor} \\left(\\frac{\\text{mm}}{\\text{mV/V}}\\right)
+\\text{DoW (mm)} = 
+\\left(\\frac{\\text{mV/V}}{1}\\right) \\times 
+\\text{Calibration Factor} \\left(\\frac{\\text{mm}}{\\text{mV/V}}\\right)
 $$
 ''')
 
@@ -161,7 +173,9 @@ if st.button("Run Analysis"):
 
         calibration_file_path = None
         if calibration_file:  # Check if calibration file is provided
-            calibration_file_path = os.path.join(output_directory, calibration_file.name)
+            calibration_file_path = os.path.join(
+                output_directory, calibration_file.name
+                )
             with open(calibration_file_path, 'wb') as f:
                 f.write(calibration_file.getbuffer())
         
@@ -179,7 +193,8 @@ if st.button("Run Analysis"):
 
         # Run the analysis
         try:
-            eta_df, nse_fig, eta_fig, cumulative_eta_fig, etr_vs_eta_fig, kc_with_fit_fig, report_str = run_analysis(
+            eta_df, nse_fig, eta_fig, cumulative_eta_fig, etr_vs_eta_fig, \
+            kc_with_fit_fig, report_str = run_analysis(
                 data_directory=data_directory_path,
                 output_directory=output_directory,
                 calibration_file=calibration_file_path,
@@ -191,11 +206,16 @@ if st.button("Run Analysis"):
                 custom_beta=custom_beta if custom_beta else None,
                 threshold=threshold,
                 weather_file_path=weather_file_path,
-                planting_date=planting_date.strftime('%m-%d-%Y') if planting_date else None,
-                harvest_date=harvest_date.strftime('%m-%d-%Y') if harvest_date else None,
+                planting_date=(
+                    planting_date.strftime('%m-%d-%Y') if planting_date else None
+                ),
+                harvest_date=(
+                    harvest_date.strftime('%m-%d-%Y') if harvest_date else None
+                ),
                 latitude=latitude,
                 elevation=elevation
             )
+
 
             st.success("Analysis Completed!")
             # (Rest of the code for displaying results and download buttons)
@@ -236,7 +256,9 @@ if st.button("Run Analysis"):
 
             if cumulative_eta_fig:
                 st.plotly_chart(cumulative_eta_fig, use_container_width=True)
-                cumulative_eta_fig_html = pio.to_html(cumulative_eta_fig, full_html=False)
+                cumulative_eta_fig_html = pio.to_html(
+                    cumulative_eta_fig, full_html=False
+                    )
                 st.download_button(
                     label="Download Cumulative ETa Plot (HTML)",
                     data=cumulative_eta_fig_html.encode(),

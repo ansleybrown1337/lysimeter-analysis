@@ -1,5 +1,3 @@
-# lysimeter_analysis/report_generator.py
-
 import os
 from datetime import datetime
 
@@ -35,7 +33,9 @@ class ReportGenerator:
         self.report_lines.append("## Calibration Information:")
         self.report_lines.append(f"Lysimeter Type: {lysimeter_type}")
         self.report_lines.append(f"Calibration Factor: {calibration_factor} mm/mV/V")
-        self.report_lines.append(f"Load Cell Conversion Coefficient (Alpha): {alpha} kg/mV/V")
+        self.report_lines.append(
+            f"Load Cell Conversion Coefficient (Alpha): {alpha} kg/mV/V"
+        )
         self.report_lines.append(f"Effective Lysimeter Surface Area (Beta): {beta} m^2")
 
         # Static text for calibration assumptions and equation
@@ -44,7 +44,9 @@ class ReportGenerator:
             "Calibration Factor Equation: alpha (kg / (mV/V)) * (1 m³ / 1000 kg) * "
             "(1 / beta m²) * (1000 mm / 1 m) = Calibration Factor (mm / (mV/V))"
         )
-        self.report_lines.append("Depth of water equation: DoW (mm) = (mV/V * Calibration Factor)")
+        self.report_lines.append(
+            "Depth of water equation: DoW (mm) = (mV/V * Calibration Factor)"
+        )
         self.report_lines.append("Assuming a water density of 1000 kg/m^3")
         self.report_lines.append("")  # Add a blank line for spacing
 
@@ -75,9 +77,15 @@ class ReportGenerator:
         self.report_lines.append("Assumptions:")
         self.report_lines.append("Kc values are based on FAO-56 guidelines.")
         self.report_lines.append("Kc = ETc / ETr")
-        self.report_lines.append("ETa values are calculated using the ASCE Penman-Monteith method via pyfao56 and provided weather station data.")
-        self.report_lines.append("Lysimeter crop conditions are assumed to be non-limiting (i.e., no plant stress)")
-        self.report_lines.append("") # Add a blank line for spacing
+        self.report_lines.append(
+            "ETa values are calculated using the ASCE Penman-Monteith method via "
+            "pyfao56 and provided weather station data."
+        )
+        self.report_lines.append(
+            "Lysimeter crop conditions are assumed to be non-limiting "
+            "(i.e., no plant stress)"
+        )
+        self.report_lines.append("")  # Add a blank line for spacing
 
     def merge_report(self):
         """
@@ -86,12 +94,15 @@ class ReportGenerator:
         Returns:
         --------
         report_str : str
-            The entire report as a single string, with each line separated by a newline character.
+            The entire report as a single string, with each line separated by a newline 
+            character.
         """
         if not self.report_compiled:
             self.report_lines.append("## Analysis Model Run Times")
             self.report_lines.append(f"Run Start Time: {self.start_time}")
-            self.report_lines.append(f"Run End Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+            self.report_lines.append(
+                f"Run End Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            )
             self.report_compiled = True
 
         report_str = "\n".join(self.report_lines)
@@ -109,7 +120,9 @@ class ReportGenerator:
             The prefix for the report file name (default is "run_report").
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_filename = os.path.join(output_directory, f"{prefix}_{timestamp}.txt")
+        output_filename = os.path.join(
+            output_directory, f"{prefix}_{timestamp}.txt"
+        )
 
         # Get the full report as a string
         report_str = self.merge_report()

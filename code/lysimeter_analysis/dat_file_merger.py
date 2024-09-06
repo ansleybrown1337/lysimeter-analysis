@@ -9,10 +9,11 @@ Colorado State University
 Ansley.Brown@colostate.edu
 5 April 2024
 
-Description: This script loads all ".dat" files in the specified data directory that contain the specified timescale in the filename,
-             imports them into a pandas DataFrame, cleans the data, merges them together,
-             and exports the merged DataFrame as a CSV with a datetime
-             in the filename to the specified output directory.
+Description: This script loads all ".dat" files in the specified data directory that 
+             contain the specified timescale in the filename, imports them into a pandas
+             DataFrame, cleans the data, merges them together, and exports the merged 
+             DataFrame as a CSV with a datetime in the filename to the specified output 
+             directory.
 '''
 
 import os
@@ -25,7 +26,8 @@ init()
 
 class DatFileMerger:
     """
-    A class to handle the loading, cleaning, merging, calibrating, and exporting of .dat files.
+    A class to handle the loading, cleaning, merging, calibrating, and exporting of .dat
+    files.
     """
 
     def __init__(self):
@@ -56,11 +58,17 @@ class DatFileMerger:
             self.calibration_file = None
 
     def set_timescale(self, timescale):
-        """Sets the timescale to search for in filenames (e.g., 'Min15', 'Min5', 'Min60')."""
+        """
+        Sets the timescale to search for in filenames (e.g., 'Min15', 'Min5', 
+        'Min60').
+        """
         self.timescale = timescale
 
     def _load_calibration_df(self):
-        """Loads the calibration coefficients from a CSV file if the calibration file is set."""
+        """
+        Loads the calibration coefficients from a CSV file if the calibration file is
+        set.
+        """
         if self.calibration_file:
             self.calibration_df = pd.read_csv(self.calibration_file, encoding='utf-8')
         else:
@@ -68,7 +76,8 @@ class DatFileMerger:
 
     def _load_dat_files(self):
         """
-        Loads all .dat files in the specified data directory that contain the specified timescale in the filename into pandas DataFrames,
+        Loads all .dat files in the specified data directory that contain the specified 
+        timescale in the filename into pandas DataFrames,
         and prints out the files being imported and merged.
         """
         for file in os.listdir(self.data_directory):
@@ -80,14 +89,21 @@ class DatFileMerger:
                     lines = f.readlines()
                     header = [col.strip('"') for col in lines[1].strip().split(',')]
                     units = [unit.strip('"') for unit in lines[2].strip().split(',')]
-                    designation = [desig.strip('"') for desig in lines[3].strip().split(',')]
+                    designation = [
+                        desig.strip('"') for desig in lines[3].strip().split(',')
+                        ]
                 
                 # Create dictionary of header names and measurement units
                 self.headers_units = {header[i]: units[i] for i in range(len(header))}
                 self.designations = designation
                 
                 # Load the data
-                df = pd.read_csv(file_path, skiprows=4, na_values=["NAN"], low_memory=False, names=header)
+                df = pd.read_csv(
+                    file_path, skiprows=4, 
+                    na_values=["NAN"], 
+                    low_memory=False, 
+                    names=header
+                    )
                 
                 # Clean the data
                 df = self._clean_data(df)
@@ -98,7 +114,8 @@ class DatFileMerger:
     def _clean_data(self, df):
         """
         Cleans the DataFrame by:
-        - Converting columns with numeric values in scientific notation from string to numeric.
+        - Converting columns with numeric values in scientific notation from string to 
+          numeric.
         - Converting the first column to datetime.
         - Removing quotation marks from column headers and units.
         
@@ -136,7 +153,8 @@ class DatFileMerger:
 
     def _calibrate_data(self, df):
         """
-        Adds calibrated data columns to the DataFrame based on the calibration equations.
+        Adds calibrated data columns to the DataFrame based on the calibration 
+        equations.
         
         Args:
             df (pd.DataFrame): The DataFrame to add calibrated columns to.
@@ -145,31 +163,52 @@ class DatFileMerger:
             pd.DataFrame: The DataFrame with calibrated data.
         """
         if self.calibration_df is None:
-            print(Fore.YELLOW + "No calibration file provided. Proceeding without calibration." + Style.RESET_ALL)
+            print(
+                Fore.YELLOW + 
+                "No calibration file provided. Proceeding without calibration." + 
+                Style.RESET_ALL
+            )
             return df  # Return the original dataframe if no calibration is applied
 
-        q7_rn_plus_coefficient = self.calibration_df[self.calibration_df['Variable'] == 'Q7_Rn_Plus']['Coefficient'].values[0]
-        q7_rn_minus_coefficient = self.calibration_df[self.calibration_df['Variable'] == 'Q7_Rn_Minus']['Coefficient'].values[0]
+        q7_rn_plus_coefficient = self.calibration_df[
+            self.calibration_df['Variable'] == 'Q7_Rn_Plus'
+        ]['Coefficient'].values[0]
+        
+        q7_rn_minus_coefficient = self.calibration_df[
+            self.calibration_df['Variable'] == 'Q7_Rn_Minus'
+        ]['Coefficient'].values[0]
 
         for _, row in self.calibration_df.iterrows():
-            variable = row['Variable']
+            row['Variable']
             coefficient = row['Coefficient']
             col_name = row['Col_Name']
             new_col_name = f"{col_name}_calibrated"
 
             if col_name not in df.columns:
-                print(Fore.CYAN + f"Warning: Coefficient column '{col_name}' not found in lysimeter data. Proceeding without calibration for this column." + Style.RESET_ALL)
+                print(
+                    Fore.CYAN + 
+                    f"Warning: Coefficient column '{col_name}' not found in data."
+                    "Proceeding without calibration for this column." + 
+                    Style.RESET_ALL
+                )
                 continue
 
             if col_name == 'Q7_Rn_Avg':
                 df[new_col_name] = df.apply(
-                    lambda x: q7_rn_plus_coefficient * (1 + (0.066 * 0.2 * x['PVWspeed_Avg'])) * x['Q7_Rn_Avg'] 
-                    if x['PVWspeed_Avg'] > 0 else q7_rn_minus_coefficient * ((0.00174 * x['PVWspeed_Avg']) + 0.99755) * x['Q7_Rn_Avg'], axis=1)
+                    lambda x: (
+                        q7_rn_plus_coefficient * 
+                        (1 + (0.066 * 0.2 * x['PVWspeed_Avg'])) * x['Q7_Rn_Avg']
+                        if x['PVWspeed_Avg'] > 0 
+                        else q7_rn_minus_coefficient * 
+                        ((0.00174 * x['PVWspeed_Avg']) + 0.99755) * x['Q7_Rn_Avg']
+                    ), 
+                    axis=1
+                )
             else:
                 df[new_col_name] = df[col_name] * coefficient
 
-        return df
 
+        return df
     
     def get_merged_files(self):
         """
@@ -182,10 +221,12 @@ class DatFileMerger:
 
     def clean_and_calibrated_data(self):
         """
-        The main function to load, merge, clean, and calibrate data, and return the processed DataFrame.
+        The main function to load, merge, clean, and calibrate data, and return the 
+        processed DataFrame.
         
         Returns:
-            pd.DataFrame: The cleaned and calibrated DataFrame, or just cleaned if calibration is not applied.
+            pd.DataFrame: The cleaned and calibrated DataFrame, or just cleaned if 
+            calibration is not applied.
         """
         self._load_dat_files()
         merged_df = self._merge_dataframes()
@@ -198,22 +239,26 @@ class DatFileMerger:
 
     def export_to_csv(self, df):
         """
-        Exports the processed DataFrame to a CSV file with the current datetime in the filename.
+        Exports the processed DataFrame to a CSV file with the current datetime in the 
+        filename.
         Includes units as the second row and designations as the third row.
         
         Args:
             df (pd.DataFrame): The DataFrame to export.
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_filename = os.path.join(self.output_directory, f"merged_data_{timestamp}.csv")
+        output_filename = os.path.join(
+            self.output_directory, f"merged_data_{timestamp}.csv")
         
         # Create DataFrames for the units and designation rows
         units_row = pd.DataFrame([self.headers_units], index=["units"])
         
         # Adjust designations_row to match the merged_df columns
-        designations_row = pd.DataFrame([self.designations + [''] * (df.shape[1] - len(self.designations))], 
-                                        index=["designations"], 
-                                        columns=df.columns)
+        designations_row = pd.DataFrame(
+            [self.designations + [''] * (df.shape[1] - len(self.designations))], 
+            index=["designations"], 
+            columns=df.columns
+            )
         
         # Concatenate the units and designations rows with the merged dataframe
         combined_df = pd.concat([units_row, designations_row, df], ignore_index=True)

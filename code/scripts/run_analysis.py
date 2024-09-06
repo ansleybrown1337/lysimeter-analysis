@@ -1,8 +1,6 @@
 # lysimeter_analysis/run_analysis.py
 import argparse
-import os
-import sys
-from colorama import Fore, Style, init
+from colorama import Fore, Style
 from datetime import datetime
 import lysimeter_analysis as ly
 
@@ -43,19 +41,23 @@ def run_analysis(
     frequency : str, optional
         The frequency to aggregate the data (e.g., H for hourly, D for daily).
     lysimeter_type : str, optional
-        The type of lysimeter (SL or LL). If not provided, defaults to using custom values or LL.
+        The type of lysimeter (SL or LL). If not provided, defaults to using custom 
+        values or LL.
     custom_alpha : float, optional
         Custom alpha value for load cell calibration (kg/mV/V) (default is None).
     custom_beta : float, optional
-        Custom beta value for load cell calibration (surface area in m²) (default is None).
+        Custom beta value for load cell calibration (surface area in m²) (default is 
+        None).
     threshold : float, optional
         Threshold for detecting non-standard events (NSEs) (default is 0.0034).
     weather_file_path : str, optional
         Path to the weather data file for ETr calculation (default is None).
     planting_date : str, optional
-        The lysimeter crop planting date in the format 'MM-DD-YYYY' (default is '05-15-2022').
+        The lysimeter crop planting date in the format 'MM-DD-YYYY' (default is 
+        '05-15-2022').
     harvest_date : str, optional
-        The lysimeter crop harvest date in the format 'MM-DD-YYYY' (default is '10-15-2022').
+        The lysimeter crop harvest date in the format 'MM-DD-YYYY' (default is 
+        '10-15-2022').
     elevation : float, optional
         The elevation of the lysimeter site in meters (default is 1274.064).
     latitude : float, optional
@@ -74,14 +76,17 @@ def run_analysis(
     etr_vs_eta_fig : plotly.graph_objects.Figure or None
         The Plotly figure object of ETa vs ETr comparison, or None if not applicable.
     kc_with_fit_fig : plotly.graph_objects.Figure or None
-        The Plotly figure object of Kc values with polynomial fit, or None if not applicable.
+        The Plotly figure object of Kc values with polynomial fit, or None if not 
+        applicable.
     report_str : str
         The run report as a single string.
 
     Notes:
     ------
-    This function orchestrates the entire lysimeter analysis process, including data merging,
-    NSE detection, ETa and water balance calculations, and optional weather data comparison.
+    This function orchestrates the entire lysimeter analysis process, including data 
+    merging,
+    NSE detection, ETa and water balance calculations, and optional weather data 
+    comparison.
     It generates and saves relevant plots and returns them for further use.
     """
     # Start report timer
@@ -118,12 +123,6 @@ def run_analysis(
     ## Plot NSEs after integrating manual NSEs
     nse_fig = nse_detector.plot_nse()
 
-    '''
-    # commented out to test aggregation later in the process
-    # Aggregate data if frequency is specified
-    if frequency:
-        nse_df = ly.utils.aggregate_data(nse_df, frequency, timestamp_col='TIMESTAMP', input_timescale=input_timescale)
-    '''
     # Set up Load Cell Calibration
     calibration = ly.load_cell_calibration.LoadCellCalibration()
 
@@ -152,7 +151,12 @@ def run_analysis(
 
     # Aggregate data if frequency is specified
     if frequency:
-        eta_df = ly.utils.aggregate_data(eta_df, frequency, timestamp_col='TIMESTAMP', input_timescale=input_timescale)
+        eta_df = ly.utils.aggregate_data(
+            eta_df, 
+            frequency, 
+            timestamp_col='TIMESTAMP', 
+            input_timescale=input_timescale
+            )
 
     # Compare ETa to ASCE PM ETr via local weather data (daily for now)
     ## initialize figs to be None if weather data is not provided
@@ -168,10 +172,16 @@ def run_analysis(
         weather_etr.calculate_daily_etr()
 
         # Merge ETr with ETa Data
-        eta_df = eta_df.merge(weather_etr.df[['TIMESTAMP', 'ETr']], on='TIMESTAMP', how='left')
+        eta_df = eta_df.merge(weather_etr.df[['TIMESTAMP', 'ETr']], 
+                              on='TIMESTAMP', 
+                              how='left'
+                              )
 
-        # Calculate Kc
-        weather_etr.df = eta_df  # Ensure the weather data object has the updated dataframe with ETa and ETr
+        
+        # Ensure the weather data object has the updated dataframe with ETa and ETr
+        weather_etr.df = eta_df
+
+        # Calculate Kc values
         weather_etr.calculate_kc()
 
         # Update eta_df with the Kc values
@@ -186,10 +196,21 @@ def run_analysis(
         kc_with_fit_fig = weather_etr.plot_kc_with_fit()
     
     elif frequency != 'D' and weather_file_path:
-        print(Fore.YELLOW + "Warning: Weather data comparison is skipped because the lysimeter data is not aggregated to a daily timescale." + Style.RESET_ALL)
-    
+        print(
+            Fore.YELLOW + 
+            "Warning: Weather data comparison is skipped because the lysimeter data "
+            "is not aggregated to a daily timescale." + 
+            Style.RESET_ALL
+        )
+
     elif frequency == 'D' and not weather_file_path:
-        print(Fore.YELLOW + "Warning: Weather data comparison is skipped because the weather data file path is not provided." + Style.RESET_ALL)
+        print(
+            Fore.YELLOW + 
+            "Warning: Weather data comparison is skipped because the weather data "
+            "file path is not provided." + 
+            Style.RESET_ALL
+        )
+
 
     # Generate and export the report
     report_generator.add_file_info(merger.get_merged_files())
@@ -208,26 +229,83 @@ def run_analysis(
     # Export the final dataframe including NSE columns, ETa, ETr, and Kc if applicable
     ly.utils.export_to_csv(eta_df, output_directory)
 
-    return eta_df, nse_fig, eta_fig, cumulative_eta_fig, etr_vs_eta_fig, kc_with_fit_fig, report_str
+    return (
+    eta_df, 
+    nse_fig, 
+    eta_fig, 
+    cumulative_eta_fig, 
+    etr_vs_eta_fig, 
+    kc_with_fit_fig, 
+    report_str
+    )
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run the lysimeter analysis.')
 
-    parser.add_argument('--data_directory', type=str, required=True, help='The directory containing the lysimeter data files (.dat) to process.')
-    parser.add_argument('--output_directory', type=str, required=True, help='The directory where the output files will be saved.')
-    parser.add_argument('--calibration_file', type=str, help='The path to the calibration coefficients CSV file.', default=None)
-    parser.add_argument('--input_timescale', type=str, required=True, help='The timescale of the input data (e.g., Min15).')
-    parser.add_argument('--manual_nse_file_path', type=str, help='Path to the CSV file containing manually defined NSEs.', default=None)
-    parser.add_argument('--frequency', type=str, help='The frequency to aggregate the data (e.g., H for hourly, D for daily).', default=None)
-    parser.add_argument('--lysimeter_type', type=str, help='The type of lysimeter (SL or LL).', default=None)
-    parser.add_argument('--custom_alpha', type=float, help='Custom alpha value for load cell calibration (kg/mV/V).', default=None)
-    parser.add_argument('--custom_beta', type=float, help='Custom beta value for load cell calibration (surface area in m²).', default=None)
-    parser.add_argument('--threshold', type=float, help='Threshold for detecting non-standard events (NSEs). Defaults to 0.0034.', default=0.0034)
-    parser.add_argument('--weather_file_path', type=str, help='Path to the weather data file for ETr calculation.', default=None)
-    parser.add_argument('--planting_date', type=str, help='The lysimeter crop planting date in the format MM-DD.', default=None)
-    parser.add_argument('--harvest_date', type=str, help='The lysimeter crop harvest date in the format MM-DD.', default=None)
-    parser.add_argument('--latitude', type=float, help='The latitude of the lysimeter site.', default=38.0385)
-    parser.add_argument('--elevation', type=float, help='The elevation of the lysimeter site.', default=1274.064)
+    parser.add_argument(
+        '--data_directory', type=str, required=True, 
+        help='The directory containing the lysimeter data files (.dat) to process.'
+    )
+    parser.add_argument(
+        '--output_directory', type=str, required=True, 
+        help='The directory where the output files will be saved.'
+    )
+    parser.add_argument(
+        '--calibration_file', type=str, 
+        help='The path to the calibration coefficients CSV file.', default=None
+    )
+    parser.add_argument(
+        '--input_timescale', type=str, required=True, 
+        help='The timescale of the input data (e.g., Min15).'
+    )
+    parser.add_argument(
+        '--manual_nse_file_path', type=str, 
+        help='Path to the CSV file containing manually defined NSEs.', default=None
+    )
+    parser.add_argument(
+        '--frequency', type=str, 
+        help='The frequency to aggregate the data (e.g., H for hourly, D for daily).', 
+        default=None
+    )
+    parser.add_argument(
+        '--lysimeter_type', type=str, 
+        help='The type of lysimeter (SL or LL).', default=None
+    )
+    parser.add_argument(
+        '--custom_alpha', type=float, 
+        help='Custom alpha value for load cell calibration (kg/mV/V).', default=None
+    )
+    parser.add_argument(
+        '--custom_beta', type=float, 
+        help='Custom beta value for load cell calibration (surface area in m²).', 
+        default=None
+    )
+    parser.add_argument(
+        '--threshold', type=float, 
+        help='Threshold for detecting non-standard events (NSEs). Defaults to 0.0034.', 
+        default=0.0034
+    )
+    parser.add_argument(
+        '--weather_file_path', type=str, 
+        help='Path to the weather data file for ETr calculation.', default=None
+    )
+    parser.add_argument(
+        '--planting_date', type=str, 
+        help='The lysimeter crop planting date in the format MM-DD.', default=None
+    )
+    parser.add_argument(
+        '--harvest_date', type=str, 
+        help='The lysimeter crop harvest date in the format MM-DD.', default=None
+    )
+    parser.add_argument(
+        '--latitude', type=float, 
+        help='The latitude of the lysimeter site.', default=38.0385
+    )
+    parser.add_argument(
+        '--elevation', type=float, 
+        help='The elevation of the lysimeter site.', default=1274.064
+    )
 
     args = parser.parse_args()
 
