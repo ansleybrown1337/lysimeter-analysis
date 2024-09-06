@@ -100,6 +100,12 @@ class WeatherETR:
             'RH_Max': 'RHmax',
             'RH_Min': 'RHmin',
         }, inplace=True)
+
+        # subtract 1 day from the timestamp to avoid issues with
+        # weather data timestamps being at midnight of the following day when it should
+        # be on the current day 
+        # e.g. 2021-06-01 00:00:00 should be 2021-05-31 00:00:00
+        self.df['TIMESTAMP'] = self.df['TIMESTAMP'] - pd.Timedelta(days=1)
         
         # Calculate Day of Year
         self.df['DOY'] = self.df['TIMESTAMP'].dt.dayofyear
