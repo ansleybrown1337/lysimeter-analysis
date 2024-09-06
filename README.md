@@ -207,8 +207,8 @@ Use windows to schedule that .exe to run at a given period (e.g., 12 hours)
 - ~~add ETa and ETc comparison plots as output~~
 - ~~add Kc timeseries plot as output~~
     - ~~fit with polynomial curve~~
-- refine NSE detection algorithm to be more accurate
-    - use AWAT filter to smooth smaller NSE events due to wind and other noise that aren't explicity irrigations, rains, etc.
+- ~~refine NSE detection algorithm to be more accurate~~
+    - ~~use AWAT filter to smooth smaller NSE events due to wind and other noise that aren't explicity irrigations, rains, etc.~~
 - ~~remove cumulative lines on Kc and instantaneous ET plots~~
 - ~~Add weather data info to report generator~~
 - ~~Add manual NSE detection to report generator~~

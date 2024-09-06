@@ -35,6 +35,27 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 # Title
 st.title("Lysimeter Data Analysis Tool")
 
+# Description
+st.markdown(
+    '''
+    Created by A.J. Brown, 
+    [Ansley.Brown@colostate.edu](mailto:Ansley.Brown@colostate.edu)
+
+
+    This app is designed to analyze weighing lysimeter data files and calculate crop ET.
+    It can also calculate reference evapotranspiration using the ASCE-PM method and
+    derive crop coefficients. The app is designed to be user-friendly and easy to use.
+
+    
+    To learn more, and download the open-source python module, visit the 
+    [GitHub repository.](https://github.com/ansleybrown1337/lysimeter-analysis).
+
+    
+    A video tutorial on the tools use can also be found 
+    [here!](https://www.loom.com/share/9c793730e6914da0ae5b7aee1609f762?sid=bd3c035e-41d5-4796-b7a0-f3f1f78fb9df)
+    '''
+)
+
 # File uploads
 st.markdown("## Upload the following files to run the analysis:")
 data_directory = st.file_uploader(
