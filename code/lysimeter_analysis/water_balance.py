@@ -127,15 +127,17 @@ class WaterBalance:
                 if (self.df[eta_column] == self.df[delta_weight_column]).all():
                     print("Warning: Interpolation did not change any values. Ensure that there are valid data points before and after NSEs.")
 
-    def _interpolate_noisy_eta(self, eta_column_raw, threshold_percent=75):
+    def _interpolate_noisy_eta(self, eta_column_raw, threshold_percent=70):
         """
-        Identifies noisy ETa values based on the percentage difference from the previous value 
-        and if they are more than 3 standard deviations from the mean of the '_ETa_Raw' series.
-        Linearly interpolates over those noisy values.
+        Identifies noisy ETa values based on the percentage difference from the previous value,
+        if they are negative, or if they are more than 3 standard deviations from the mean 
+        of the '_ETa_Raw' series, or if they are flagged as NSE. 
+        Linearly interpolates over noisy/NSE regions using the first positive value before 
+        and after the noisy/negative/NSE region.
 
         Args:
             eta_column_raw (str): The name of the raw ETa column to be processed for noise.
-            threshold_percent (float): The percentage threshold to detect noisy values. Default is 75%.
+            threshold_percent (float): The percentage threshold to detect noisy values. Default is 70%.
         """
         if eta_column_raw not in self.df.columns:
             raise ValueError(f"Column {eta_column_raw} not found in DataFrame.")
@@ -149,6 +151,9 @@ class WaterBalance:
         # Identify noisy values where the percentage difference exceeds the threshold
         noisy_mask_percent_diff = percentage_diff.abs() > threshold_percent
 
+        # Identify negative ETa values
+        noisy_mask_negative = eta_values < 0
+
         # Calculate the mean and standard deviation of the ETa raw values
         mean_eta = eta_values.mean()
         std_eta = eta_values.std()
@@ -156,19 +161,44 @@ class WaterBalance:
         # Identify noisy values that are more than 3 standard deviations from the mean
         noisy_mask_std_dev = (eta_values < (mean_eta - 3 * std_eta)) | (eta_values > (mean_eta + 3 * std_eta))
 
-        # Combine the two noisy conditions: percentage difference and standard deviation outliers
-        noisy_mask = noisy_mask_percent_diff | noisy_mask_std_dev
+        # Flag NSE (Non-Standard Events) values as noisy
+        nse_column = eta_column_raw.replace("_ETa_Raw", "_NSE")
+        if nse_column in self.df.columns:
+            noisy_mask_nse = self.df[nse_column] == 1
+        else:
+            noisy_mask_nse = pd.Series([False] * len(self.df))
 
-        # Create a noisy flag column to indicate where noisy values were detected
+        # Combine all noisy conditions: percentage difference, negative values, standard deviation outliers, and NSEs
+        noisy_mask = noisy_mask_percent_diff | noisy_mask_negative | noisy_mask_std_dev | noisy_mask_nse
+
+        # Create a noisy flag column to indicate where noisy or NSE values were detected
         noisy_flag_column = eta_column_raw.replace("_ETa_Raw", "_Noisy_Flag")
-        self.df[noisy_flag_column] = noisy_mask.astype(int)  # 1 for noisy, 0 for not noisy
+        self.df[noisy_flag_column] = noisy_mask.astype(int)  # 1 for noisy/NSE, 0 for not noisy
 
         # Create a new column for the interpolated ETa values, this will be the final '_ETa' column
         eta_column = eta_column_raw.replace("_ETa_Raw", "_ETa")
         self.df[eta_column] = eta_values.copy()
 
-        # Interpolate noisy values by ignoring them and using linear interpolation
-        self.df[eta_column] = self.df[eta_column].where(~noisy_mask).interpolate(method='linear')
+        # Interpolate noisy, negative, and NSE values using valid positive points before and after each noisy region
+        for i in range(len(self.df)):
+            if noisy_mask.iloc[i]:
+                # Find the first positive value before the noisy/negative/NSE region
+                start_idx = i - 1
+                while start_idx >= 0 and (noisy_mask.iloc[start_idx] or eta_values.iloc[start_idx] <= 0):
+                    start_idx -= 1
+
+                # Find the first positive value after the noisy/negative/NSE region
+                end_idx = i + 1
+                while end_idx < len(self.df) and (noisy_mask.iloc[end_idx] or eta_values.iloc[end_idx] <= 0):
+                    end_idx += 1
+
+                # Perform linear interpolation using positive values before and after the noisy/negative/NSE region
+                if start_idx >= 0 and end_idx < len(self.df):
+                    start_val = eta_values.iloc[start_idx]
+                    end_val = eta_values.iloc[end_idx]
+                    span = end_idx - start_idx
+                    for idx in range(start_idx + 1, end_idx):
+                        self.df.loc[idx, eta_column] = start_val + ((end_val - start_val) / span) * (idx - start_idx)
 
         # Optionally fill any NaN values created during interpolation (e.g., at the start or end of the data)
         self.df[eta_column].fillna(method='ffill', inplace=True)
@@ -177,9 +207,10 @@ class WaterBalance:
         # Log any changes for debugging purposes
         num_noisy_values = noisy_mask.sum()
         if num_noisy_values > 0:
-            print(f"Interpolated {num_noisy_values} noisy ETa values in column {eta_column}.")
+            print(f"Interpolated {num_noisy_values} noisy, negative, or NSE ETa values in column {eta_column}.")
         else:
-            print(f"No noisy values detected in column {eta_column}.")
+            print(f"No noisy or NSE values detected in column {eta_column}.")
+
 
 
 

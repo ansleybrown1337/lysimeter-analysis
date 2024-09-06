@@ -3,6 +3,7 @@ import argparse
 import os
 import sys
 from colorama import Fore, Style, init
+from datetime import datetime
 import lysimeter_analysis as ly
 
 def run_analysis(
@@ -83,7 +84,10 @@ def run_analysis(
     NSE detection, ETa and water balance calculations, and optional weather data comparison.
     It generates and saves relevant plots and returns them for further use.
     """
-    
+    # Start report timer
+    report_generator = ly.report_generator.ReportGenerator()
+    report_generator.start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
     # Load, merge, and calibrate data
     merger = ly.dat_file_merger.DatFileMerger()
     merger.set_data_directory(data_directory)
@@ -188,7 +192,6 @@ def run_analysis(
         print(Fore.YELLOW + "Warning: Weather data comparison is skipped because the weather data file path is not provided." + Style.RESET_ALL)
 
     # Generate and export the report
-    report_generator = ly.report_generator.ReportGenerator()
     report_generator.add_file_info(merger.get_merged_files())
     report_generator.add_nse_summary(nse_detector.NSEcount, threshold=threshold)
     report_generator.add_timescale_info(input_timescale, frequency)
