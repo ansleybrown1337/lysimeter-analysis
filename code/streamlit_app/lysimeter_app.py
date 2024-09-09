@@ -58,25 +58,7 @@ txt = (
     '''[here!](https://github.com/ansleybrown1337/lysimeter-analysis/tree/main/'''
     '''documentation)'''
 )
-st.markdown(
-    r'''Created by A.J. Brown, 
-    [Ansley.Brown@colostate.edu](mailto:Ansley.Brown@colostate.edu)
-
-    This app is designed to analyze weighing lysimeter data files and calculate crop ET.
-    It can also calculate reference evapotranspiration using the ASCE-PM method and
-    derive crop coefficients. The app is designed to be user-friendly and easy to use.
-
-    To learn more, and download the open-source python module, visit the 
-    [GitHub repository.](https://github.com/ansleybrown1337/lysimeter-analysis).
-
-    A video tutorial on the tool's use can also be found 
-    [here!](https://www.loom.com/share/9c793730e6914da0ae5b7aee1609f762?''' +
-    '''sid=bd3c035e-41d5-4796-b7a0-f3f1f78fb9df)''' +
-    '''\n\n''' +
-    '''Further help and data format documentation can be found''' +
-    ''' [here!](https://github.com/ansleybrown1337/''' +
-    '''lysimeter-analysis/tree/main/documentation)'''
-)
+st.markdown(txt)
 
 # Store file uploaders in session state if not already stored
 if 'data_directory' not in st.session_state:
