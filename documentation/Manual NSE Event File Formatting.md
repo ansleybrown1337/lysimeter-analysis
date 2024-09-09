@@ -5,7 +5,7 @@ This document outlines the format for the manual Non-Standard Event (NSE) file, 
 
 ## Understanding Non-Standard Events (NSEs)
 
-Non-Standard Events (NSEs) refer to periods during the lysimeter measurement cycle where conditions deviate from normal due to factors such as irrigation, precipitation, drainage, harvests, counter weight adjustments, or other activities. These events can significantly impact the accuracy of ET measurements. 
+Non-Standard Events (NSEs) refer to periods during the lysimeter measurement cycle where conditions deviate from normal (i.e., weight changing only due to ET) due to factors such as irrigation, precipitation, drainage, harvests, counter weight adjustments, or other activities. These events can significantly impact the accuracy of ET measurements. 
 
 ### Key Concepts
 

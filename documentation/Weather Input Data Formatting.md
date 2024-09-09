@@ -5,7 +5,7 @@ This document outlines the required and optional columns for the weather data fi
 
 ## Required Columns
 
-These columns are required to perform the ASCE Penman-Monteith (ASCE PM) daily calculation for reference evapotranspiration (ETr) using the pyfao56 library.
+These columns are required to perform the ASCE Penman-Monteith (ASCE PM) daily calculation for reference evapotranspiration (ETr).
 
 | Column Name         | Description                                                    |
 |---------------------|----------------------------------------------------------------|
@@ -18,9 +18,9 @@ These columns are required to perform the ASCE Penman-Monteith (ASCE PM) daily c
 | `Vap_Press_Avg`     | Average vapor pressure (kPa).                                  |
 | `WS_2m_Avg`         | Average wind speed at 2 meters above ground level (m/s).       |
 
-## Optional Columns
+## Auxillary Columns
 
-These columns are optional and may be included if available. They provide additional meteorological information that can enhance the analysis but are not required for the basic ASCE PM calculation.
+These columns are non necessary, but are included in our example dataset, since weather data often come with more parameters than what is needed for the ASCE PM calculation.
 
 | Column Name         | Description                                                    |
 |---------------------|----------------------------------------------------------------|

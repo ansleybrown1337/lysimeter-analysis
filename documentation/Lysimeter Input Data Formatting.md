@@ -12,12 +12,12 @@ These columns must be present as shown below in the lysimeter data file (`.dat`)
 | `TIMESTAMP`          | The timestamp for each recorded data point.                      |
 | `RECORD`             | The record number for each entry.                                 |
 | `SM50_1_Avg` or `SM25_1_Avg`        | Lysimeter load cell 1 average value (mV/V).                     |
-| `SM50_2_Avg` or `SM25_1_Avg`        | Lysimeter load cell 2 average value (mV/V).                     |
+| `SM50_2_Avg` or `SM25_2_Avg`        | Lysimeter load cell 2 average value (mV/V).                     |
 
 
-## Auxillary Columns Found in the Example Dataset
+## Auxillary Columns
 
-These columns are included in our example dataset and are not used in the processing of the data. They are provided for reference and can be removed if not needed.
+These columns are included in our example dataset, but are not used in the processing of the data. They are provided for reference and can be removed if not needed.
 
 | Column Name               | Description                                                       |
 |---------------------------|-------------------------------------------------------------------|

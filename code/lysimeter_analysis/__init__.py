@@ -1,6 +1,6 @@
 # lysimeter_analysis/__init__.py
 
-__version__ = "0.9.0"
+__version__ = "0.9.8"
 
 # comments are to hide linter flags
 from .dat_file_merger import DatFileMerger  # noqa: F401

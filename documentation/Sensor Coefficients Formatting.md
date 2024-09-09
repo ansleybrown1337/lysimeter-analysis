@@ -5,12 +5,11 @@ This document outlines the format for the sensor coefficients file, which provid
 
 ## Purpose of the Sensor Coefficients File
 
-The sensor coefficients file allows users to apply specific calibration equations to environmental sensor data recorded alongside lysimeter measurements. These coefficients adjust the raw sensor readings to provide accurate measurements in the desired units. This file is particularly useful when environmental sensors such as radiation sensors, heat flux sensors, or light bars are integrated with the lysimeter system.
+The sensor coefficients file allows users to apply specific calibration equations to environmental sensor data recorded alongside lysimeter measurements. These coefficients adjust the raw sensor readings to provide more accurate measurements in the desired units. This file is particularly useful when environmental sensors such as radiation sensors, heat flux sensors, or light bars are integrated with the lysimeter system.
 
 ### When to Use This File
 
-- **Optional Input:** This file is optional and should only be used if you have environmental sensors that require calibration. 
-- **Integrated Sensors:** Ensure that the sensors are correctly placed and that their data is included in the `.dat` file used for lysimeter analysis.
+- **Optional Input:** This file is optional and should only be used if you have environmental sensors that require calibration coupled with the lysimeter `.dat` file. 
 
 ## File Format
 

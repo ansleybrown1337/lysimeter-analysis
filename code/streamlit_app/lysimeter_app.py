@@ -38,39 +38,68 @@ st.title("Lysimeter Data Analysis Tool")
 
 # Description
 st.markdown(
-    '''
+    """
     Created by A.J. Brown, 
     [Ansley.Brown@colostate.edu](mailto:Ansley.Brown@colostate.edu)
-
 
     This app is designed to analyze weighing lysimeter data files and calculate crop ET.
     It can also calculate reference evapotranspiration using the ASCE-PM method and
     derive crop coefficients. The app is designed to be user-friendly and easy to use.
 
-    
     To learn more, and download the open-source python module, visit the 
     [GitHub repository.](https://github.com/ansleybrown1337/lysimeter-analysis).
 
-    
-    A video tutorial on the tools use can also be found 
-    [here!](https://www.loom.com/share/9c793730e6914da0ae5b7aee1609f762?sid=bd3c035e-41d5-4796-b7a0-f3f1f78fb9df)
-    '''
+    A video tutorial on the tool's use can also be found 
+    [here!](https://www.loom.com/share/9c793730e6914da0ae5b7aee1609f762?
+    sid=bd3c035e-41d5-4796-b7a0-f3f1f78fb9df)
+
+    Further help and data format documentation can be found 
+    [here!](https://github.com/ansleybrown1337/lysimeter-analysis/
+    tree/main/documentation)
+    """
 )
+
+# Store file uploaders in session state if not already stored
+if 'data_directory' not in st.session_state:
+    st.session_state['data_directory'] = None
+if 'manual_nse_file' not in st.session_state:
+    st.session_state['manual_nse_file'] = None
+if 'weather_file' not in st.session_state:
+    st.session_state['weather_file'] = None
+if 'calibration_file' not in st.session_state:
+    st.session_state['calibration_file'] = None
 
 # File uploads
 st.markdown("## Upload the following files to run the analysis:")
-data_directory = st.file_uploader(
-    "Upload Lysimeter Data Files", type=['dat'], accept_multiple_files=True
-    )
+uploaded_data_files = st.file_uploader(
+    "Upload Lysimeter Data Files", type=['dat'], accept_multiple_files=True,
+    key="data_directory"
+)
 manual_nse_file = st.file_uploader(
-    "Upload Manual NSE File (Optional)", type=['csv']
-    )
+    "Upload Manual NSE File (Optional)", type=['csv'], key="manual_nse_file"
+)
 weather_file = st.file_uploader(
-    "Upload Weather Data File (Optional)", type=['dat', 'csv']
-    )
+    "Upload Weather Data File (Optional)", type=['dat', 'csv'], key="weather_file"
+)
 calibration_file = st.file_uploader(
-    "Upload Lysimeter Weather Station Sensor Calibration File (Optional)", type=['csv']
-    )
+    "Upload Calibration File (Optional)", type=['csv'], key="calibration_file"
+)
+
+# Update session state with the new files if uploaded
+if uploaded_data_files:
+    st.session_state['data_directory'] = uploaded_data_files
+if manual_nse_file:
+    st.session_state['manual_nse_file'] = manual_nse_file
+if weather_file:
+    st.session_state['weather_file'] = weather_file
+if calibration_file:
+    st.session_state['calibration_file'] = calibration_file
+
+# Use the files from session state for processing
+data_directory = st.session_state['data_directory']
+manual_nse_file = st.session_state['manual_nse_file']
+weather_file = st.session_state['weather_file']
+calibration_file = st.session_state['calibration_file']
 
 # Output directory (not needed w/ download button)
 output_directory = '.'
@@ -80,18 +109,21 @@ st.markdown("## Lysimeter Data Configuration Settings:")
 
 input_timescale = st.selectbox(
     "Input Timescale (i.e., keyword in input file name that needs to be present)",
-    ["Min5", "Min15", "Min60", "Daily"]
+    ["Min5", "Min15", "Min60", "Daily"],
+    value="Min15"
 )
 
 frequency = st.selectbox(
     "Data Aggregation Frequency (if any)",
     [None, "5T", "15T", "H", "D", "W"],
-    index=1
+    index=1,
+    value=None
 )
 
 lysimeter_type = st.selectbox(
     "Lysimeter Type (if any)",
-    [None, "SL", "LL"]
+    [None, "SL", "LL"],
+    value=None
 )
 
 threshold = st.number_input(
@@ -104,74 +136,75 @@ threshold = st.number_input(
 )
 
 
-# Load Cell Calibration Settings
-st.markdown("## Custom Load Cell Calibration Settings:")
-st.markdown('''
-### Calibration Factor Equation
+# Load Cell Calibration Settings (collapsible)
+with st.expander("Custom Load Cell Calibration Settings (Optional)", expanded=False):
+    st.markdown('''
+    ### Calibration Factor Equation
 
-$$
-\\text{Calibration Factor} \\left(\\frac{\\text{mm}}{\\text{mV/V}}\\right) = 
-\\alpha \\left(\\frac{\\text{kg}}{\\text{mV/V}}\\right) \\times 
-\\left(\\frac{1 \\, \\text{m}^3}{1000 \\, \\text{kg}}\\right) \\times 
-\\left(\\frac{1}{\\beta \\, \\text{m}^2}\\right) \\times 
-\\left(\\frac{1000 \\, \\text{mm}}{1 \\, \\text{m}}\\right)
-$$
+    $$
+    \\text{Calibration Factor} \\left(\\frac{\\text{mm}}{\\text{mV/V}}\\right) = 
+    \\alpha \\left(\\frac{\\text{kg}}{\\text{mV/V}}\\right) \\times 
+    \\left(\\frac{1 \\, \\text{m}^3}{1000 \\, \\text{kg}}\\right) \\times 
+    \\left(\\frac{1}{\\beta \\, \\text{m}^2}\\right) \\times 
+    \\left(\\frac{1000 \\, \\text{mm}}{1 \\, \\text{m}}\\right)
+    $$
 
-### Depth of Water Equation
+    ### Depth of Water Equation
 
-$$
-\\text{DoW (mm)} = 
-\\left(\\frac{\\text{mV/V}}{1}\\right) \\times 
-\\text{Calibration Factor} \\left(\\frac{\\text{mm}}{\\text{mV/V}}\\right)
-$$
-''')
+    $$
+    \\text{DoW (mm)} = 
+    \\left(\\frac{\\text{mV/V}}{1}\\right) \\times 
+    \\text{Calibration Factor} \\left(\\frac{\\text{mm}}{\\text{mV/V}}\\right)
+    $$
+    ''')
 
-custom_alpha = st.number_input(
-    "Custom Alpha Value for Load Cell Calibration ($\\alpha$ in kg/mV/V)",
-    min_value=1.00,
-    max_value=10000.00,
-    step=0.01,
-    value=None
-)
-custom_beta = st.number_input(
-    "Custom Beta Value for Load Cell Calibration (Surface Area $\\beta$ in m²)",
-    min_value=0.01,
-    max_value=1000.00,
-    step=0.01,
-    value=None
-)
+    custom_alpha = st.number_input(
+        "Custom Alpha Value for Load Cell Calibration ($\\alpha$ in kg/mV/V)",
+        min_value=1.00,
+        max_value=10000.00,
+        step=0.01,
+        value=None
+    )
+    custom_beta = st.number_input(
+        "Custom Beta Value for Load Cell Calibration (Surface Area $\\beta$ in m²)",
+        min_value=0.01,
+        max_value=1000.00,
+        step=0.01,
+        value=None
+    )
 
-# ASCE-PM reference ET settings
-st.markdown(
-    '## ASCE-PM ETref Settings:',
-    help='ETref is only calculated if data is at or aggregated to a daily value'
-)
-latitude = st.number_input(
-    "Latitude (decimal degrees)",
-    step=0.0000,
-    value=38.0385,
-    format="%.4f"
-)
-elevation = st.number_input(
-    "Elevation (meters)",
-    step=0.0000,
-    value=1274.0640,
-    format="%.4f"
-)
+# ASCE-PM reference ET settings (collapsible)
+with st.expander("ASCE-PM ETref Settings (Optional)", expanded=False):
+    st.markdown(
+        '## ASCE-PM ETref Settings:',
+        help='ETref is only calculated if data is at or aggregated to a daily value'
+    )
+    latitude = st.number_input(
+        "Latitude (decimal degrees)",
+        step=0.0000,
+        value=38.0385,
+        format="%.4f"
+    )
+    elevation = st.number_input(
+        "Elevation (meters)",
+        step=0.0000,
+        value=1274.0640,
+        format="%.4f"
+    )
 
-# Date inputs for Kc graphing
-planting_date = st.date_input(
-    "Lysimeter Crop Planting Date (YYYY/MM/DD)"
-)
-harvest_date = st.date_input(
-    "Lysimeter Crop Harvest Date (YYYY/MM/DD)"
-)
+    # Date inputs for Kc graphing
+    planting_date = st.date_input(
+        "Lysimeter Crop Planting Date (YYYY/MM/DD)"
+    )
+    harvest_date = st.date_input(
+        "Lysimeter Crop Harvest Date (YYYY/MM/DD)"
+    )
 
 # Run Analysis Button
 if st.button("Run Analysis"):
     missing_files = []
 
-    # Check each required file and add to missing_files list if not present
+    # Check if data directory is missing
     if not data_directory:
         missing_files.append("Lysimeter Data Files")
 
@@ -179,7 +212,6 @@ if st.button("Run Analysis"):
         missing_files.append("Output Directory")
 
     if missing_files:
-        # Show specific error messages for each missing file
         for missing_file in missing_files:
             st.error(f"Missing required input: {missing_file}")
     else:
@@ -197,7 +229,7 @@ if st.button("Run Analysis"):
         if calibration_file:  # Check if calibration file is provided
             calibration_file_path = os.path.join(
                 output_directory, calibration_file.name
-                )
+            )
             with open(calibration_file_path, 'wb') as f:
                 f.write(calibration_file.getbuffer())
         
@@ -237,7 +269,6 @@ if st.button("Run Analysis"):
                 latitude=latitude,
                 elevation=elevation
             )
-
 
             st.success("Analysis Completed!")
             # (Rest of the code for displaying results and download buttons)
@@ -280,7 +311,7 @@ if st.button("Run Analysis"):
                 st.plotly_chart(cumulative_eta_fig, use_container_width=True)
                 cumulative_eta_fig_html = pio.to_html(
                     cumulative_eta_fig, full_html=False
-                    )
+                )
                 st.download_button(
                     label="Download Cumulative ETa Plot (HTML)",
                     data=cumulative_eta_fig_html.encode(),
