@@ -125,14 +125,14 @@ input_timescale = st.selectbox(
 frequency = st.selectbox(
     "Data Aggregation Frequency (if any)",
     [None, "5T", "15T", "H", "D", "W"],
-    index=1,
-    value=None
+    index=4,
+    placeholder="T = minutes, H = hours, D = days, W = weeks"
 )
 
 lysimeter_type = st.selectbox(
     "Lysimeter Type (if any)",
     [None, "SL", "LL"],
-    value=None
+    placeholder="Select lysimeter type to use pre-determined calibration factors",
 )
 
 threshold = st.number_input(
