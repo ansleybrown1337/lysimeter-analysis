@@ -25,6 +25,7 @@ st.number_input
 
 import sys
 import os
+import random
 import streamlit as st
 import plotly.io as pio
 
@@ -60,6 +61,9 @@ txt = (
 )
 st.markdown(txt)
 
+# Generate a random number to act as a cache buster for the file uploaders
+cache_buster = random.randint(0, 10000)
+
 # Store file uploaders in session state if not already stored
 if 'data_directory' not in st.session_state:
     st.session_state['data_directory'] = None
@@ -73,16 +77,20 @@ if 'calibration_file' not in st.session_state:
 # File uploads
 st.markdown("## Upload the following files to run the analysis:")
 uploaded_data_files = st.file_uploader(
-    "Upload Lysimeter Data Files", type=['dat'], accept_multiple_files=True
+    "Upload Lysimeter Data Files", type=['dat'], accept_multiple_files=True,
+    key=f"data_directory_{cache_buster}"  # Use cache_buster to reset file uploader
 )
 manual_nse_file = st.file_uploader(
-    "Upload Manual NSE File (Optional)", type=['csv']
+    "Upload Manual NSE File (Optional)", type=['csv'],
+    key=f"manual_nse_file_{cache_buster}"
 )
 weather_file = st.file_uploader(
-    "Upload Weather Data File (Optional)", type=['dat', 'csv']
+    "Upload Weather Data File (Optional)", type=['dat', 'csv'],
+    key=f"weather_file_{cache_buster}"
 )
 calibration_file = st.file_uploader(
-    "Upload Calibration File (Optional)", type=['csv']
+    "Upload Calibration File (Optional)", type=['csv'],
+    key=f"calibration_file_{cache_buster}"
 )
 
 # Store the uploaded files in session state
@@ -95,20 +103,11 @@ if weather_file:
 if calibration_file:
     st.session_state['calibration_file'] = calibration_file
 
-# Clear session state on refresh or new upload
-st.markdown("*Clear Data Cache: Press to Refresh before uploading new data*")
-if st.button("Clear Uploaded Data"):
-    st.session_state['data_directory'] = None
-    st.session_state['manual_nse_file'] = None
-    st.session_state['weather_file'] = None
-    st.session_state['calibration_file'] = None
-    st.success("Session state cleared!")
-
 # Use the files from session state for processing
-data_directory = st.session_state['data_directory']
-manual_nse_file = st.session_state['manual_nse_file']
-weather_file = st.session_state['weather_file']
-calibration_file = st.session_state['calibration_file']
+data_directory = st.session_state.get('data_directory')
+manual_nse_file = st.session_state.get('manual_nse_file')
+weather_file = st.session_state.get('weather_file')
+calibration_file = st.session_state.get('calibration_file')
 
 # Output directory (not needed w/ download button)
 output_directory = '.'
@@ -278,7 +277,7 @@ if st.button("Run Analysis"):
                 latitude=latitude,
                 elevation=elevation
             )
-
+            st.session_state.clear()
             st.success("Analysis Completed!")
             # (Rest of the code for displaying results and download buttons)
             st.download_button(
