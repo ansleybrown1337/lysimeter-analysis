@@ -86,7 +86,7 @@ calibration_file = st.file_uploader(
     "Upload Calibration File (Optional)", type=['csv'], key="calibration_file"
 )
 
-# Update session state with the new files if uploaded
+# Reset the uploaded files in session state when new files are uploaded
 if uploaded_data_files:
     st.session_state['data_directory'] = uploaded_data_files
 if manual_nse_file:
@@ -95,6 +95,15 @@ if weather_file:
     st.session_state['weather_file'] = weather_file
 if calibration_file:
     st.session_state['calibration_file'] = calibration_file
+
+# Clear session state on refresh or new upload
+st.markdown("*Clear Data Cache: Press to Refresh before uploading new data*")
+if st.button("Clear Uploaded Data"):
+    st.session_state['data_directory'] = None
+    st.session_state['manual_nse_file'] = None
+    st.session_state['weather_file'] = None
+    st.session_state['calibration_file'] = None
+    st.success("Session state cleared!")
 
 # Use the files from session state for processing
 data_directory = st.session_state['data_directory']
