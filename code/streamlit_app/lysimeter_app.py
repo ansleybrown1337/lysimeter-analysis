@@ -60,26 +60,37 @@ txt = (
 )
 st.markdown(txt)
 
+# File uploads (outside the form so they persist)
+st.markdown("## Upload the following files to run the analysis:")
+
+uploaded_data_files = st.file_uploader(
+    "Upload Lysimeter Data Files", type=['dat'], accept_multiple_files=True
+)
+manual_nse_file = st.file_uploader(
+    "Upload Manual NSE File (Optional)", type=['csv']
+)
+weather_file = st.file_uploader(
+    "Upload Weather Data File (Optional)", type=['dat', 'csv']
+)
+calibration_file = st.file_uploader(
+    "Upload Calibration File (Optional)", type=['csv']
+)
+
+# Store uploaded files in session state
+if uploaded_data_files:
+    st.session_state['data_directory'] = uploaded_data_files
+if manual_nse_file:
+    st.session_state['manual_nse_file'] = manual_nse_file
+if weather_file:
+    st.session_state['weather_file'] = weather_file
+if calibration_file:
+    st.session_state['calibration_file'] = calibration_file
+
+# Output directory
+output_directory = '.'
+
 # Form to batch inputs
 with st.form("data_analysis_form", clear_on_submit=True):
-    # File uploads
-    st.markdown("## Upload the following files to run the analysis:")
-    uploaded_data_files = st.file_uploader(
-        "Upload Lysimeter Data Files", type=['dat'], accept_multiple_files=True
-    )
-    manual_nse_file = st.file_uploader(
-        "Upload Manual NSE File (Optional)", type=['csv']
-    )
-    weather_file = st.file_uploader(
-        "Upload Weather Data File (Optional)", type=['dat', 'csv']
-    )
-    calibration_file = st.file_uploader(
-        "Upload Calibration File (Optional)", type=['csv']
-    )
-
-    # Output directory
-    output_directory = '.'
-
     # Configuration settings
     st.markdown("## Lysimeter Data Configuration Settings:")
     input_timescale = st.selectbox(
@@ -185,17 +196,16 @@ if submitted:
     missing_files = []
 
     # Check if data directory is missing
-    if not uploaded_data_files:
+    if ('data_directory' not in st.session_state or not 
+        st.session_state['data_directory']):
         missing_files.append("Lysimeter Data Files")
-
-    if not output_directory:
-        missing_files.append("Output Directory")
 
     if missing_files:
         for missing_file in missing_files:
             st.error(f"Missing required input: {missing_file}")
     else:
        # Proceed with the analysis if no files are missing
+        output_directory = '.'
         os.makedirs(output_directory, exist_ok=True)
 
         # Define the directory path
@@ -210,29 +220,37 @@ if submitted:
         os.makedirs(data_directory_path, exist_ok=True)
         
         # Save the uploaded files in the clean data directory
-        for data_file in uploaded_data_files:
+        for data_file in st.session_state['data_directory']:
             with open(os.path.join(data_directory_path, data_file.name), 'wb') as f:
                 f.write(data_file.getbuffer())
 
         calibration_file_path = None
-        if calibration_file:  # Check if calibration file is provided
+        if ('calibration_file' in st.session_state and 
+            st.session_state['calibration_file']):
             calibration_file_path = os.path.join(
-                output_directory, calibration_file.name
+                output_directory, 
+                st.session_state['calibration_file'].name
             )
             with open(calibration_file_path, 'wb') as f:
-                f.write(calibration_file.getbuffer())
-        
+                f.write(st.session_state['calibration_file'].getbuffer())
+
         manual_nse_file_path = None
-        if manual_nse_file:
-            manual_nse_file_path = os.path.join(output_directory, manual_nse_file.name)
+        if ('manual_nse_file' in st.session_state and 
+            st.session_state['manual_nse_file']):
+            manual_nse_file_path = os.path.join(
+                output_directory, 
+                st.session_state['manual_nse_file'].name
+            )
             with open(manual_nse_file_path, 'wb') as f:
-                f.write(manual_nse_file.getbuffer())
+                f.write(st.session_state['manual_nse_file'].getbuffer())
         
         weather_file_path = None
-        if weather_file:
-            weather_file_path = os.path.join(output_directory, weather_file.name)
+        if 'weather_file' in st.session_state and st.session_state['weather_file']:
+            weather_file_path = os.path.join(
+                output_directory, st.session_state['weather_file'].name
+                )
             with open(weather_file_path, 'wb') as f:
-                f.write(weather_file.getbuffer())
+                f.write(st.session_state['weather_file'].getbuffer())
 
         # Run the analysis
         try:
