@@ -103,6 +103,7 @@ if st.button("Clear Uploaded Data"):
     st.session_state['weather_file'] = None
     st.session_state['calibration_file'] = None
     st.success("Session state cleared!")
+    st.rerun()
 
 # Use the files from session state for processing
 data_directory = st.session_state['data_directory']
