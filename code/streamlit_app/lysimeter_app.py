@@ -25,6 +25,7 @@ st.number_input
 
 import sys
 import os
+import shutil
 import streamlit as st
 import plotly.io as pio
 
@@ -194,15 +195,21 @@ if submitted:
         for missing_file in missing_files:
             st.error(f"Missing required input: {missing_file}")
     else:
-        # Proceed with the analysis if no files are missing
+       # Proceed with the analysis if no files are missing
         os.makedirs(output_directory, exist_ok=True)
-        
-        # TODO: is this where the multiple file issue is happening? the directory isn't
-        # changing between runs, so even if we clear the files in the active app, does
-        # the directory still have the files from the previous run?
+
+        # Define the directory path
         data_directory_path = os.path.join(output_directory, 'data_directory')
+        
+        # Clear the data directory if it already exists
+        if os.path.exists(data_directory_path):
+            # This removes all files and folders in the directory
+            shutil.rmtree(data_directory_path)
+
+        # Recreate the directory
         os.makedirs(data_directory_path, exist_ok=True)
         
+        # Save the uploaded files in the clean data directory
         for data_file in uploaded_data_files:
             with open(os.path.join(data_directory_path, data_file.name), 'wb') as f:
                 f.write(data_file.getbuffer())
