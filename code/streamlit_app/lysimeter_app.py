@@ -28,7 +28,6 @@ import os
 import streamlit as st
 import plotly.io as pio
 
-
 # Add the 'code' directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from scripts.run_analysis import run_analysis  # noqa: E402
@@ -60,162 +59,132 @@ txt = (
 )
 st.markdown(txt)
 
-# Store file uploaders in session state if not already stored
-if 'data_directory' not in st.session_state:
-    st.session_state['data_directory'] = None
-if 'manual_nse_file' not in st.session_state:
-    st.session_state['manual_nse_file'] = None
-if 'weather_file' not in st.session_state:
-    st.session_state['weather_file'] = None
-if 'calibration_file' not in st.session_state:
-    st.session_state['calibration_file'] = None
-
-# File uploads
-st.markdown("## Upload the following files to run the analysis:")
-uploaded_data_files = st.file_uploader(
-    "Upload Lysimeter Data Files", type=['dat'], accept_multiple_files=True
-)
-manual_nse_file = st.file_uploader(
-    "Upload Manual NSE File (Optional)", type=['csv']
-)
-weather_file = st.file_uploader(
-    "Upload Weather Data File (Optional)", type=['dat', 'csv']
-)
-calibration_file = st.file_uploader(
-    "Upload Calibration File (Optional)", type=['csv']
-)
-
-# Store the uploaded files in session state
-if uploaded_data_files:
-    st.session_state['data_directory'] = uploaded_data_files
-if manual_nse_file:
-    st.session_state['manual_nse_file'] = manual_nse_file
-if weather_file:
-    st.session_state['weather_file'] = weather_file
-if calibration_file:
-    st.session_state['calibration_file'] = calibration_file
-
-# Clear session state on refresh or new upload
-st.markdown("*Clear Data Cache: Press to Refresh before uploading new data*")
-if st.button("Clear Uploaded Data"):
-    st.session_state['data_directory'] = None
-    st.session_state['manual_nse_file'] = None
-    st.session_state['weather_file'] = None
-    st.session_state['calibration_file'] = None
-    st.success("Session state cleared!")
-    st.rerun()
-
-# Use the files from session state for processing
-data_directory = st.session_state['data_directory']
-manual_nse_file = st.session_state['manual_nse_file']
-weather_file = st.session_state['weather_file']
-calibration_file = st.session_state['calibration_file']
-
-# Output directory (not needed w/ download button)
-output_directory = '.'
-
-# Configuration settings
-st.markdown("## Lysimeter Data Configuration Settings:")
-
-input_timescale = st.selectbox(
-    "Input Timescale (i.e., keyword in input file name that needs to be present)",
-    ["Min5", "Min15", "Min60", "Daily"],
-    index=1,
-)
-
-frequency = st.selectbox(
-    "Data Aggregation Frequency (if any)",
-    [None, "5T", "15T", "H", "D", "W"],
-    index=4,
-    placeholder="T = minutes, H = hours, D = days, W = weeks",
-)
-
-lysimeter_type = st.selectbox(
-    "Lysimeter Type (if any)",
-    [None, "Small Lysimeter (SL)", "Large Lysimeter (LL)"],
-    placeholder="Select lysimeter type to use pre-determined calibration factors",
-)
-
-threshold = st.number_input(
-    "Non Standard Event (NSE) Detection Threshold (mV/V)",
-    min_value=0.0001,
-    max_value=1.0000,
-    step=0.0001,
-    value=0.0034,
-    format="%.4f"
-)
-
-
-# Load Cell Calibration Settings (collapsible)
-with st.expander("Custom Load Cell Calibration Settings (Optional)", expanded=False):
-    st.markdown('''
-    ### Calibration Factor Equation
-
-    $$
-    \\text{Calibration Factor} \\left(\\frac{\\text{mm}}{\\text{mV/V}}\\right) = 
-    \\alpha \\left(\\frac{\\text{kg}}{\\text{mV/V}}\\right) \\times 
-    \\left(\\frac{1 \\, \\text{m}^3}{1000 \\, \\text{kg}}\\right) \\times 
-    \\left(\\frac{1}{\\beta \\, \\text{m}^2}\\right) \\times 
-    \\left(\\frac{1000 \\, \\text{mm}}{1 \\, \\text{m}}\\right)
-    $$
-
-    ### Depth of Water Equation
-
-    $$
-    \\text{DoW (mm)} = 
-    \\left(\\frac{\\text{mV/V}}{1}\\right) \\times 
-    \\text{Calibration Factor} \\left(\\frac{\\text{mm}}{\\text{mV/V}}\\right)
-    $$
-    ''')
-
-    custom_alpha = st.number_input(
-        "Custom Alpha Value for Load Cell Calibration ($\\alpha$ in kg/mV/V)",
-        min_value=1.00,
-        max_value=10000.00,
-        step=0.01,
-        value=None
+# Form to batch inputs
+with st.form("data_analysis_form", clear_on_submit=True):
+    # File uploads
+    st.markdown("## Upload the following files to run the analysis:")
+    uploaded_data_files = st.file_uploader(
+        "Upload Lysimeter Data Files", type=['dat'], accept_multiple_files=True
     )
-    custom_beta = st.number_input(
-        "Custom Beta Value for Load Cell Calibration (Surface Area $\\beta$ in m²)",
-        min_value=0.01,
-        max_value=1000.00,
-        step=0.01,
-        value=None
+    manual_nse_file = st.file_uploader(
+        "Upload Manual NSE File (Optional)", type=['csv']
+    )
+    weather_file = st.file_uploader(
+        "Upload Weather Data File (Optional)", type=['dat', 'csv']
+    )
+    calibration_file = st.file_uploader(
+        "Upload Calibration File (Optional)", type=['csv']
     )
 
-# ASCE-PM reference ET settings (collapsible)
-with st.expander("ASCE-PM ETref Settings (Optional)", expanded=False):
-    st.markdown(
-        '## ASCE-PM ETref Settings:',
-        help='ETref is only calculated if data is at or aggregated to a daily value'
+    # Output directory
+    output_directory = '.'
+
+    # Configuration settings
+    st.markdown("## Lysimeter Data Configuration Settings:")
+    input_timescale = st.selectbox(
+        "Input Timescale (i.e., keyword in input file name that needs to be present)",
+        ["Min5", "Min15", "Min60", "Daily"],
+        index=1,
     )
-    latitude = st.number_input(
-        "Latitude (decimal degrees)",
-        step=0.0000,
-        value=38.0385,
-        format="%.4f"
+
+    frequency = st.selectbox(
+        "Data Aggregation Frequency (if any)",
+        [None, "5T", "15T", "H", "D", "W"],
+        index=4,
+        placeholder="T = minutes, H = hours, D = days, W = weeks",
     )
-    elevation = st.number_input(
-        "Elevation (meters)",
-        step=0.0000,
-        value=1274.0640,
+
+    lysimeter_type = st.selectbox(
+        "Lysimeter Type (if any)",
+        [None, "Small Lysimeter (SL)", "Large Lysimeter (LL)"],
+        placeholder="Select lysimeter type to use pre-determined calibration factors",
+    )
+
+    threshold = st.number_input(
+        "Non Standard Event (NSE) Detection Threshold (mV/V)",
+        min_value=0.0001,
+        max_value=1.0000,
+        step=0.0001,
+        value=0.0034,
         format="%.4f"
     )
 
-    # Date inputs for Kc graphing
-    planting_date = st.date_input(
-        "Lysimeter Crop Planting Date (YYYY/MM/DD)"
-    )
-    harvest_date = st.date_input(
-        "Lysimeter Crop Harvest Date (YYYY/MM/DD)"
-    )
+    # Load Cell Calibration Settings (collapsible)
+    with st.expander(
+        "Custom Load Cell Calibration Settings (Optional)",
+        expanded=False
+        ):
+        st.markdown('''
+        ### Calibration Factor Equation
 
-# Run Analysis Button
-if st.button("Run Analysis"):
+        $$
+        \\text{Calibration Factor} \\left(\\frac{\\text{mm}}{\\text{mV/V}}\\right) = 
+        \\alpha \\left(\\frac{\\text{kg}}{\\text{mV/V}}\\right) \\times 
+        \\left(\\frac{1 \\, \\text{m}^3}{1000 \\, \\text{kg}}\\right) \\times 
+        \\left(\\frac{1}{\\beta \\, \\text{m}^2}\\right) \\times 
+        \\left(\\frac{1000 \\, \\text{mm}}{1 \\, \\text{m}}\\right)
+        $$
+
+        ### Depth of Water Equation
+
+        $$
+        \\text{DoW (mm)} = 
+        \\left(\\frac{\\text{mV/V}}{1}\\right) \\times 
+        \\text{Calibration Factor} \\left(\\frac{\\text{mm}}{\\text{mV/V}}\\right)
+        $$
+        ''')
+
+        custom_alpha = st.number_input(
+            "Custom Alpha Value for Load Cell Calibration ($\\alpha$ in kg/mV/V)",
+            min_value=1.00,
+            max_value=10000.00,
+            step=0.01,
+            value=None
+        )
+        custom_beta = st.number_input(
+            "Custom Beta Value for Load Cell Calibration (Surface Area $\\beta$ in m²)",
+            min_value=0.01,
+            max_value=1000.00,
+            step=0.01,
+            value=None
+        )
+
+    # ASCE-PM reference ET settings (collapsible)
+    with st.expander("ASCE-PM ETref Settings (Optional)", expanded=False):
+        st.markdown(
+            '## ASCE-PM ETref Settings:',
+            help='ETref is only calculated if data is at or aggregated to a daily value'
+        )
+        latitude = st.number_input(
+            "Latitude (decimal degrees)",
+            step=0.0000,
+            value=38.0385,
+            format="%.4f"
+        )
+        elevation = st.number_input(
+            "Elevation (meters)",
+            step=0.0000,
+            value=1274.0640,
+            format="%.4f"
+        )
+
+        # Date inputs for Kc graphing
+        planting_date = st.date_input(
+            "Lysimeter Crop Planting Date (YYYY/MM/DD)"
+        )
+        harvest_date = st.date_input(
+            "Lysimeter Crop Harvest Date (YYYY/MM/DD)"
+        )
+
+    # Submit button for the form
+    submitted = st.form_submit_button("Run Analysis")
+
+# Processing the form submission
+if submitted:
     missing_files = []
 
     # Check if data directory is missing
-    if not data_directory:
+    if not uploaded_data_files:
         missing_files.append("Lysimeter Data Files")
 
     if not output_directory:
@@ -228,10 +197,13 @@ if st.button("Run Analysis"):
         # Proceed with the analysis if no files are missing
         os.makedirs(output_directory, exist_ok=True)
         
+        # TODO: is this where the multiple file issue is happening? the directory isn't
+        # changing between runs, so even if we clear the files in the active app, does
+        # the directory still have the files from the previous run?
         data_directory_path = os.path.join(output_directory, 'data_directory')
         os.makedirs(data_directory_path, exist_ok=True)
         
-        for data_file in data_directory:
+        for data_file in uploaded_data_files:
             with open(os.path.join(data_directory_path, data_file.name), 'wb') as f:
                 f.write(data_file.getbuffer())
 
