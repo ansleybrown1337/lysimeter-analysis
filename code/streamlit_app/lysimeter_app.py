@@ -73,20 +73,19 @@ if 'calibration_file' not in st.session_state:
 # File uploads
 st.markdown("## Upload the following files to run the analysis:")
 uploaded_data_files = st.file_uploader(
-    "Upload Lysimeter Data Files", type=['dat'], accept_multiple_files=True,
-    key="data_directory"
+    "Upload Lysimeter Data Files", type=['dat'], accept_multiple_files=True
 )
 manual_nse_file = st.file_uploader(
-    "Upload Manual NSE File (Optional)", type=['csv'], key="manual_nse_file"
+    "Upload Manual NSE File (Optional)", type=['csv']
 )
 weather_file = st.file_uploader(
-    "Upload Weather Data File (Optional)", type=['dat', 'csv'], key="weather_file"
+    "Upload Weather Data File (Optional)", type=['dat', 'csv']
 )
 calibration_file = st.file_uploader(
-    "Upload Calibration File (Optional)", type=['csv'], key="calibration_file"
+    "Upload Calibration File (Optional)", type=['csv']
 )
 
-# Reset the uploaded files in session state when new files are uploaded
+# Store the uploaded files in session state
 if uploaded_data_files:
     st.session_state['data_directory'] = uploaded_data_files
 if manual_nse_file:
