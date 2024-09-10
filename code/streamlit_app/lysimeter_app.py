@@ -119,19 +119,19 @@ st.markdown("## Lysimeter Data Configuration Settings:")
 input_timescale = st.selectbox(
     "Input Timescale (i.e., keyword in input file name that needs to be present)",
     ["Min5", "Min15", "Min60", "Daily"],
-    value="Min15"
+    index=1,
 )
 
 frequency = st.selectbox(
     "Data Aggregation Frequency (if any)",
     [None, "5T", "15T", "H", "D", "W"],
     index=4,
-    placeholder="T = minutes, H = hours, D = days, W = weeks"
+    placeholder="T = minutes, H = hours, D = days, W = weeks",
 )
 
 lysimeter_type = st.selectbox(
     "Lysimeter Type (if any)",
-    [None, "SL", "LL"],
+    [None, "Small Lysimeter (SL)", "Large Lysimeter (LL)"],
     placeholder="Select lysimeter type to use pre-determined calibration factors",
 )
 
