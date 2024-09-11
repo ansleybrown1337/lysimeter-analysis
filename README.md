@@ -15,13 +15,42 @@ A Python module that processes and analyzes weighing lysimeter data for quantify
 
 ## Table of Contents
 
+0. [Helpful Definitions](#helpful-definitions)
 1. [Introduction](#introduction)
 2. [Installation](#installation)
 3. [Usage](#usage)
 4. [Core Functionalities](#core-functionalities)
 5. [Workflow](#workflow)
-6. [Data Disclosure](#data-disclosure)
-7. [References](#references)
+6. [Algorithm Validation](#algorithm-validation)
+7. [Data Disclosure](#data-disclosure)
+8. [References](#references)
+
+
+## Helpful Definitions
+The following is a glossary of key terms related to evapotranspiration and coefficient terminology provided by DeJonge *et al.* (2020) which are helpful for understanding the concepts discussed in the `lysimeter-analysis` documentation.
+
+
+- **Evapotranspiration (ET)**: The movement of water from land and plant surfaces through two processes: evaporation from soil and water surfaces, and transpiration through plant stomata.
+
+- **Reference Evapotranspiration (ETref)**: The rate of evapotranspiration from a hypothetical reference crop under well-watered conditions. It serves as a climatic index for estimating crop water requirements. Commonly used reference surfaces are:
+  - **ETos**: Short crop (e.g., grass) reference surface.
+  - **ETrs**: Tall crop (e.g., alfalfa) reference surface.
+
+- **Crop Coefficient (Kc)**: A dimensionless factor used to estimate crop evapotranspiration (ETc) from reference evapotranspiration (ETref). The formula is:
+  \[
+  ETc = ETref \times Kc
+  \]
+  This coefficient accounts for the crop's development stage and the biological properties affecting water use.
+
+- **Potential Evapotranspiration (ETp)**: The theoretical maximum rate of evapotranspiration when all soil and plant surfaces are wet. It is not standardized, and its use is often confused with reference evapotranspiration.
+
+- **Transpiration Coefficient (Kcb)**: Represents the potential transpiration component of crop evapotranspiration, which is separate from the evaporation component. It is often adjusted for water stress conditions.
+
+- **Evaporation Coefficient (Ke)**: Represents the potential evaporation from the soil surface, particularly important when the soil is bare or has minimal canopy coverage.
+
+- **Water Stress Coefficient (Ks)**: A factor that adjusts the transpiration coefficient (Kcb) to account for reduced transpiration due to water stress conditions in the crop.
+
+
 
 ## Introduction
 Precision weighing lysimeters are instruments used to measure crop water use with high accuracy. They work by continuously weighing a soil-plant system, contained within a monolith enclosed underneat the soil surface, to determine the amount of water lost through evapotranspiration (ET; Figure 1).
@@ -57,21 +86,23 @@ Alternatively, if you are not interested in coding yourself, you can find an onl
 This streamlit application allows you to upload your data and run the analysis without writing any code. It is a user-friendly interface that guides you through the process of analyzing lysimeter data, using the [run_analysis.py](./code/scripts/run_analysis.py) script created in this repository as the backend.
 
 ## Code Core Functionalities
-1. Data Processing (`dat_file_merger.py`): Merging .dat files from different sources and aggregating them to specific timescales.
+1. Data Processing (`dat_file_merger.py`): Merges .dat files containing raw lysimeter (and sometimes weather) data.
 
-2. Calibration (`load_cell_calibration.py`): Applying calibration to the load cell data using specified coefficients (alpha and beta).
+2. Calibration (`load_cell_calibration.py`): Applies calibration to the load cell data using specified coefficients (alpha and beta), converting mV/V to kg.
 
-3. Non-Standard Events Detection (`non_standard_events.py`): Identifying and processing non-standard events (NSEs) such as rainfall, irrigation, etc.
+3. Non-Standard Events Detection (`non_standard_events.py`): Identifies non-standard events (NSEs) such as rainfall, irrigation, etc. using an automatic algorithm.
 
-4. Weather Data Processing (`weather.py`): Handling weather data for ETr calculations.
+4. Weather Data Processing (`weather.py`): Uses user-provided weather data to calculate ASCE-PM ETr and derive crop coefficients from processed lysimeter data.
 
-5. Water Balance Calculation (`water_balance.py`): Calculating water balance using processed lysimeter data.
+5. Water Balance Calculation (`water_balance.py`): Takes raw lysimeter weight data, calculates ETa from it, and interpolates over NSE events and noisy ET data.
 
-6. Report Generation (`report_generator.py`): Creating reports based on the analysis, including visualizations and key metrics.
+6. Report Generation (`report_generator.py`): Creates a model run report for users to have record of parameter settings for each model run.
 
 7. Utility Functions (`utils.py`): General utility functions to support the above modules.
 
 8. Running the Analysis (`run_analysis.py`): This script ties all the above functionalities together, processing the data end-to-end based on user input parameters.
+
+9. Online Application (`lysimeter_app.py`): A script that creates the online version of the `run_analysis.py` script that's user friendly and eliminates the need for python on a local device.
 
 ## Workflow
 ```mermaid
@@ -162,6 +193,12 @@ Using 2022 data from the CSU AVRC large lysimeter (LL), lysimeter-derived ETa va
 The data provided in this Repository is for example purposes only, and has been anonymized to prevent unintentional interpretation or use in other applications. Users are explicitly discouraged from interpreting, sharing, or using this data for applications other than illustrative or educational examples related to the Repository's described purposes. 
 
 ## References
- - (2024) Thorp, K. R., DeJonge, K. C., Pokoski, T., Gulati, D., Kukal, M., Farag, F., Hashem, A., Erismann, G., Baumgartner, T., Holzkaemper, A., 2024. Version 1.3.0 - pyfao56: FAO-56 evapotranspiration in Python. SoftwareX. In review.
- - (2005). The ASCE Standardized Reference Evapotranspiration Equation (R. G. Allen, I. A. Walter, R. L. Elliott, T. A. Howell, D. Itenfisu, M. E. Jensen, & R. L. Snyder, Eds.). American Society of Civil Engineers. https://doi.org/10.1061/9780784408056
- - Andales, Allan & Straw, Dale & Marek, Thomas & Simmons, Lane & Bartolo, Michael & Ley, Thomas. (2018). Design and Construction of a Precision Weighing Lysimeter in Southeast Colorado. Transactions of the ASABE. 61. 509-521. 10.13031/trans.12282. 
+- Thorp, K. R., DeJonge, K. C., Pokoski, T., Gulati, D., Kukal, M., Farag, F., Hashem, A., Erismann, G., Baumgartner, T., & Holzkaemper, A. (2024). Version 1.3.0 - pyfao56: FAO-56 evapotranspiration in Python. *SoftwareX*, In review.
+
+- DeJonge, K. C., Thorp, K. R., & Marek, G. W. (2020). The apples and oranges of reference and potential evapotranspiration: Implications for agroecosystem models. *Agricultural & Environmental Letters*, 5(1), e20011. https://doi.org/10.1002/ael2.20011
+
+- Andales, A., Straw, D., Marek, T., Simmons, L., Bartolo, M., & Ley, T. (2018). Design and construction of a precision weighing lysimeter in Southeast Colorado. *Transactions of the ASABE*, 61, 509-521. https://doi.org/10.13031/trans.12282
+
+- Allen, R. G., Walter, I. A., Elliott, R. L., Howell, T. A., Itenfisu, D., Jensen, M. E., & Snyder, R. L. (Eds.). (2005). *The ASCE Standardized Reference Evapotranspiration Equation*. American Society of Civil Engineers. https://doi.org/10.1061/9780784408056
+
+
