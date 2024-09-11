@@ -192,7 +192,7 @@ Using 2022 data from the CSU AVRC large lysimeter (LL), lysimeter-derived ETa va
 Additionally, a timeseries plot is shown to illustrate how both methods of ETa derivation illustrate an expected trend, and align closely with one another (Figure 3).  Daily ETa rates start small early on in the growing season, peaks in late July and early August, then shrinks until harvest on October 15, when the crop on the monolith is removed.
 
 ![timeseries-et](./figs/et-timeseries.png)
-*Figure 3: A timeseries line plot showing ETa rates derived from the original, manual NSE water balance method (blue) and from the `lysimeter-analysis` module (red). ASCE-PM ETr derived from a local weather station placed on a well-watered alfalfa crop is shown for reference (orange).
+*Figure 3: A timeseries line plot showing ETa rates derived from the original, manual NSE water balance method (blue) and from the `lysimeter-analysis` module (red). ASCE-PM ETr derived from a local weather station placed on a well-watered alfalfa crop is shown for reference (orange).*
 
 Overall, goodness of fit between the two methods were good enough that using `lysimeter-analysis` should be considered a reasonable substitue to the previous method, where NSEs were identified "by-hand" using 48-hr chunks of data in excel to map timeseries lysimeter weights, coupled with a logbook recording irrigations and other NSEs captured when the technician was on the clock. This "Old Method" required many weeks of work to accomplish a full ETa timeseries, whereas `lysimeter-analysis` was able to accomplish statistically similar results in less than two minutes.
 
