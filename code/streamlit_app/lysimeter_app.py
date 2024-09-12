@@ -90,7 +90,7 @@ if calibration_file:
 output_directory = '.'
 
 # Form to batch inputs
-with st.form("data_analysis_form", clear_on_submit=True):
+with st.form("data_analysis_form", clear_on_submit=False):
     # Configuration settings
     st.markdown("## Lysimeter Data Configuration Settings:")
     input_timescale = st.selectbox(
