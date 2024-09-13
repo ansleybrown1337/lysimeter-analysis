@@ -117,7 +117,7 @@ threshold = st.number_input(
 
 # Load Cell Calibration Settings (collapsible)
 with st.expander("Custom Load Cell Calibration Settings (Optional)", expanded=False):
-    st.markdown('''
+    st.markdown(r'''
     ### Calibration Factor Equation
 
     $$\\text{Calibration Factor} \\left(\\frac{\\text{mm}}{\\text{mV/V}}\\right) = 
@@ -131,7 +131,7 @@ with st.expander("Custom Load Cell Calibration Settings (Optional)", expanded=Fa
     $$\\text{DoW (mm)} = 
     \\left(\\frac{\\text{mV/V}}{1}\\right) \\times 
     \\text{Calibration Factor} \\left(\\frac{\\text{mm}}{\\text{mV/V}}\\right)$$
-    ''')
+    ''', unsafe_allow_html=True)
 
     custom_alpha = st.number_input(
         "Custom Alpha Value for Load Cell Calibration ($\\alpha$ in kg/mV/V)",
