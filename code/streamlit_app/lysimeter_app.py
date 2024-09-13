@@ -171,7 +171,7 @@ with st.expander("ASCE-PM ETref Settings (Optional)", expanded=False):
     planting_date = st.date_input("Lysimeter Crop Planting Date (YYYY/MM/DD)")
     harvest_date = st.date_input("Lysimeter Crop Harvest Date (YYYY/MM/DD)")
 
-# Regular button instead of form submit button
+# Run Analysis Button
 if st.button("Run Analysis"):
     missing_files = []
 
@@ -240,71 +240,81 @@ if st.button("Run Analysis"):
             )
 
             st.success("Analysis Completed!")
-            # (Rest of the code for displaying results and download buttons)
-            st.download_button(
-                label="Download Results",
-                data=eta_df.to_csv().encode(),
-                file_name="processed_lysimeter_data.csv",
-                mime="text/csv"
-            )
 
-            st.download_button(
-                label="Download Analysis Report",
-                data=report_str.encode(),
-                file_name="lysimeter_analysis_report.txt",
-                mime="text/plain"
-            )
-
-            # Display the charts and add download buttons
-            if nse_fig:
-                st.plotly_chart(nse_fig, use_container_width=True)
-                nse_fig_html = pio.to_html(nse_fig, full_html=False)
-                st.download_button(
-                    label="Download NSE Plot (HTML)",
-                    data=nse_fig_html.encode(),
-                    file_name="nse_plot.html",
-                    mime="text/html"
-                )
-
-            if eta_fig:
-                st.plotly_chart(eta_fig, use_container_width=True)
-                eta_fig_html = pio.to_html(eta_fig, full_html=False)
-                st.download_button(
-                    label="Download ETa Plot (HTML)",
-                    data=eta_fig_html.encode(),
-                    file_name="eta_plot.html",
-                    mime="text/html"
-                )
-
-            if cumulative_eta_fig:
-                st.plotly_chart(cumulative_eta_fig, use_container_width=True)
-                cumulative_eta_fig_html = pio.to_html(cumulative_eta_fig, full_html=False)
-                st.download_button(
-                    label="Download Cumulative ETa Plot (HTML)",
-                    data=cumulative_eta_fig_html.encode(),
-                    file_name="cumulative_eta_plot.html",
-                    mime="text/html"
-                )
-
-            if etr_vs_eta_fig:
-                st.plotly_chart(etr_vs_eta_fig, use_container_width=True)
-                etr_vs_eta_fig_html = pio.to_html(etr_vs_eta_fig, full_html=False)
-                st.download_button(
-                    label="Download ETa vs ETr Plot (HTML)",
-                    data=etr_vs_eta_fig_html.encode(),
-                    file_name="eta_vs_etr_plot.html",
-                    mime="text/html"
-                )
-
-            if kc_with_fit_fig:
-                st.plotly_chart(kc_with_fit_fig, use_container_width=True)
-                kc_with_fit_fig_html = pio.to_html(kc_with_fit_fig, full_html=False)
-                st.download_button(
-                    label="Download Kc with Fit Plot (HTML)",
-                    data=kc_with_fit_fig_html.encode(),
-                    file_name="kc_with_fit_plot.html",
-                    mime="text/html"
-                )
+            # Store analysis results in session state
+            st.session_state['eta_df'] = eta_df
+            st.session_state['nse_fig'] = nse_fig
+            st.session_state['eta_fig'] = eta_fig
+            st.session_state['cumulative_eta_fig'] = cumulative_eta_fig
+            st.session_state['etr_vs_eta_fig'] = etr_vs_eta_fig
+            st.session_state['kc_with_fit_fig'] = kc_with_fit_fig
+            st.session_state['report_str'] = report_str
 
         except Exception as e:
             st.error(f"An error occurred during analysis: {str(e)}")
+
+# Check if results exist in session state and display them
+if 'eta_df' in st.session_state:
+    st.download_button(
+        label="Download Results",
+        data=st.session_state['eta_df'].to_csv().encode(),
+        file_name="processed_lysimeter_data.csv",
+        mime="text/csv"
+    )
+
+    st.download_button(
+        label="Download Analysis Report",
+        data=st.session_state['report_str'].encode(),
+        file_name="lysimeter_analysis_report.txt",
+        mime="text/plain"
+    )
+
+    if st.session_state['nse_fig']:
+        st.plotly_chart(st.session_state['nse_fig'], use_container_width=True)
+        nse_fig_html = pio.to_html(st.session_state['nse_fig'], full_html=False)
+        st.download_button(
+            label="Download NSE Plot (HTML)",
+            data=nse_fig_html.encode(),
+            file_name="nse_plot.html",
+            mime="text/html"
+        )
+
+    if st.session_state['eta_fig']:
+        st.plotly_chart(st.session_state['eta_fig'], use_container_width=True)
+        eta_fig_html = pio.to_html(st.session_state['eta_fig'], full_html=False)
+        st.download_button(
+            label="Download ETa Plot (HTML)",
+            data=eta_fig_html.encode(),
+            file_name="eta_plot.html",
+            mime="text/html"
+        )
+
+    if st.session_state['cumulative_eta_fig']:
+        st.plotly_chart(st.session_state['cumulative_eta_fig'], use_container_width=True)
+        cumulative_eta_fig_html = pio.to_html(st.session_state['cumulative_eta_fig'], full_html=False)
+        st.download_button(
+            label="Download Cumulative ETa Plot (HTML)",
+            data=cumulative_eta_fig_html.encode(),
+            file_name="cumulative_eta_plot.html",
+            mime="text/html"
+        )
+
+    if st.session_state['etr_vs_eta_fig']:
+        st.plotly_chart(st.session_state['etr_vs_eta_fig'], use_container_width=True)
+        etr_vs_eta_fig_html = pio.to_html(st.session_state['etr_vs_eta_fig'], full_html=False)
+        st.download_button(
+            label="Download ETa vs ETr Plot (HTML)",
+            data=etr_vs_eta_fig_html.encode(),
+            file_name="eta_vs_etr_plot.html",
+            mime="text/html"
+        )
+
+    if st.session_state['kc_with_fit_fig']:
+        st.plotly_chart(st.session_state['kc_with_fit_fig'], use_container_width=True)
+        kc_with_fit_fig_html = pio.to_html(st.session_state['kc_with_fit_fig'], full_html=False)
+        st.download_button(
+            label="Download Kc with Fit Plot (HTML)",
+            data=kc_with_fit_fig_html.encode(),
+            file_name="kc_with_fit_plot.html",
+            mime="text/html"
+        )
