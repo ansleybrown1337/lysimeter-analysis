@@ -184,15 +184,35 @@ graph TD
 
 ```
 ## Algorithm Validation
-Using 2022 data from the CSU AVRC large lysimeter (LL), lysimeter-derived ETa values were compared from 1) the manual data cleaning process used previously, and 2) the `lysimeter-analysis` package.  Comparison results showed very strong agreement between the two methods, with root mean squared error (RMSE) values and index of agreement values of 0.324 mm and 0.999, respectively. Visually, this can be seen in the one-to-one graph presented in Figure 2.
+To illustrate the accuracy of the `lysimeter-analysis` package, a comparison was made between the manual data cleaning process used previously and the algorithms found in the `lysimeter-analysis` package.  The comparison was made using 2022 data from the CSU AVRC large lysimeter (LL).  The results of this comparison are presented below.
+
+### `lysimeter-analysis` vs. Previous Method
+Previous to `lysimeter-analysis`, lysimeter data was cleaned manually using Excel.  This involved the following steps:
+1. Raw data files are collected from the lysimeter datalogger
+2. Raw data are manually exported into CSV files, then merged into single excel file
+3. Weather sensor data from the merged CSV were calibrated using manufacturer-provided coefficients
+4. Looking at 48-hour time windows in an excel graph, non-standard events (NSEs) were identified and flagged manually
+5. Weight data during an NSE were recorded (e.g., how much water was added during an irrigation event), and ETa was estimated using the ETa rates before and after the NSE, an linearly interpolated between those two datetimes to estimate ETa during the NSE.
+6. Weights for each day were recorded at 00:00, and ETa was calculated using the difference in weight between each of these times, accounting for recorded NSE event weight changes.
+7. Cumulative ETa was calculated by summing daily ETa values, including linearly interpolated ETa values during NSEs.
+
+This process took weeks to complete, and was prone to human error.  The `lysimeter-analysis` package was developed to automate this process, and to reduce the potential for human error. One especially helpful feature of the package is the ability to automatically detect NSEs, and interpolate over them to estimate ETa during these events, not only at the daily timescale, but also at the hourly and 15-minute timescales.  This allows for a more accurate estimation of ETa during NSEs, and a more accurate cumulative ETa calculation.
+
+Here is a timeseries graph showing an example of the `lysimeter-analysis` package's ability to interpolate over NSEs, avoid noisy ET spikes, and to estimate ETa during these events (Figure 2).
+
+![NSE](./figs/nse-example.png)
+*Figure 2: An example of the `lysimeter-analysis` package's ability to interpolate over NSEs, avoid noisy ET spikes, and to estimate ETa during these events.  The orange dotted line is the raw lysimeter ETa data, the blue line is the `lysimeter-analysis`-derived ETa data, and the red dots are duto-detected NSEs.*
+
+### Comparison Results
+Using 2022 data from the CSU AVRC large lysimeter (LL), lysimeter-derived ETa values were compared from 1) the manual data cleaning process used previously, and 2) the `lysimeter-analysis` package.  Comparison results showed very strong agreement between the two methods, with root mean squared error (RMSE) values and index of agreement values of 0.324 mm and 0.999, respectively. Visually, this can be seen in the one-to-one graph presented in Figure 3.
 
 ![1:1](./figs/1to1-LL2022.png)
-*Figure 2: A one-to-one plot of manually- (x-axis) and python-derived (y-axis) daily cumulative ETa values in millimeters. The black dashed line is the one-to-one line and indicates perfect agreement.*
+*Figure 3: A one-to-one plot of manually- (x-axis) and python-derived (y-axis) daily cumulative ETa values in millimeters. The black dashed line is the one-to-one line and indicates perfect agreement.*
 
-Additionally, a timeseries plot is shown to illustrate how both methods of ETa derivation illustrate an expected trend, and align closely with one another (Figure 3).  Daily ETa rates start small early on in the growing season, peaks in late July and early August, then shrinks until harvest on October 15, when the crop on the monolith is removed.
+Additionally, a timeseries plot is shown to illustrate how both methods of ETa derivation illustrate an expected trend, and align closely with one another (Figure 4).  Daily ETa rates start small early on in the growing season, peaks in late July and early August, then shrinks until harvest on October 15, when the crop on the monolith is removed.
 
 ![timeseries-et](./figs/et-timeseries.png)
-*Figure 3: A timeseries line plot showing ETa rates derived from the original, manual NSE water balance method (blue) and from the `lysimeter-analysis` module (red). ASCE-PM ETr derived from a local weather station placed on a well-watered alfalfa crop is shown for reference (orange).*
+*Figure 4: A timeseries line plot showing ETa rates derived from the original, manual NSE water balance method (blue) and from the `lysimeter-analysis` module (red). ASCE-PM ETr derived from a local weather station placed on a well-watered alfalfa crop is shown for reference (orange).*
 
 Overall, goodness of fit between the two methods were good enough that using `lysimeter-analysis` should be considered a reasonable substitue to the previous method, where NSEs were identified "by-hand" using 48-hr chunks of data in excel to map timeseries lysimeter weights, coupled with a logbook recording irrigations and other NSEs captured when the technician was on the clock. This "Old Method" required many weeks of work to accomplish a full ETa timeseries, whereas `lysimeter-analysis` was able to accomplish statistically similar results in less than two minutes.
 
