@@ -176,7 +176,8 @@ if st.button("Run Analysis"):
     missing_files = []
 
     # Check if data directory is missing
-    if 'data_directory' not in st.session_state or not st.session_state['data_directory']:
+    if ('data_directory' not in st.session_state or not 
+            st.session_state['data_directory']):
         missing_files.append("Lysimeter Data Files")
 
     if missing_files:
@@ -202,26 +203,35 @@ if st.button("Run Analysis"):
                 f.write(data_file.getbuffer())
 
         calibration_file_path = None
-        if 'calibration_file' in st.session_state and st.session_state['calibration_file']:
-            calibration_file_path = os.path.join(output_directory, st.session_state['calibration_file'].name)
+        if ('calibration_file' in st.session_state and 
+                st.session_state['calibration_file']):
+            calibration_file_path = os.path.join(
+                output_directory, st.session_state['calibration_file'].name
+                )
             with open(calibration_file_path, 'wb') as f:
                 f.write(st.session_state['calibration_file'].getbuffer())
 
         manual_nse_file_path = None
-        if 'manual_nse_file' in st.session_state and st.session_state['manual_nse_file']:
-            manual_nse_file_path = os.path.join(output_directory, st.session_state['manual_nse_file'].name)
+        if ('manual_nse_file' in st.session_state and 
+                st.session_state['manual_nse_file']):
+            manual_nse_file_path = os.path.join(
+                output_directory, st.session_state['manual_nse_file'].name
+                )
             with open(manual_nse_file_path, 'wb') as f:
                 f.write(st.session_state['manual_nse_file'].getbuffer())
         
         weather_file_path = None
         if 'weather_file' in st.session_state and st.session_state['weather_file']:
-            weather_file_path = os.path.join(output_directory, st.session_state['weather_file'].name)
+            weather_file_path = os.path.join(
+                output_directory, st.session_state['weather_file'].name
+                )
             with open(weather_file_path, 'wb') as f:
                 f.write(st.session_state['weather_file'].getbuffer())
 
         # Run the analysis
         try:
-            eta_df, nse_fig, eta_fig, cumulative_eta_fig, etr_vs_eta_fig, kc_with_fit_fig, report_str = run_analysis(
+            eta_df, nse_fig, eta_fig, cumulative_eta_fig, etr_vs_eta_fig, \
+            kc_with_fit_fig, report_str = run_analysis(
                 data_directory=data_directory_path,
                 output_directory=output_directory,
                 calibration_file=calibration_file_path,
@@ -233,8 +243,10 @@ if st.button("Run Analysis"):
                 custom_beta=custom_beta if custom_beta else None,
                 threshold=threshold,
                 weather_file_path=weather_file_path,
-                planting_date=planting_date.strftime('%m-%d-%Y') if planting_date else None,
-                harvest_date=harvest_date.strftime('%m-%d-%Y') if harvest_date else None,
+                planting_date=planting_date.strftime(
+                    '%m-%d-%Y') if planting_date else None,
+                harvest_date=harvest_date.strftime(
+                    '%m-%d-%Y') if harvest_date else None,
                 latitude=latitude,
                 elevation=elevation
             )
@@ -290,8 +302,12 @@ if 'eta_df' in st.session_state:
         )
 
     if st.session_state['cumulative_eta_fig']:
-        st.plotly_chart(st.session_state['cumulative_eta_fig'], use_container_width=True)
-        cumulative_eta_fig_html = pio.to_html(st.session_state['cumulative_eta_fig'], full_html=False)
+        st.plotly_chart(
+            st.session_state['cumulative_eta_fig'], use_container_width=True
+            )
+        cumulative_eta_fig_html = pio.to_html(
+            st.session_state['cumulative_eta_fig'], full_html=False
+            )
         st.download_button(
             label="Download Cumulative ETa Plot (HTML)",
             data=cumulative_eta_fig_html.encode(),
@@ -301,7 +317,9 @@ if 'eta_df' in st.session_state:
 
     if st.session_state['etr_vs_eta_fig']:
         st.plotly_chart(st.session_state['etr_vs_eta_fig'], use_container_width=True)
-        etr_vs_eta_fig_html = pio.to_html(st.session_state['etr_vs_eta_fig'], full_html=False)
+        etr_vs_eta_fig_html = pio.to_html(
+            st.session_state['etr_vs_eta_fig'], full_html=False
+            )
         st.download_button(
             label="Download ETa vs ETr Plot (HTML)",
             data=etr_vs_eta_fig_html.encode(),
@@ -311,7 +329,9 @@ if 'eta_df' in st.session_state:
 
     if st.session_state['kc_with_fit_fig']:
         st.plotly_chart(st.session_state['kc_with_fit_fig'], use_container_width=True)
-        kc_with_fit_fig_html = pio.to_html(st.session_state['kc_with_fit_fig'], full_html=False)
+        kc_with_fit_fig_html = pio.to_html(
+            st.session_state['kc_with_fit_fig'], full_html=False
+            )
         st.download_button(
             label="Download Kc with Fit Plot (HTML)",
             data=kc_with_fit_fig_html.encode(),
