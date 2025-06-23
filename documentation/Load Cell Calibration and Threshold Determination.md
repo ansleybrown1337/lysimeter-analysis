@@ -8,7 +8,7 @@
 
 ## Generic Form of the Load Cell Calibration Equation
 
-$$ \alpha \, \left(\frac{\text{kg}}{\text{mV}/V}\right) \left(\frac{1\,\text{m}^3}{1000\,\text{kg}}\right) \left(\frac{1}{\beta\,\text{m}^2}\right) \left(\frac{1000\,\text{mm}}{1.0\,\text{m}}\right) = 151.09 \,\left(\frac{\text{mm}}{\text{mV}/V}\right) $$
+$$ \alpha \ \left(\frac{\text{kg}}{\text{mV}/V}\right) \left(\frac{1\,\text{m}^3}{1000\ \text{kg}}\right) \left(\frac{1}{\beta\ \text{m}^2}\right) \left(\frac{1000\,\text{mm}}{1.0\,\text{m}}\right) = 151.09 \ \left(\frac{\text{mm}}{\text{mV}/V}\right) $$
 
 **Where:**
 - **α** is the load cell conversion coefficient (i.e., mV/V to kg), which is the slope of the linear calibration equation relating mV/V to kg of weight on the lysimeter from a standard weight
