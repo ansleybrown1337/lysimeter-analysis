@@ -21,9 +21,10 @@ A Python module that processes and analyzes weighing lysimeter data for quantify
 3. [Usage](#usage)
 4. [Core Functionalities](#core-functionalities)
 5. [Workflow](#workflow)
-6. [Algorithm Validation](#algorithm-validation)
-7. [Data Disclosure](#data-disclosure)
-8. [References](#references)
+6. [How It Works](#how-it-works)
+7. [Algorithm Validation](#algorithm-validation)
+8. [Data Disclosure](#data-disclosure)
+9. [References](#references)
 
 
 ## Helpful Definitions
@@ -183,6 +184,21 @@ graph TD
     W5 --> F
 
 ```
+
+## How It Works
+The `lysimeter-analysis` package processes lysimeter data through a series of steps, as illustrated in the workflow diagram above. The process begins with the collection of raw data from the lysimeter datalogger, technician NSE records, and ET reference weather station datalogger, which is then merged and cleaned using the `dat_file_merger.py` module. Calibration coefficients are applied to weather station sensors if applicable. 
+
+Next, the `non_standard_events.py` module detects non-standard events (NSEs) such as rainfall or irrigation, which can affect the lysimeter's weight. **Automatic detection of NSEs is based on a threshold of mV/V**, which can be adjusted by the user. The `load_cell_calibration.py` module allows users to set calibration parameters for the lysimeter data, converting raw mV/V data into weight in kilograms. The default detection threshold is set to 0.0034 mV/V for the CSU AVRC large lysimeter (LL) and 0.0016 mV/V for the small lysimeter (SL), but users can adjust this threshold based on their specific data characteristics. These thresholds are determined by multiplying the minimum detection limit of a rain gauge sensor deployed on/near the lysimeter by the conversion factor to convert it from mm to mV/V. A tipping bucket rain gauge sensor often yields a precision of 0.01 inches (0.254 mm) per tip, which is equivalent to 0.0016 mV/V for the SL and 0.0034 mV/V for the LL.
+
+The `water_balance.py` module calculates actual evapotranspiration (ETa) from the lysimeter weight data, linearly interpolating over NSEs to estimate ETa during these events. Additionally, it filters out "noisy" ET spikes that may occur due to other uncertainty (and area of future work). "Noisy" ET spikes are defined as any ETa rate that is < 0 mm per unit of time, OR is more than 70% different from the previous ETa rate, OR if the ETa rate is greater than 3 standard deviations from the mean of the whole ETa timeseries. These "noisy" values are also linearly interpolated over to provide a more accurate representation of ETa during these periods. The module also calculates daily ETa rates, cumulative ETa, and generates plots to visualize the results.
+
+The `weather.py` module processes daily weather data to calculate the ASCE-PM reference ET (ETr) using the [`pyfao56` python package](https://github.com/kthorp/pyfao56) and compares it with the lysimeter-derived ETc. It also calculates the crop coefficient (Kc) based on the ratio of ETc to ETr. 
+
+The `utils.py` module provides general utility functions to support the above modules, such as data aggregation and exporting results to CSV files. The `export_csv` function allows users to save the processed data in a structured format for further analysis or reporting.
+
+Finally, the `report_generator.py` module creates a comprehensive analysis report, summarizing the results and providing visualizations of the lysimeter data, NSEs, ETa, and Kc values. The entire process is orchestrated by the `run_analysis.py` script, which ties all these functionalities together and allows users to run the analysis with specified parameters.
+
+
 ## Algorithm Validation
 To illustrate the accuracy of the `lysimeter-analysis` package, a comparison was made between the manual data cleaning process used previously and the algorithms found in the `lysimeter-analysis` package.  The comparison was made using 2022 data from the CSU AVRC large lysimeter (LL).  The results of this comparison are presented below.
 
